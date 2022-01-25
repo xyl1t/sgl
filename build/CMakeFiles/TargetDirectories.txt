@@ -1,0 +1,3 @@
+/Users/maratisaw/Home/Documents/Programming/C++/Big/sgl/build/CMakeFiles/sgl.dir
+/Users/maratisaw/Home/Documents/Programming/C++/Big/sgl/build/CMakeFiles/edit_cache.dir
+/Users/maratisaw/Home/Documents/Programming/C++/Big/sgl/build/CMakeFiles/rebuild_cache.dir

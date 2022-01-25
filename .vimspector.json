@@ -1,0 +1,14 @@
+{
+  "configurations": {
+    "Launch": {
+      "adapter": "vscode-cpptools",
+      "configuration": {
+        "request": "launch",
+        "program": "${workspaceRoot}/build/sgl",
+        "stopAtEntry": true,
+        "externalConsole": false,
+        "MIMode": "lldb"
+      }
+    }
+  }
+}
