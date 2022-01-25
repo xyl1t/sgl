@@ -1,7 +1,7 @@
 [
 {
-  "directory": "/Users/maratisaw/Home/Documents/Programming/C++/Big/sgl/build",
-  "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++  -I/usr/local/Cellar/sdl2/2.0.18/include/SDL2 -I/Users/maratisaw/Home/Documents/Programming/C++/Big/sgl/./include -g -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.1.sdk -Wall -Wextra -Wpedantic -Wformat=2 -Wno-unused-parameter -Wshadow -Wwrite-strings -Wstrict-prototypes -Wold-style-definition -Wredundant-decls -Wnested-externs -Wmissing-include-dirs -o CMakeFiles/sgl.dir/src/main.cpp.o -c /Users/maratisaw/Home/Documents/Programming/C++/Big/sgl/src/main.cpp",
-  "file": "/Users/maratisaw/Home/Documents/Programming/C++/Big/sgl/src/main.cpp"
+  "directory": "/home/marat/programming/cpp/sgl/build",
+  "command": "/usr/bin/c++   -I/usr/include/SDL2 -I/home/marat/programming/cpp/sgl/./include  -g   -Wall -Wextra -Wpedantic -Wformat=2 -Wno-unused-parameter -Wshadow -Wwrite-strings -Wstrict-prototypes -Wold-style-definition -Wredundant-decls -Wnested-externs -Wmissing-include-dirs -o CMakeFiles/sgl.dir/src/main.cpp.o -c /home/marat/programming/cpp/sgl/src/main.cpp",
+  "file": "/home/marat/programming/cpp/sgl/src/main.cpp"
 }
 ]

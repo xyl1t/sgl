@@ -1,6 +1,5 @@
 file(REMOVE_RECURSE
   "CMakeFiles/sgl.dir/src/main.cpp.o"
-  "CMakeFiles/sgl.dir/src/main.cpp.o.d"
   "sgl"
   "sgl.pdb"
 )
