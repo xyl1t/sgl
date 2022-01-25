@@ -1,7 +1,0 @@
-[
-{
-  "directory": "/home/marat/programming/cpp/sgl/build",
-  "command": "/usr/bin/c++   -I/usr/include/SDL2 -I/home/marat/programming/cpp/sgl/./include  -g   -Wall -Wextra -Wpedantic -Wformat=2 -Wno-unused-parameter -Wshadow -Wwrite-strings -Wstrict-prototypes -Wold-style-definition -Wredundant-decls -Wnested-externs -Wmissing-include-dirs -o CMakeFiles/sgl.dir/src/main.cpp.o -c /home/marat/programming/cpp/sgl/src/main.cpp",
-  "file": "/home/marat/programming/cpp/sgl/src/main.cpp"
-}
-]

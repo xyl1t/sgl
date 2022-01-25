@@ -1,3 +1,0 @@
-/home/marat/programming/cpp/sgl/build/CMakeFiles/rebuild_cache.dir
-/home/marat/programming/cpp/sgl/build/CMakeFiles/edit_cache.dir
-/home/marat/programming/cpp/sgl/build/CMakeFiles/sgl.dir
