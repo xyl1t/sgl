@@ -1,7 +1,3 @@
-// #include "SDL2/SDL.h"
-// #include "SDL2/SDL_render.h"
-// #include "SDL2/SDL_video.h"
-// #include "SDL2/SDL_render.h"
 #include <stdio.h>
 
 #if __has_include("SDL2/SDL.h")
