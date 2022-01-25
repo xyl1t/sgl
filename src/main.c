@@ -1,4 +1,6 @@
 #include <stdio.h>
+#include <string.h>
+#include <stdbool.h>
 
 #if __has_include("SDL2/SDL.h")
 #include <SDL2/SDL.h>
@@ -6,10 +8,18 @@
 #include <SDL.h>
 #endif
 
+#include "sgl.h"
+
+struct mouse {
+	int x;
+	int y;
+	bool left;
+	bool right;
+} m;
+
 int main (int argc, char *argv[]) {
 
 	SDL_Init(SDL_INIT_EVERYTHING);
-	int test;
 
 	const int WIDTH = 800;
 	const int HEIGHT = 600;
@@ -22,9 +32,6 @@ int main (int argc, char *argv[]) {
 
 	uint32_t* pixels = (uint32_t*)malloc(WIDTH * HEIGHT * sizeof(pixels));
 	memset(pixels, 0, WIDTH * HEIGHT * sizeof(uint32_t));
-
-	int mx = 0, my = 0;
-	bool mleft = false, mright = false;
 
 	SDL_Event event;
 	bool alive = true;
@@ -39,15 +46,18 @@ int main (int argc, char *argv[]) {
 				case SDL_KEYUP:
 					break;
 			}
-			uint32_t buttons = SDL_GetMouseState(&mx, &my);
-			mleft  = (buttons & SDL_BUTTON_LMASK) != 0;
-			mright = (buttons & SDL_BUTTON_RMASK) != 0;
+			uint32_t buttons = SDL_GetMouseState(&m.x, &m.y);
+			m.left  = (buttons & SDL_BUTTON_LMASK) != 0;
+			m.right = (buttons & SDL_BUTTON_RMASK) != 0;
 		}
+		if (m.left) { }
+		if (m.right) { }
 
 		// clear pixel buffer
-		memset(pixels, 0, WIDTH * HEIGHT * sizeof(uint32_t));
+		sglClear(pixels, WIDTH, HEIGHT);
 
 		pixels[100 + 100 * WIDTH] = 0xff00ffff;
+		sglSetPixel(pixels, 100, 100, WIDTH, 0xff00ffff);
 
 		SDL_UpdateTexture(texture, NULL, pixels, WIDTH * sizeof(uint32_t));
 		SDL_RenderClear(renderer);
@@ -63,3 +73,4 @@ int main (int argc, char *argv[]) {
 	
 	return 0;
 }
+
