@@ -3,3 +3,5 @@ build/
 .vimspector
 
 
+
+compile_commands.json

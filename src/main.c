@@ -1,3 +1,4 @@
+#include "sgl.h"
 #include <stdio.h>
 #include <string.h>
 #include <stdbool.h>
@@ -8,7 +9,6 @@
 #include <SDL.h>
 #endif
 
-#include "sgl.h"
 
 struct mouse {
 	int x;
@@ -24,14 +24,21 @@ int main (int argc, char *argv[]) {
 	const int WIDTH = 800;
 	const int HEIGHT = 600;
 
-	SDL_Window* window = SDL_CreateWindow("sgl demo", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WIDTH, HEIGHT, SDL_WINDOW_SHOWN);
-	SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+	SDL_Window* window = SDL_CreateWindow("sgl demo", SDL_WINDOWPOS_CENTERED,
+			SDL_WINDOWPOS_CENTERED, WIDTH, HEIGHT, SDL_WINDOW_SHOWN);
+	SDL_Renderer* renderer = SDL_CreateRenderer(window, -1,
+			SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
 
-	SDL_Texture* texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ABGR32, SDL_TEXTUREACCESS_STREAMING, WIDTH, HEIGHT);
+	SDL_Texture* texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ABGR32,
+			SDL_TEXTUREACCESS_STREAMING, WIDTH, HEIGHT);
 	SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
 
-	uint32_t* pixels = (uint32_t*)malloc(WIDTH * HEIGHT * sizeof(pixels));
-	memset(pixels, 0, WIDTH * HEIGHT * sizeof(uint32_t));
+	// uint32_t* pixels = (uint32_t*)malloc(WIDTH * HEIGHT * sizeof(pixels));
+	// memset(pixels, 0, WIDTH * HEIGHT * sizeof(uint32_t));
+
+	sglBuffer* buf = sglCreateNewBuffer(WIDTH, HEIGHT);
+
+	printf("hey\n");
 
 	SDL_Event event;
 	bool alive = true;
@@ -54,16 +61,18 @@ int main (int argc, char *argv[]) {
 		if (m.right) { }
 
 		// clear pixel buffer
-		sglClear(pixels, WIDTH, HEIGHT);
+		sglClear(buf, WIDTH, HEIGHT);
 
-		pixels[100 + 100 * WIDTH] = 0xff00ffff;
-		sglSetPixel(pixels, 100, 100, WIDTH, 0xff00ffff);
+		sglSetPixel(buf, 100, 100, WIDTH, 0xff00ffff);
 
-		SDL_UpdateTexture(texture, NULL, pixels, WIDTH * sizeof(uint32_t));
+		SDL_UpdateTexture(texture, NULL, buf->pixels, WIDTH * sizeof(uint32_t));
 		SDL_RenderClear(renderer);
 		SDL_RenderCopy(renderer, texture, NULL, NULL);
 		SDL_RenderPresent(renderer);
 	}
+
+	printf("bye\n");
+	sglDestroyBuffer(buf);
 
 	SDL_DestroyTexture(texture);
 	SDL_DestroyRenderer(renderer);
