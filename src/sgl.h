@@ -8,9 +8,27 @@
 
 /* data structures */
 
-enum sglPixelFormat {
-	SGL_PIXELFORMAT_RGBA32
-};
+// TODO: add more formats
+typedef enum sglPixelFormatEnum {
+	SGL_PIXELFORMAT_ABGR8888,
+	SGL_PIXELFORMAT_BGRA8888,
+	SGL_PIXELFORMAT_RGBA8888,
+	SGL_PIXELFORMAT_ARGB8888,
+} sglPixelFormatEnum;
+
+typedef struct sglPixelFormat {
+	int rmask;
+	int gmask;
+	int bmask;
+	int amask;
+	int rshift;
+	int gshift;
+	int bshift;
+	int ashift;
+	uint32_t format; // typeof sglPixelFormat
+} sglPixelFormat;
+
+sglPixelFormat* sglCreatePixelFormat(sglPixelFormatEnum pf);
 
 /**
  * \brief A buffer is a thing that sgl uses to draw
@@ -19,11 +37,11 @@ typedef struct sglBuffer {
 	uint32_t* pixels;
 	uint32_t width;
 	uint32_t height;
-	// uint32_t pixelFormat;
+	sglPixelFormat* format;
 } sglBuffer;
 
-sglBuffer* sglCreateBuffer(uint32_t* pixels, int width, int height);
-sglBuffer* sglCreateNewBuffer(int width, int height);
+sglBuffer* sglCreateBuffer(uint32_t* pixels, int width, int height, sglPixelFormatEnum format);
+sglBuffer* sglCreateNewBuffer(int width, int height, sglPixelFormatEnum format);
 void sglDestroyBuffer(sglBuffer* buffer);
 
 
@@ -45,9 +63,11 @@ void sglClear(sglBuffer* buffer, int width, int height);
  * @param y y coordinate of pixel
  * @param color 32 bit color of pixel
  */
-void sglSetPixel(sglBuffer* buffer, int x, int y, size_t bufferWidth, uint32_t color);
+void sglSetPixel(sglBuffer* buffer, int x, int y, uint32_t color);
 
 
 /* utility functions */
+
+uint32_t sglToColor(uint32_t r, uint32_t g, uint32_t b, uint32_t a, sglPixelFormat* pf);
 
 #endif // !SGL_H

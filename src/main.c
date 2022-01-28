@@ -36,7 +36,7 @@ int main (int argc, char *argv[]) {
 	// uint32_t* pixels = (uint32_t*)malloc(WIDTH * HEIGHT * sizeof(pixels));
 	// memset(pixels, 0, WIDTH * HEIGHT * sizeof(uint32_t));
 
-	sglBuffer* buf = sglCreateNewBuffer(WIDTH, HEIGHT);
+	sglBuffer* buf = sglCreateNewBuffer(WIDTH, HEIGHT, SGL_PIXELFORMAT_ABGR8888);
 
 	printf("hey\n");
 
@@ -63,7 +63,7 @@ int main (int argc, char *argv[]) {
 		// clear pixel buffer
 		sglClear(buf, WIDTH, HEIGHT);
 
-		sglSetPixel(buf, 100, 100, WIDTH, 0xff00ffff);
+		sglSetPixel(buf, 100, 100, sglToColor(0, 255, 0, 255, buf->format));
 
 		SDL_UpdateTexture(texture, NULL, buf->pixels, WIDTH * sizeof(uint32_t));
 		SDL_RenderClear(renderer);
