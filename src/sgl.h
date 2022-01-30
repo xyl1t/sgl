@@ -17,10 +17,13 @@
 
 #include <stdint.h>
 #include <stddef.h>
+#include <stdbool.h>
 
 #define sgl_member_size(type, member) sizeof(((type *)0)->member)
 
-/* data structures */
+/*****************************************************************************
+ * DATA STRUCTURES                                                           *
+ *****************************************************************************/
 
 // TODO: add more formats
 
@@ -108,26 +111,42 @@ typedef struct sglPixelFormat {
 sglPixelFormat* sglCreatePixelFormat(sglPixelFormatEnum pf);
 
 /**
+ * @brief A simple rectangle struct
+ */
+typedef struct sglRect {
+	int x;
+	int y;
+	int w;
+	int h;
+} sglRect;
+
+bool sglHasIntersection(const sglRect* A, const sglRect* B);
+bool sglIntersectRect(const sglRect* A, const sglRect* B, sglRect* result);
+
+
+/**
  * @brief A buffer is a thing that sgl uses to draw things on
  */
 typedef struct sglBuffer {
 	void* pixels;
 	sglPixelFormat* pf;
-	uint32_t startX;
-	uint32_t startY;
 	uint32_t width;
 	uint32_t height;
+	sglRect clipRect;
 } sglBuffer;
 
 sglBuffer* sglCreateBuffer(uint32_t* pixels, uint32_t startX, uint32_t startY,
 		                   uint32_t width, uint32_t height,
                            sglPixelFormatEnum format);
-sglBuffer* sglCreateNewBuffer(uint32_t width, uint32_t height, sglPixelFormatEnum format);
+sglBuffer* sglCreateNewBuffer(uint32_t width, uint32_t height,
+                              sglPixelFormatEnum format);
 void sglDestroyBuffer(sglBuffer* buffer);
 
 
 
-/* graphics functions */
+/*****************************************************************************
+ * GRAPHICS FUNCTIONS                                                        *
+ *****************************************************************************/
 
 // TODO: rename sgl***Pixel() to sgl***RGB() and sgl***RGBA()
 
@@ -184,7 +203,9 @@ void sglGetPixel(sglBuffer* buffer, int x, int y,
 
 
 
-/* utility functions */
+/*****************************************************************************
+ * UTILITY FUNCTIONS                                                         *
+ *****************************************************************************/
 
 /**
  * @brief Map single rgba values to a 32 bit uint32_t using a pixel format
@@ -195,7 +216,7 @@ void sglGetPixel(sglBuffer* buffer, int x, int y,
  * @param pf Pixel format that should be used to map the rgba values
  */
 uint32_t sglMapRGBA(uint8_t r, uint8_t g, uint8_t b, uint8_t a,
-                    sglPixelFormat* pf);
+                    const sglPixelFormat* pf);
 /**
  * @brief Get separate components of a 32 bit color using a pixel format
  * Pass NULL for components that you don't want to get.
@@ -206,7 +227,7 @@ uint32_t sglMapRGBA(uint8_t r, uint8_t g, uint8_t b, uint8_t a,
  * @param[out] b Pointer to blue component
  * @param[out] a Pointer to alpha component
  */
-void sglGetRGBA(uint32_t color, sglPixelFormat* pf,
+void sglGetRGBA(uint32_t color, const sglPixelFormat* pf,
                 uint8_t* r, uint8_t* g, uint8_t* b, uint8_t* a);
 
 uint32_t sglGetPixelType(sglPixelFormatEnum format);

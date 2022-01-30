@@ -58,6 +58,17 @@ int main (int argc, char *argv[])
 	SGL_DEBUG_PRINT("g %d\n", g);
 	SGL_DEBUG_PRINT("b %d\n", b);
 	SGL_DEBUG_PRINT("a %d\n", a);
+	SGL_DEBUG_PRINT("\n");
+
+	sglRect A = {.x = 0, .y = 0, .w = 5, .h = 5};
+	sglRect B = {.x = 3, .y = -2, .w = 4, .h = 4};
+	sglRect result = {};
+
+	SGL_DEBUG_PRINT("intersect %d\n", sglIntersectRect(&A, &B, &result));
+	SGL_DEBUG_PRINT("r.x = %d\n", result.x);
+	SGL_DEBUG_PRINT("r.y = %d\n", result.y);
+	SGL_DEBUG_PRINT("r.w = %d\n", result.w);
+	SGL_DEBUG_PRINT("r.h = %d\n", result.h);
 	
 	return 0;
 

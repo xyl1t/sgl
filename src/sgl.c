@@ -3,6 +3,8 @@
 #include <string.h>
 #include <stdlib.h>
 
+static int sgl_max(int a, int b) { return a > b ? a : b; }
+static int sgl_min(int a, int b) { return a < b ? a : b; }
 
 sglPixelFormat* sglCreatePixelFormat(sglPixelFormatEnum format)
 {
@@ -71,17 +73,59 @@ sglPixelFormat* sglCreatePixelFormat(sglPixelFormatEnum format)
 	return pf;
 }
 
+bool sglHasIntersection(const sglRect* A, const sglRect* B)
+{
+	if (A && B) {
+		// if (B->x >= A->x &&
+		// 		B->x <= A->x + A->w &&
+		// 		B->y >= A->y &&
+		// 		B->y <= A->y + A->h) {
+		if (A->x + A->w >= B->x &&
+			A->x <= B->x + B->w &&
+			A->y + A->h >= B->y &&
+			A->y <= B->y + B->h) {
+			return true;
+		}
+	}
+
+	return false;
+}
+
+bool sglIntersectRect(const sglRect* A, const sglRect* B, sglRect* result)
+{
+	if (sglHasIntersection(A, B)) {
+		result->x = sgl_max(A->x, B->x);
+		result->y = sgl_max(A->y, B->y);
+		int A_max_x = A->x + A->w;
+		int B_max_x = B->x + B->w;
+		int A_max_y = A->y + A->h;
+		int B_max_y = B->y + B->h;
+		result->w = sgl_min(A_max_x, B_max_x) - result->x;
+		result->h = sgl_min(A_max_y, B_max_y) - result->y;
+
+		return true;
+	}
+
+	return false;
+}
+
 sglBuffer* sglCreateBuffer(uint32_t* pixels, uint32_t startX, uint32_t startY,
 		                   uint32_t width, uint32_t height,
                            sglPixelFormatEnum format)
 {
 	sglBuffer* b = malloc(sizeof(sglBuffer));
-	b->startX = startX;
-	b->startY = startY;
-	b->width = width;
-	b->height = height;
 	b->pixels = pixels;
 	b->pf = sglCreatePixelFormat(format);
+	b->width = width;
+	b->height = height;
+	b->clipRect = (sglRect) {
+		.x = 0,
+		.y = 0,
+		.w = width,
+		.h = height,
+	};
+
+	SGL_DEBUG_PRINT("sgl buffer initialized\n");
 	return b;
 }
 
@@ -89,12 +133,17 @@ sglBuffer* sglCreateNewBuffer(uint32_t width, uint32_t height,
                               sglPixelFormatEnum format)
 {
 	sglBuffer* b = malloc(sizeof(sglBuffer));
-	b->startX = 0;
-	b->startY = 0;
-	b->width = width;
-	b->height = height;
 	b->pixels = malloc(width * height * sglGetPixelType(format));
 	b->pf = sglCreatePixelFormat(format);
+	b->width = width;
+	b->height = height;
+	b->clipRect = (sglRect) {
+		.x = 0,
+		.y = 0,
+		.w = width,
+		.h = height,
+	};
+
 	SGL_DEBUG_PRINT("sgl buffer initialized\n");
 	return b;
 }
@@ -115,8 +164,8 @@ void sglClear(sglBuffer* buffer, int width, int height)
 void sglSetPixelRaw(sglBuffer* buffer, int x, int y, uint32_t color)
 {
 #ifdef SGL_CHECK_BUFFER_BOUNDS
-	if (x < buffer->startX && y < buffer->startY &&
-		x >= buffer->width && y >= buffer->height) return;
+	if (x < 0 || y < 0 ||
+		x >= buffer->width || y >= buffer->height) return;
 #endif
 
 	switch (buffer->pf->bytesPerPixel) {
@@ -137,8 +186,8 @@ void sglSetPixelRaw(sglBuffer* buffer, int x, int y, uint32_t color)
 uint32_t sglGetPixelRaw(sglBuffer* buffer, int x, int y)
 {
 #ifdef SGL_CHECK_BUFFER_BOUNDS
-	if (x < buffer->startX && y < buffer->startY &&
-		x >= buffer->width && y >= buffer->height) return 0;
+	if (x < 0 || y < 0 ||
+		x >= buffer->width || y >= buffer->height) return 0;
 #endif
 
 
@@ -177,8 +226,8 @@ void sglGetPixel(sglBuffer* buffer, int x, int y,
 {
 	
 #ifdef SGL_CHECK_BUFFER_BOUNDS
-	if (x < buffer->startX && y < buffer->startY &&
-		x >= buffer->width && y >= buffer->height) return;
+	if (x < 0 || y < 0 ||
+		x >= buffer->width || y >= buffer->height) return;
 #endif
 	// uint32_t color = buffer->pixels[x + y * buffer->width];
 	uint32_t color = sglGetPixelRaw(buffer, x, y);
@@ -191,7 +240,7 @@ void sglGetPixel(sglBuffer* buffer, int x, int y,
 
 
 uint32_t sglMapRGBA(uint8_t r, uint8_t g, uint8_t b, uint8_t a,
-					sglPixelFormat* pf)
+					const sglPixelFormat* pf)
 {
 	return ((r << pf->rshift) & pf->rmask) +
            ((g << pf->gshift) & pf->gmask) +
@@ -199,7 +248,7 @@ uint32_t sglMapRGBA(uint8_t r, uint8_t g, uint8_t b, uint8_t a,
            ((a << pf->ashift) & pf->amask);
 }
 
-void sglGetRGBA(uint32_t color, sglPixelFormat* pf,
+void sglGetRGBA(uint32_t color, const sglPixelFormat* pf,
                 uint8_t* r, uint8_t* g, uint8_t* b, uint8_t* a)
 {
 	if (r) { *r = (color & pf->rmask) >> pf->rshift; }
