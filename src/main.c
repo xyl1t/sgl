@@ -1,14 +1,13 @@
-#include "sgl.h"
 #include <stdio.h>
 #include <string.h>
 #include <stdbool.h>
-
 #if __has_include("SDL2/SDL.h")
 #include <SDL2/SDL.h>
 #else
 #include <SDL.h>
 #endif
 
+#include "sgl.h"
 
 struct mouse {
 	int x;
@@ -17,8 +16,8 @@ struct mouse {
 	bool right;
 } m;
 
-int main (int argc, char *argv[]) {
-
+int main (int argc, char *argv[])
+{
 	SDL_Init(SDL_INIT_EVERYTHING);
 
 	const int WIDTH = 800;
@@ -36,9 +35,32 @@ int main (int argc, char *argv[]) {
 	// uint32_t* pixels = (uint32_t*)malloc(WIDTH * HEIGHT * sizeof(pixels));
 	// memset(pixels, 0, WIDTH * HEIGHT * sizeof(uint32_t));
 
-	sglBuffer* buf = sglCreateNewBuffer(WIDTH, HEIGHT, SGL_PIXELFORMAT_ABGR8888);
+	sglBuffer* buf = sglCreateNewBuffer(WIDTH, HEIGHT, SGL_PIXELFORMAT_RGB332);
 
-	printf("hey\n");
+	// SGL_DEBUG_PRINT("SGL_PIXELFORMAT_ABGR32 %#010x\n",
+	// 		sglGetChannelLayout(SGL_PIXELFORMAT_ABGR32));
+	// SGL_DEBUG_PRINT("SGL_PIXELFORMAT_BGRA32 %#010x\n",
+	// 		sglGetChannelLayout(SGL_PIXELFORMAT_BGRA32));
+	// SGL_DEBUG_PRINT("SGL_PIXELFORMAT_RGBA32 %#010x\n",
+	// 		sglGetChannelLayout(SGL_PIXELFORMAT_RGBA32));
+	// SGL_DEBUG_PRINT("SGL_PIXELFORMAT_ARGB32 %#010x\n",
+	// 		sglGetChannelLayout(SGL_PIXELFORMAT_ARGB32));
+	// SGL_DEBUG_PRINT("SGL_PIXELFORMAT_RGB332 %#010x\n",
+	// 		sglGetChannelLayout(SGL_PIXELFORMAT_RGB332));
+
+	sglSetPixel(buf,
+		0, 0,
+		7, 7, 3, 4);
+	uint8_t r, g, b, a;
+	sglGetPixel(buf, 0, 0, &r, &g, &b, &a);
+	SGL_DEBUG_PRINT("%#010x\n", sglGetPixelRaw(buf, 0, 0));
+	SGL_DEBUG_PRINT("r %d\n", r);
+	SGL_DEBUG_PRINT("g %d\n", g);
+	SGL_DEBUG_PRINT("b %d\n", b);
+	SGL_DEBUG_PRINT("a %d\n", a);
+	
+	return 0;
+
 
 	SDL_Event event;
 	bool alive = true;
@@ -63,7 +85,7 @@ int main (int argc, char *argv[]) {
 		// clear pixel buffer
 		sglClear(buf, WIDTH, HEIGHT);
 
-		sglSetPixel(buf, 100, 100, sglToColor(0, 255, 0, 255, buf->format));
+		sglSetPixel(buf, 100, 100, 0, 255, 0, 255);
 
 		SDL_UpdateTexture(texture, NULL, buf->pixels, WIDTH * sizeof(uint32_t));
 		SDL_RenderClear(renderer);
@@ -71,7 +93,6 @@ int main (int argc, char *argv[]) {
 		SDL_RenderPresent(renderer);
 	}
 
-	printf("bye\n");
 	sglDestroyBuffer(buf);
 
 	SDL_DestroyTexture(texture);
