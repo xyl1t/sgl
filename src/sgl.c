@@ -180,7 +180,7 @@ void sglSetPixelRaw(sglBuffer* buffer, int x, int y, uint32_t color)
 	if (!buffer) return;
 
 	if (x < buffer->clipRect.x || y < buffer->clipRect.y ||
-		x >= buffer->clipRect.w || y >= buffer->clipRect.h) return;
+		x >= buffer->clipRect.x + buffer->clipRect.w || y >= buffer->clipRect.y + buffer->clipRect.h) return;
 
 	switch (buffer->pf->bytesPerPixel) {
 		case 1:

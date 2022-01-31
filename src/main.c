@@ -69,7 +69,21 @@ int main (int argc, char *argv[])
 	SGL_DEBUG_PRINT("r.y = %d\n", result.y);
 	SGL_DEBUG_PRINT("r.w = %d\n", result.w);
 	SGL_DEBUG_PRINT("r.h = %d\n", result.h);
-	
+	SGL_DEBUG_PRINT("\n");
+
+	// sglRect clipRect = {
+	// 	.x = -25,
+	// 	.y = -25,
+	// 	.w = 100,
+	// 	.h = 100
+	// };
+	// SGL_DEBUG_PRINT("clip %d\n", sglSetClipRect(buf, &clipRect));
+	//
+	// SGL_DEBUG_PRINT("clip.x = %d\n", clipRect.x);
+	// SGL_DEBUG_PRINT("clip.y = %d\n", clipRect.y);
+	// SGL_DEBUG_PRINT("clip.w = %d\n", clipRect.w);
+	// SGL_DEBUG_PRINT("clip.h = %d\n", clipRect.h);
+
 	// return 0;
 
 
@@ -96,10 +110,14 @@ int main (int argc, char *argv[])
 		// clear pixel buffer
 		sglClear(buf, WIDTH, HEIGHT);
 
-		for (int i = 0; i < 256; i++) {
-			for (int j = 0; j < 256; j++) {
-				if ((i + j) % 2)
-				sglSetPixel(buf, i + 100, j + 100, j, i, 255-(i/2+j/2), 255);
+		for (int x = 0; x < buf->width; x++) {
+			for (int y = 0; y < buf->height; y++) {
+				// if ((x + y) % 2) continue;
+
+				int i = x % 256;
+				int j = y % 256;
+
+				sglSetPixel(buf, x, y, j, i, 255-(i/2+j/2), 255);
 			}
 		}
 
