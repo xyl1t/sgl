@@ -35,7 +35,7 @@ int main (int argc, char *argv[])
 	// uint32_t* pixels = (uint32_t*)malloc(WIDTH * HEIGHT * sizeof(pixels));
 	// memset(pixels, 0, WIDTH * HEIGHT * sizeof(uint32_t));
 
-	sglBuffer* buf = sglCreateNewBuffer(WIDTH, HEIGHT, SGL_PIXELFORMAT_RGB332);
+	sglBuffer* buf = sglCreateNewBuffer(WIDTH, HEIGHT, SGL_PIXELFORMAT_ABGR32);
 
 	// SGL_DEBUG_PRINT("SGL_PIXELFORMAT_ABGR32 %#010x\n",
 	// 		sglGetChannelLayout(SGL_PIXELFORMAT_ABGR32));
@@ -62,7 +62,7 @@ int main (int argc, char *argv[])
 
 	sglRect A = {.x = 0, .y = 0, .w = 5, .h = 5};
 	sglRect B = {.x = 3, .y = -2, .w = 4, .h = 4};
-	sglRect result = {};
+	sglRect result;
 
 	SGL_DEBUG_PRINT("intersect %d\n", sglIntersectRect(&A, &B, &result));
 	SGL_DEBUG_PRINT("r.x = %d\n", result.x);
@@ -70,7 +70,7 @@ int main (int argc, char *argv[])
 	SGL_DEBUG_PRINT("r.w = %d\n", result.w);
 	SGL_DEBUG_PRINT("r.h = %d\n", result.h);
 	
-	return 0;
+	// return 0;
 
 
 	SDL_Event event;
@@ -96,7 +96,12 @@ int main (int argc, char *argv[])
 		// clear pixel buffer
 		sglClear(buf, WIDTH, HEIGHT);
 
-		sglSetPixel(buf, 100, 100, 0, 255, 0, 255);
+		for (int i = 0; i < 256; i++) {
+			for (int j = 0; j < 256; j++) {
+				if ((i + j) % 2)
+				sglSetPixel(buf, i + 100, j + 100, j, i, 255-(i/2+j/2), 255);
+			}
+		}
 
 		SDL_UpdateTexture(texture, NULL, buf->pixels, WIDTH * sizeof(uint32_t));
 		SDL_RenderClear(renderer);

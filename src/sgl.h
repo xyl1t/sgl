@@ -130,17 +130,18 @@ bool sglIntersectRect(const sglRect* A, const sglRect* B, sglRect* result);
 typedef struct sglBuffer {
 	void* pixels;
 	sglPixelFormat* pf;
-	uint32_t width;
-	uint32_t height;
+	int width;
+	int height;
 	sglRect clipRect;
 } sglBuffer;
 
 sglBuffer* sglCreateBuffer(uint32_t* pixels, uint32_t startX, uint32_t startY,
-		                   uint32_t width, uint32_t height,
+                           uint32_t width, uint32_t height,
                            sglPixelFormatEnum format);
 sglBuffer* sglCreateNewBuffer(uint32_t width, uint32_t height,
                               sglPixelFormatEnum format);
 void sglDestroyBuffer(sglBuffer* buffer);
+bool sglSetClipRect(sglBuffer* buffer, const sglRect* rect);
 
 
 

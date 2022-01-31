@@ -156,6 +156,15 @@ void sglDestroyBuffer(sglBuffer* buffer)
 	SGL_DEBUG_PRINT("sgl buffer destroyed\n");
 }
 
+bool sglSetClipRect(sglBuffer* buffer, const sglRect* rect)
+{
+	if (buffer) {
+		return sglIntersectRect(&buffer->clipRect, rect, &buffer->clipRect);
+	}
+
+	return false;
+}
+
 void sglClear(sglBuffer* buffer, int width, int height)
 {
 	memset(buffer->pixels, 0, width * height * sizeof(uint32_t));
@@ -163,10 +172,15 @@ void sglClear(sglBuffer* buffer, int width, int height)
 
 void sglSetPixelRaw(sglBuffer* buffer, int x, int y, uint32_t color)
 {
-#ifdef SGL_CHECK_BUFFER_BOUNDS
-	if (x < 0 || y < 0 ||
-		x >= buffer->width || y >= buffer->height) return;
-#endif
+	// #ifdef SGL_CHECK_BUFFER_BOUNDS
+	// 	if (x < 0 || y < 0 ||
+	// 		x >= buffer->width || y >= buffer->height) return;
+	// #endif
+
+	if (!buffer) return;
+
+	if (x < buffer->clipRect.x || y < buffer->clipRect.y ||
+		x >= buffer->clipRect.w || y >= buffer->clipRect.h) return;
 
 	switch (buffer->pf->bytesPerPixel) {
 		case 1:
