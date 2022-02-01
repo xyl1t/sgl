@@ -32,10 +32,10 @@ int main (int argc, char *argv[])
 			SDL_TEXTUREACCESS_STREAMING, WIDTH, HEIGHT);
 	SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
 
-	// uint32_t* pixels = (uint32_t*)malloc(WIDTH * HEIGHT * sizeof(pixels));
-	// memset(pixels, 0, WIDTH * HEIGHT * sizeof(uint32_t));
+	uint32_t* pixels = (uint32_t*)malloc(WIDTH * HEIGHT * sizeof(pixels));
+	memset(pixels, 0, WIDTH * HEIGHT * sizeof(uint32_t));
 
-	sglBuffer* buf = sglCreateNewBuffer(WIDTH, HEIGHT, SGL_PIXELFORMAT_ABGR32);
+	sglBuffer* buf = sglCreateBuffer(pixels, WIDTH, HEIGHT, SGL_PIXELFORMAT_ABGR32);
 
 	// SGL_DEBUG_PRINT("SGL_PIXELFORMAT_ABGR32 %#010x\n",
 	// 		sglGetChannelLayout(SGL_PIXELFORMAT_ABGR32));

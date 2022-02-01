@@ -120,7 +120,20 @@ typedef struct sglRect {
 	int h;
 } sglRect;
 
+/**
+ * @brief Checks if two rectangles intersect
+ * @parameter A First rectangle
+ * @parameter B second rectangle
+ * @return True if rectangle A and B intersect
+ */
 bool sglHasIntersection(const sglRect* A, const sglRect* B);
+/**
+ * @brief Checks if two rectangles intersect
+ * @parameter A First rectangle
+ * @parameter B second rectangle
+ * @parameter result Intersecting rectangle of rectangles A and B
+ * @return True if rectangle A and B intersect
+ */
 bool sglIntersectRect(const sglRect* A, const sglRect* B, sglRect* result);
 
 
@@ -135,12 +148,30 @@ typedef struct sglBuffer {
 	sglRect clipRect;
 } sglBuffer;
 
-sglBuffer* sglCreateBuffer(uint32_t* pixels, uint32_t startX, uint32_t startY,
-                           uint32_t width, uint32_t height,
+/**
+ * @brief Creates an sgl buffer based on a pixel buffer
+ * @parameter pixels The pixel buffer that will be used to draw on
+ * @parameter width Width of the buffer
+ * @parameter height Height of the buffer
+ * @parameter format Pixel format of the pixel buffer
+ */
+sglBuffer* sglCreateBuffer(uint32_t* pixels, uint32_t width, uint32_t height,
                            sglPixelFormatEnum format);
-sglBuffer* sglCreateNewBuffer(uint32_t width, uint32_t height,
-                              sglPixelFormatEnum format);
+/**
+ * @brief Destroys an sgl buffer
+ * @parameter buffer The buffer to delete
+ */
 void sglDestroyBuffer(sglBuffer* buffer);
+/**
+ * @brief Sets the clipping rectangle of the buffer, meaning that you won't
+ * be able to draw outside the clipping rectangle
+ *
+ * The clipping rectangle will be a result of the intersection of the buffer
+ * size and the rect parameter.
+ *
+ * @parameter buffer The buffer
+ * @parameter rect The clipping rectangle that should be used by the buffer
+ */
 bool sglSetClipRect(sglBuffer* buffer, const sglRect* rect);
 
 

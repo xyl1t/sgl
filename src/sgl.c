@@ -109,8 +109,7 @@ bool sglIntersectRect(const sglRect* A, const sglRect* B, sglRect* result)
 	return false;
 }
 
-sglBuffer* sglCreateBuffer(uint32_t* pixels, uint32_t startX, uint32_t startY,
-		                   uint32_t width, uint32_t height,
+sglBuffer* sglCreateBuffer(uint32_t* pixels, uint32_t width, uint32_t height,
                            sglPixelFormatEnum format)
 {
 	sglBuffer* b = malloc(sizeof(sglBuffer));
@@ -129,28 +128,10 @@ sglBuffer* sglCreateBuffer(uint32_t* pixels, uint32_t startX, uint32_t startY,
 	return b;
 }
 
-sglBuffer* sglCreateNewBuffer(uint32_t width, uint32_t height,
-                              sglPixelFormatEnum format)
-{
-	sglBuffer* b = malloc(sizeof(sglBuffer));
-	b->pixels = malloc(width * height * sglGetPixelType(format));
-	b->pf = sglCreatePixelFormat(format);
-	b->width = width;
-	b->height = height;
-	b->clipRect = (sglRect) {
-		.x = 0,
-		.y = 0,
-		.w = width,
-		.h = height,
-	};
-
-	SGL_DEBUG_PRINT("sgl buffer initialized\n");
-	return b;
-}
-
 void sglDestroyBuffer(sglBuffer* buffer)
 {
-	free(buffer->pixels);
+	// don't free the pixels for the caller!
+	// free(buffer->pixels);
 	free(buffer->pf);
 	free(buffer);
 	SGL_DEBUG_PRINT("sgl buffer destroyed\n");
@@ -204,7 +185,6 @@ uint32_t sglGetPixelRaw(sglBuffer* buffer, int x, int y)
 		x >= buffer->width || y >= buffer->height) return 0;
 #endif
 
-
 	switch (buffer->pf->bytesPerPixel) {
 		case 1:
 			return *((uint8_t*)buffer->pixels + (y * buffer->width + x));
@@ -227,12 +207,6 @@ void sglSetPixel(sglBuffer* buffer, int x, int y,
                  uint8_t r, uint8_t g, uint8_t b, uint8_t a)
 {
 	sglSetPixelRaw(buffer, x, y, sglMapRGBA(r, g, b, a, buffer->pf));
-// #ifdef SGL_CHECK_BUFFER_BOUNDS
-// 	if (x < buffer->startX && y < buffer->startY &&
-// 		x >= buffer->width && y >= buffer->height) return;
-// #endif
-//
-// 	buffer->pixels[x + y * buffer->width] = sglMapRGBA(r, g, b, a, buffer->pf);
 }
 
 void sglGetPixel(sglBuffer* buffer, int x, int y,
