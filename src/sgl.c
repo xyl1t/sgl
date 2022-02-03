@@ -12,6 +12,12 @@ static void sglError(const char* error) {
 	_sglError = error;
 }
 
+
+
+/*****************************************************************************
+ * DATA STRUCTURES                                                           *
+ *****************************************************************************/
+
 sglPixelFormat* sglCreatePixelFormat(sglPixelFormatEnum format)
 {
 	sglPixelFormat* pf = malloc(sizeof(sglPixelFormat));
@@ -149,6 +155,12 @@ bool sglSetClipRect(sglBuffer* buffer, const sglRect* rect)
 	return intersects;
 }
 
+
+
+/*****************************************************************************
+ * GRAPHICS FUNCTIONS                                                        *
+ *****************************************************************************/
+
 void sglClear(sglBuffer* buffer, int width, int height)
 {
 	memset(buffer->pixels, 0, width * height * sizeof(uint32_t));
@@ -238,6 +250,18 @@ void sglGetPixel(sglBuffer* buffer, uint8_t* r, uint8_t* g, uint8_t* b, uint8_t*
 	if (a) { *a = (color & buffer->pf->amask) >> buffer->pf->ashift; }
 }
 
+void sglDrawLine(sglBuffer* buffer, uint32_t color,
+		int startX, int startY,
+		int endX, int endY)
+{
+
+}
+
+
+
+/*****************************************************************************
+ * UTILITY FUNCTIONS                                                         *
+ *****************************************************************************/
 
 uint32_t sglMapRGBA(uint8_t r, uint8_t g, uint8_t b, uint8_t a,
 					const sglPixelFormat* pf)

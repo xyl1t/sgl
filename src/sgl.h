@@ -238,7 +238,7 @@ void sglGetPixel(sglBuffer* buffer, uint8_t* r, uint8_t* g, uint8_t* b, uint8_t*
 		int x, int y);
 
 // TODO: implement
-void sglDrawLine(sglBuffer* buffer,
+void sglDrawLine(sglBuffer* buffer, uint32_t color,
                  int startX, int startY,
                  int endX, int endY);
 
