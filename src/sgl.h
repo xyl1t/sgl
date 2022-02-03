@@ -22,6 +22,10 @@
 #define sgl_member_size(type, member) sizeof(((type *)0)->member)
 
 /*****************************************************************************
+ * STATE VARIABLES                                                           *
+ *****************************************************************************/
+
+/*****************************************************************************
  * DATA STRUCTURES                                                           *
  *****************************************************************************/
 
@@ -197,7 +201,7 @@ void sglClear(sglBuffer* buffer, int width, int height);
  * @param y y coordinate of pixel
  * @param color 32 bit color of pixel
  */
-void sglSetPixelRaw(sglBuffer* buffer, int x, int y, uint32_t color);
+void sglDrawPixelRaw(sglBuffer* buffer, uint32_t color, int x, int y);
 
 /**
  * @brief set pixel in buffer
@@ -209,8 +213,8 @@ void sglSetPixelRaw(sglBuffer* buffer, int x, int y, uint32_t color);
  * @param b blue channel
  * @param a alpha channel
  */
-void sglSetPixel(sglBuffer* buffer, int x, int y,
-                 uint8_t r, uint8_t g, uint8_t b, uint8_t a);
+void sglDrawPixel(sglBuffer* buffer, uint8_t r, uint8_t g, uint8_t b, uint8_t a,
+                 int x, int y);
 
 /**
  * @brief get pixel in buffer
@@ -230,10 +234,13 @@ uint32_t sglGetPixelRaw(sglBuffer* buffer, int x, int y);
  * @param[out] b Pointer to blue component
  * @param[out] a Pointer to alpha component
  */
-void sglGetPixel(sglBuffer* buffer, int x, int y,
-                 uint8_t* r, uint8_t* g, uint8_t* b, uint8_t* a);
+void sglGetPixel(sglBuffer* buffer, uint8_t* r, uint8_t* g, uint8_t* b, uint8_t* a,
+		int x, int y);
 
-
+// TODO: implement
+void sglDrawLine(sglBuffer* buffer,
+                 int startX, int startY,
+                 int endX, int endY);
 
 /*****************************************************************************
  * UTILITY FUNCTIONS                                                         *
@@ -262,11 +269,25 @@ uint32_t sglMapRGBA(uint8_t r, uint8_t g, uint8_t b, uint8_t a,
 void sglGetRGBA(uint32_t color, const sglPixelFormat* pf,
                 uint8_t* r, uint8_t* g, uint8_t* b, uint8_t* a);
 
+/**
+ * @brief Get pixel type from the an sglPixelFormatEnum
+ */
 uint32_t sglGetPixelType(sglPixelFormatEnum format);
 
+/**
+ * @brief Get the channel order from the an sglPixelFormatEnum
+ */
 uint32_t sglGetChannelOrder(sglPixelFormatEnum format);
 
+/**
+ * @brief Get the channel layout from the an sglPixelFormatEnum
+ */
 uint32_t sglGetChannelLayout(sglPixelFormatEnum format);
+
+/**
+ * @brief Get last error that occurred when calling an sgl function
+ */
+const char* sglGetError(void);
 
 #endif // !SGL_H
 

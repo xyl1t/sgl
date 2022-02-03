@@ -6,6 +6,12 @@
 static int sgl_max(int a, int b) { return a > b ? a : b; }
 static int sgl_min(int a, int b) { return a < b ? a : b; }
 
+const char* _sglError;
+// TODO: add sglUnsported()
+static void sglError(const char* error) {
+	_sglError = error;
+}
+
 sglPixelFormat* sglCreatePixelFormat(sglPixelFormatEnum format)
 {
 	sglPixelFormat* pf = malloc(sizeof(sglPixelFormat));
@@ -75,20 +81,11 @@ sglPixelFormat* sglCreatePixelFormat(sglPixelFormatEnum format)
 
 bool sglHasIntersection(const sglRect* A, const sglRect* B)
 {
-	if (A && B) {
-		// if (B->x >= A->x &&
-		// 		B->x <= A->x + A->w &&
-		// 		B->y >= A->y &&
-		// 		B->y <= A->y + A->h) {
-		if (A->x + A->w >= B->x &&
+	return (A && B &&
+			A->x + A->w >= B->x &&
 			A->x <= B->x + B->w &&
 			A->y + A->h >= B->y &&
-			A->y <= B->y + B->h) {
-			return true;
-		}
-	}
-
-	return false;
+			A->y <= B->y + B->h);
 }
 
 bool sglIntersectRect(const sglRect* A, const sglRect* B, sglRect* result)
@@ -139,11 +136,17 @@ void sglDestroyBuffer(sglBuffer* buffer)
 
 bool sglSetClipRect(sglBuffer* buffer, const sglRect* rect)
 {
+	bool intersects = false;
+
 	if (buffer) {
-		return sglIntersectRect(&buffer->clipRect, rect, &buffer->clipRect);
+		intersects = sglIntersectRect(&buffer->clipRect, rect,
+                                      &buffer->clipRect);
+		if (!intersects) {
+			sglError("`rect` is not intersecting the buffer\n");
+		}
 	}
 
-	return false;
+	return intersects;
 }
 
 void sglClear(sglBuffer* buffer, int width, int height)
@@ -151,7 +154,7 @@ void sglClear(sglBuffer* buffer, int width, int height)
 	memset(buffer->pixels, 0, width * height * sizeof(uint32_t));
 }
 
-void sglSetPixelRaw(sglBuffer* buffer, int x, int y, uint32_t color)
+void sglDrawPixelRaw(sglBuffer* buffer, uint32_t color, int x, int y)
 {
 	// #ifdef SGL_CHECK_BUFFER_BOUNDS
 	// 	if (x < 0 || y < 0 ||
@@ -160,8 +163,10 @@ void sglSetPixelRaw(sglBuffer* buffer, int x, int y, uint32_t color)
 
 	if (!buffer) return;
 
-	if (x < buffer->clipRect.x || y < buffer->clipRect.y ||
-		x >= buffer->clipRect.x + buffer->clipRect.w || y >= buffer->clipRect.y + buffer->clipRect.h) return;
+	if (x < buffer->clipRect.x ||
+		y < buffer->clipRect.y ||
+		x >= buffer->clipRect.x + buffer->clipRect.w ||
+		y >= buffer->clipRect.y + buffer->clipRect.h) return;
 
 	switch (buffer->pf->bytesPerPixel) {
 		case 1:
@@ -172,17 +177,27 @@ void sglSetPixelRaw(sglBuffer* buffer, int x, int y, uint32_t color)
 			*((uint16_t*)buffer->pixels + (y * buffer->width + x)) = color;
 			break;
 
+		case 3:
+			sglError("Unsupported pixel format (3 bytes per pixel are not supported)");
+			break;
+
 		case 4:
 			*((uint32_t*)buffer->pixels + (y * buffer->width + x)) = color;
 			break;
 	}
 }
 
+void sglDrawPixel(sglBuffer* buffer, uint8_t r, uint8_t g, uint8_t b, uint8_t a,
+                 int x, int y)
+{
+	sglDrawPixelRaw(buffer, sglMapRGBA(r, g, b, a, buffer->pf), x, y);
+}
+
 uint32_t sglGetPixelRaw(sglBuffer* buffer, int x, int y)
 {
 #ifdef SGL_CHECK_BUFFER_BOUNDS
 	if (x < 0 || y < 0 ||
-		x >= buffer->width || y >= buffer->height) return 0;
+			x >= buffer->width || y >= buffer->height) return 0;
 #endif
 
 	switch (buffer->pf->bytesPerPixel) {
@@ -194,23 +209,20 @@ uint32_t sglGetPixelRaw(sglBuffer* buffer, int x, int y)
 			return *((uint16_t*)buffer->pixels + (y * buffer->width + x));
 			break;
 
+		case 3:
+			sglError("Unsupported pixel format (3 bytes per pixel are not supported)");
+			break;
+
 		case 4:
 			return *((uint32_t*)buffer->pixels + (y * buffer->width + x));
 			break;
-
-		default:
-			return 0;
 	}
+
+	return 0;
 }
 
-void sglSetPixel(sglBuffer* buffer, int x, int y,
-                 uint8_t r, uint8_t g, uint8_t b, uint8_t a)
-{
-	sglSetPixelRaw(buffer, x, y, sglMapRGBA(r, g, b, a, buffer->pf));
-}
-
-void sglGetPixel(sglBuffer* buffer, int x, int y,
-                 uint8_t* r, uint8_t* g, uint8_t* b, uint8_t* a)
+void sglGetPixel(sglBuffer* buffer, uint8_t* r, uint8_t* g, uint8_t* b, uint8_t* a,
+		int x, int y)
 {
 	
 #ifdef SGL_CHECK_BUFFER_BOUNDS
@@ -259,3 +271,8 @@ uint32_t sglGetChannelLayout(sglPixelFormatEnum format)
 {
 	return format & 0x3;
 }
+
+const char* sglGetError(void) {
+	return _sglError;
+}
+

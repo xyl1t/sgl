@@ -48,11 +48,11 @@ int main (int argc, char *argv[])
 	// SGL_DEBUG_PRINT("SGL_PIXELFORMAT_RGB332 %#010x\n",
 	// 		sglGetChannelLayout(SGL_PIXELFORMAT_RGB332));
 
-	sglSetPixel(buf,
+	sglDrawPixel(buf,
 		0, 0,
 		7, 7, 3, 4);
 	uint8_t r, g, b, a;
-	sglGetPixel(buf, 0, 0, &r, &g, &b, &a);
+	sglGetPixel(buf, &r, &g, &b, &a, 0, 0);
 	SGL_DEBUG_PRINT("%#010x\n", sglGetPixelRaw(buf, 0, 0));
 	SGL_DEBUG_PRINT("r %d\n", r);
 	SGL_DEBUG_PRINT("g %d\n", g);
@@ -114,10 +114,10 @@ int main (int argc, char *argv[])
 			for (int y = 0; y < buf->height; y++) {
 				// if ((x + y) % 2) continue;
 
-				int i = x % 256;
-				int j = y % 256;
+				int i = x << (y % 256 / 32) % 256;
+				int j = y << (x % 256 / 32) % 256;
 
-				sglSetPixel(buf, x, y, j, i, 255-(i/2+j/2), 255);
+				sglDrawPixel(buf, j, i, 255-(i/2+j/2), 255, x, y);
 			}
 		}
 
