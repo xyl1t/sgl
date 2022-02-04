@@ -233,8 +233,9 @@ uint32_t sglGetPixelRaw(sglBuffer* buffer, int x, int y)
 	return 0;
 }
 
-void sglGetPixel(sglBuffer* buffer, uint8_t* r, uint8_t* g, uint8_t* b, uint8_t* a,
-		int x, int y)
+void sglGetPixel(sglBuffer* buffer,
+                 uint8_t* r, uint8_t* g, uint8_t* b, uint8_t* a,
+                 int x, int y)
 {
 	
 #ifdef SGL_CHECK_BUFFER_BOUNDS
@@ -262,6 +263,16 @@ void sglDrawLine(sglBuffer* buffer, uint32_t color,
 /*****************************************************************************
  * UTILITY FUNCTIONS                                                         *
  *****************************************************************************/
+
+float sglLerpf(float a, float b, float t) {
+	return a + t * (b - a);
+}
+double sglLerpd(double a, double b, double t) {
+	return a + t * (b - a);
+}
+int sglLerpi(int a, int b, int t) {
+	return a + t * (b - a);
+}
 
 uint32_t sglMapRGBA(uint8_t r, uint8_t g, uint8_t b, uint8_t a,
 					const sglPixelFormat* pf)

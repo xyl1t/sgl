@@ -234,8 +234,9 @@ uint32_t sglGetPixelRaw(sglBuffer* buffer, int x, int y);
  * @param[out] b Pointer to blue component
  * @param[out] a Pointer to alpha component
  */
-void sglGetPixel(sglBuffer* buffer, uint8_t* r, uint8_t* g, uint8_t* b, uint8_t* a,
-		int x, int y);
+void sglGetPixel(sglBuffer* buffer,
+                 uint8_t* r, uint8_t* g, uint8_t* b, uint8_t* a,
+                 int x, int y);
 
 // TODO: implement
 void sglDrawLine(sglBuffer* buffer, uint32_t color,
@@ -245,6 +246,31 @@ void sglDrawLine(sglBuffer* buffer, uint32_t color,
 /*****************************************************************************
  * UTILITY FUNCTIONS                                                         *
  *****************************************************************************/
+
+/**
+ * @brief Linear interpolation using float
+ * @parameter a First value
+ * @parameter b Second value 
+ * @parameter t Value between 0 and 1 that mixes a and b
+ * @return Mix between a and b using t
+ */
+float sglLerpf(float a, float b, float t);
+/**
+ * @brief Linear interpolation using double
+ * @parameter a First value
+ * @parameter b Second value 
+ * @parameter t Value between 0 and 1 that mixes a and b
+ * @return Mix between a and b using t
+ */
+double sglLerpd(double a, double b, double t);
+/**
+ * @brief Linear interpolation using int
+ * @parameter a First value
+ * @parameter b Second value 
+ * @parameter t Value between 0 and 1 that mixes a and b
+ * @return Mix between a and b using t
+ */
+int sglLerpi(int a, int b, int t);
 
 /**
  * @brief Map single rgba values to a 32 bit uint32_t using a pixel format
