@@ -10,16 +10,21 @@
 
 #ifndef NDEBUG
 #include <stdio.h>
-#define SGL_DEBUG_PRINT(...) do{ fprintf( stderr, __VA_ARGS__ ); } while( 0 )
+#define SGL_DEBUG_PRINT(...)                                                  \
+	do {                                                                      \
+		fprintf(stderr, __VA_ARGS__);                                         \
+	} while (0)
 #else
-#define SGL_DEBUG_PRINT(...) do{ } while ( 0 )
+#define SGL_DEBUG_PRINT(...)                                                  \
+	do {                                                                      \
+	} while (0)
 #endif
 
-#include <stdint.h>
-#include <stddef.h>
 #include <stdbool.h>
+#include <stddef.h>
+#include <stdint.h>
 
-#define sgl_member_size(type, member) sizeof(((type *)0)->member)
+#define sgl_member_size(type, member) sizeof(((type*)0)->member)
 
 /*****************************************************************************
  * STATE VARIABLES                                                           *
@@ -61,36 +66,24 @@ typedef enum {
  * @brief Pixel formats
  */
 typedef enum {
-	SGL_PIXELFORMAT_ABGR32 =
-		(SGL_CHANNELORDER_ABGR << 5) |
-		(SGL_PIXELTYPE_32 << 2) |
-		(SGL_CHANNELLAYOUT_8888),
+	SGL_PIXELFORMAT_ABGR32 = (SGL_CHANNELORDER_ABGR << 5)
+		| (SGL_PIXELTYPE_32 << 2) | (SGL_CHANNELLAYOUT_8888),
 
-	SGL_PIXELFORMAT_BGRA32 =
-		(SGL_CHANNELORDER_BGRA << 5) |
-		(SGL_PIXELTYPE_32 << 2) |
-		(SGL_CHANNELLAYOUT_8888),
+	SGL_PIXELFORMAT_BGRA32 = (SGL_CHANNELORDER_BGRA << 5)
+		| (SGL_PIXELTYPE_32 << 2) | (SGL_CHANNELLAYOUT_8888),
 
-	SGL_PIXELFORMAT_RGBA32 =
-		(SGL_CHANNELORDER_RGBA << 5) |
-		(SGL_PIXELTYPE_32 << 2) |
-		(SGL_CHANNELLAYOUT_8888),
+	SGL_PIXELFORMAT_RGBA32 = (SGL_CHANNELORDER_RGBA << 5)
+		| (SGL_PIXELTYPE_32 << 2) | (SGL_CHANNELLAYOUT_8888),
 
-	SGL_PIXELFORMAT_ARGB32 =
-		(SGL_CHANNELORDER_ARGB << 5) |
-		(SGL_PIXELTYPE_32 << 2) |
-		(SGL_CHANNELLAYOUT_8888),
+	SGL_PIXELFORMAT_ARGB32 = (SGL_CHANNELORDER_ARGB << 5)
+		| (SGL_PIXELTYPE_32 << 2) | (SGL_CHANNELLAYOUT_8888),
 
-	SGL_PIXELFORMAT_ABGR4444 =
-		(SGL_CHANNELORDER_ABGR << 5) |
-		(SGL_PIXELTYPE_16 << 2) |
-		(SGL_CHANNELLAYOUT_4444),
+	SGL_PIXELFORMAT_ABGR4444 = (SGL_CHANNELORDER_ABGR << 5)
+		| (SGL_PIXELTYPE_16 << 2) | (SGL_CHANNELLAYOUT_4444),
 
-	SGL_PIXELFORMAT_RGB332 =
-		(SGL_CHANNELORDER_RGBX << 5) |
-		(SGL_PIXELTYPE_8 << 2) |
-		(SGL_CHANNELLAYOUT_332),
-	
+	SGL_PIXELFORMAT_RGB332 = (SGL_CHANNELORDER_RGBX << 5)
+		| (SGL_PIXELTYPE_8 << 2) | (SGL_CHANNELLAYOUT_332),
+
 	// SGL_PIXELFORMAT_BGRX8888, // X, r, g, b
 	// SGL_PIXELFORMAT_RGBX8888, // X, b, g, r
 } sglPixelFormatEnum;
@@ -161,7 +154,7 @@ typedef struct sglBuffer {
  * @parameter format Pixel format of the pixel buffer
  */
 sglBuffer* sglCreateBuffer(uint32_t* pixels, uint32_t width, uint32_t height,
-                           sglPixelFormatEnum format);
+	sglPixelFormatEnum format);
 /**
  * @brief Destroys an sgl buffer
  * @parameter buffer The buffer to delete
@@ -214,8 +207,8 @@ void sglDrawPixelRaw(sglBuffer* buffer, uint32_t color, int x, int y);
  * @param b blue channel
  * @param a alpha channel
  */
-void sglDrawPixel(sglBuffer* buffer, uint8_t r, uint8_t g, uint8_t b, uint8_t a,
-                 int x, int y);
+void sglDrawPixel(sglBuffer* buffer, uint8_t r, uint8_t g, uint8_t b,
+	uint8_t a, int x, int y);
 
 /**
  * @brief get pixel in buffer
@@ -235,18 +228,15 @@ uint32_t sglGetPixelRaw(sglBuffer* buffer, int x, int y);
  * @param[out] b Pointer to blue component
  * @param[out] a Pointer to alpha component
  */
-void sglGetPixel(sglBuffer* buffer,
-                 uint8_t* r, uint8_t* g, uint8_t* b, uint8_t* a,
-                 int x, int y);
+void sglGetPixel(sglBuffer* buffer, uint8_t* r, uint8_t* g, uint8_t* b,
+	uint8_t* a, int x, int y);
 
 // TODO: implement
-void sglDrawLine(sglBuffer* buffer, uint32_t color,
-                 int startX, int startY,
-                 int endX, int endY);
+void sglDrawLine(sglBuffer* buffer, uint32_t color, int startX, int startY,
+	int endX, int endY);
 
-void sglFillRectangle(sglBuffer* buffer, uint32_t color,
-                 int startX, int startY,
-                 int endX, int endY);
+void sglFillRectangle(sglBuffer* buffer, uint32_t color, int startX,
+	int startY, int endX, int endY);
 
 /*****************************************************************************
  * UTILITY FUNCTIONS                                                         *
@@ -255,7 +245,7 @@ void sglFillRectangle(sglBuffer* buffer, uint32_t color,
 /**
  * @brief Linear interpolation using float
  * @parameter a First value
- * @parameter b Second value 
+ * @parameter b Second value
  * @parameter t Value between 0 and 1 that mixes a and b
  * @return Mix between a and b using t
  */
@@ -263,7 +253,7 @@ float sglLerpf(float a, float b, float t);
 /**
  * @brief Linear interpolation using double
  * @parameter a First value
- * @parameter b Second value 
+ * @parameter b Second value
  * @parameter t Value between 0 and 1 that mixes a and b
  * @return Mix between a and b using t
  */
@@ -271,7 +261,7 @@ double sglLerpd(double a, double b, double t);
 /**
  * @brief Linear interpolation using int
  * @parameter a First value
- * @parameter b Second value 
+ * @parameter b Second value
  * @parameter t Value between 0 and 1 that mixes a and b
  * @return Mix between a and b using t
  */
@@ -285,8 +275,8 @@ int sglLerpi(int a, int b, int t);
  * @param a alpha channel
  * @param pf Pixel format that should be used to map the rgba values
  */
-uint32_t sglMapRGBA(uint8_t r, uint8_t g, uint8_t b, uint8_t a,
-                    const sglPixelFormat* pf);
+uint32_t sglMapRGBA(
+	uint8_t r, uint8_t g, uint8_t b, uint8_t a, const sglPixelFormat* pf);
 /**
  * @brief Get separate components of a 32 bit color using a pixel format
  * Pass NULL for components that you don't want to get.
@@ -297,8 +287,8 @@ uint32_t sglMapRGBA(uint8_t r, uint8_t g, uint8_t b, uint8_t a,
  * @param[out] b Pointer to blue component
  * @param[out] a Pointer to alpha component
  */
-void sglGetRGBA(uint32_t color, const sglPixelFormat* pf,
-                uint8_t* r, uint8_t* g, uint8_t* b, uint8_t* a);
+void sglGetRGBA(uint32_t color, const sglPixelFormat* pf, uint8_t* r,
+	uint8_t* g, uint8_t* b, uint8_t* a);
 
 /**
  * @brief Get pixel type from the an sglPixelFormatEnum
@@ -321,4 +311,3 @@ uint32_t sglGetChannelLayout(sglPixelFormatEnum format);
 const char* sglGetError(void);
 
 #endif // !SGL_H
-

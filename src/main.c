@@ -26,8 +26,8 @@ int main(int argc, char* argv[])
 
 	SDL_Window* window = SDL_CreateWindow("sgl demo", SDL_WINDOWPOS_CENTERED,
 		SDL_WINDOWPOS_CENTERED, WIDTH, HEIGHT, SDL_WINDOW_SHOWN);
-	SDL_Renderer* renderer = SDL_CreateRenderer(window, -1,
-		SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+	SDL_Renderer* renderer = SDL_CreateRenderer(
+		window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
 
 	SDL_Texture* texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ABGR32,
 		SDL_TEXTUREACCESS_STREAMING, WIDTH, HEIGHT);
@@ -36,7 +36,8 @@ int main(int argc, char* argv[])
 	uint32_t* pixels = (uint32_t*)malloc(WIDTH * HEIGHT * sizeof(pixels));
 	memset(pixels, 0, WIDTH * HEIGHT * sizeof(uint32_t));
 
-	sglBuffer* buf = sglCreateBuffer(pixels, WIDTH, HEIGHT, SGL_PIXELFORMAT_ABGR32);
+	sglBuffer* buf
+		= sglCreateBuffer(pixels, WIDTH, HEIGHT, SGL_PIXELFORMAT_ABGR32);
 
 	// SGL_DEBUG_PRINT("SGL_PIXELFORMAT_ABGR32 %#010x\n",
 	// 		sglGetChannelLayout(SGL_PIXELFORMAT_ABGR32));
@@ -49,9 +50,7 @@ int main(int argc, char* argv[])
 	// SGL_DEBUG_PRINT("SGL_PIXELFORMAT_RGB332 %#010x\n",
 	// 		sglGetChannelLayout(SGL_PIXELFORMAT_RGB332));
 
-	sglDrawPixel(buf,
-		0, 0,
-		7, 7, 3, 4);
+	sglDrawPixel(buf, 0, 0, 7, 7, 3, 4);
 	uint8_t r, g, b, a;
 	sglGetPixel(buf, &r, &g, &b, &a, 0, 0);
 	SGL_DEBUG_PRINT("%#010x\n", sglGetPixelRaw(buf, 0, 0));
@@ -117,7 +116,7 @@ int main(int argc, char* argv[])
 				int i = x << (y % 256 / 32) % 256;
 				int j = y << (x % 256 / 32) % 256;
 
-				sglDrawPixel(buf, j, i, 255-(i/2+j/2), 255, x, y);
+				sglDrawPixel(buf, j, i, 255 - (i / 2 + j / 2), 255, x, y);
 			}
 		}
 
@@ -128,7 +127,8 @@ int main(int argc, char* argv[])
 		// double time_spent = (double)(end - begin) / CLOCKS_PER_SEC;
 		// SGL_DEBUG_PRINT("time: %lf\n", time_spent);
 
-		SDL_UpdateTexture(texture, NULL, buf->pixels, WIDTH * sizeof(uint32_t));
+		SDL_UpdateTexture(
+			texture, NULL, buf->pixels, WIDTH * sizeof(uint32_t));
 		SDL_RenderClear(renderer);
 		SDL_RenderCopy(renderer, texture, NULL, NULL);
 		SDL_RenderPresent(renderer);
@@ -144,4 +144,3 @@ int main(int argc, char* argv[])
 
 	return 0;
 }
-
