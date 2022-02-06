@@ -149,6 +149,7 @@ typedef struct sglBuffer {
 	sglPixelFormat* pf;
 	int width;
 	int height;
+	int pitch;
 	sglRect clipRect;
 } sglBuffer;
 
@@ -240,6 +241,10 @@ void sglGetPixel(sglBuffer* buffer,
 
 // TODO: implement
 void sglDrawLine(sglBuffer* buffer, uint32_t color,
+                 int startX, int startY,
+                 int endX, int endY);
+
+void sglFillRectangle(sglBuffer* buffer, uint32_t color,
                  int startX, int startY,
                  int endX, int endY);
 

@@ -120,6 +120,7 @@ sglBuffer* sglCreateBuffer(uint32_t* pixels, uint32_t width, uint32_t height,
 	b->pf = sglCreatePixelFormat(format);
 	b->width = width;
 	b->height = height;
+	b->pitch = width * b->pf->bytesPerPixel;
 	b->clipRect = (sglRect) {
 		.x = 0,
 		.y = 0,
@@ -161,6 +162,37 @@ bool sglSetClipRect(sglBuffer* buffer, const sglRect* rect)
  * GRAPHICS FUNCTIONS                                                        *
  *****************************************************************************/
 
+#define SET_PIXEL_FAST(x, y, type, bpp, color) \
+	*(type *)((uint8_t *)buffer->pixels + (y) * buffer->pitch \
+			+ (x) * bpp) = (type) color
+
+#define SET_PIXEL_FAST_1(x, y, color) SET_PIXEL_FAST(x, y, uint8_t, 1, color)
+#define SET_PIXEL_FAST_2(x, y, color) SET_PIXEL_FAST(x, y, uint16_t, 2, color)
+#define SET_PIXEL_FAST_4(x, y, color) SET_PIXEL_FAST(x, y, uint32_t, 4, color)
+
+/**
+ * fast draw pixel
+ */
+static void setPixel(sglBuffer* buffer, uint32_t color, int x, int y) {
+	switch (buffer->pf->bytesPerPixel) {
+		case 1:
+			*((uint8_t*)buffer->pixels + (y * buffer->width + x)) = color;
+			break;
+
+		case 2:
+			*((uint16_t*)buffer->pixels + (y * buffer->width + x)) = color;
+			break;
+
+		case 3:
+			sglError("Unsupported pixel format (3 bytes per pixel are not supported)");
+			break;
+
+		case 4:
+			*((uint32_t*)buffer->pixels + (y * buffer->width + x)) = color;
+			break;
+	}
+}
+
 void sglClear(sglBuffer* buffer, int width, int height)
 {
 	memset(buffer->pixels, 0, width * height * sizeof(uint32_t));
@@ -180,23 +212,7 @@ void sglDrawPixelRaw(sglBuffer* buffer, uint32_t color, int x, int y)
 		x >= buffer->clipRect.x + buffer->clipRect.w ||
 		y >= buffer->clipRect.y + buffer->clipRect.h) return;
 
-	switch (buffer->pf->bytesPerPixel) {
-		case 1:
-			*((uint8_t*)buffer->pixels + (y * buffer->width + x)) = color;
-			break;
-
-		case 2:
-			*((uint16_t*)buffer->pixels + (y * buffer->width + x)) = color;
-			break;
-
-		case 3:
-			sglError("Unsupported pixel format (3 bytes per pixel are not supported)");
-			break;
-
-		case 4:
-			*((uint32_t*)buffer->pixels + (y * buffer->width + x)) = color;
-			break;
-	}
+	setPixel(buffer, color, x, y);
 }
 
 void sglDrawPixel(sglBuffer* buffer, uint8_t r, uint8_t g, uint8_t b, uint8_t a,
@@ -256,6 +272,38 @@ void sglDrawLine(sglBuffer* buffer, uint32_t color,
 		int endX, int endY)
 {
 
+}
+
+void sglFillRectangle(sglBuffer* buffer, uint32_t color,
+		int startX, int startY,
+		int endX, int endY)
+{
+	if (!buffer) return;
+
+#define FILL_RECT(type, bpp) \
+	do { \
+		for (int x = startX; x < endX; x++) { \
+			for (int y = startY; y < endY; y++) { \
+				SET_PIXEL_FAST(x, y, type, bpp, color); \
+			} \
+		} \
+	} while(0);
+
+
+	switch (buffer->pf->bytesPerPixel) {
+		case 1:
+			FILL_RECT(uint8_t, 1);
+			break;
+		case 2:
+			FILL_RECT(uint16_t, 2);
+			break;
+		case 3:
+			sglError("Unsupported pixel format (3 bytes per pixel are not supported)");
+			break;
+		case 4:
+			FILL_RECT(uint32_t, 4);
+			break;
+	}
 }
 
 
