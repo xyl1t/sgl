@@ -24,14 +24,14 @@ sglPixelFormat* sglCreatePixelFormat(sglPixelFormatEnum format)
 	pf->bitsPerPixel = sglGetPixelType(format) * 8;
 	pf->bytesPerPixel = sglGetPixelType(format);
 
-#define SGL_SET_FORMAT(a, b, c, d)                                            \
-	pf->a##mask = 0xff000000;                                                 \
-	pf->b##mask = 0x00ff0000;                                                 \
-	pf->c##mask = 0x0000ff00;                                                 \
-	pf->d##mask = 0x000000ff;                                                 \
-	pf->a##shift = 24;                                                        \
-	pf->b##shift = 16;                                                        \
-	pf->c##shift = 8;                                                         \
+#define SGL_SET_FORMAT(a, b, c, d) \
+	pf->a##mask = 0xff000000;      \
+	pf->b##mask = 0x00ff0000;      \
+	pf->c##mask = 0x0000ff00;      \
+	pf->d##mask = 0x000000ff;      \
+	pf->a##shift = 24;             \
+	pf->b##shift = 16;             \
+	pf->c##shift = 8;              \
 	pf->d##shift = 0;
 
 	switch (format) {
@@ -157,8 +157,8 @@ bool sglSetClipRect(sglBuffer* buffer, const sglRect* rect)
  * GRAPHICS FUNCTIONS                                                        *
  *****************************************************************************/
 
-#define SET_PIXEL_FAST(x, y, type, bpp, color)                                \
-	*(type*)((uint8_t*)buffer->pixels + (y)*buffer->pitch + (x)*bpp)          \
+#define SET_PIXEL_FAST(x, y, type, bpp, color)                       \
+	*(type*)((uint8_t*)buffer->pixels + (y)*buffer->pitch + (x)*bpp) \
 		= (type)color
 
 #define SET_PIXEL_FAST_1(x, y, color) SET_PIXEL_FAST(x, y, uint8_t, 1, color)
@@ -213,8 +213,8 @@ void sglDrawPixelRaw(sglBuffer* buffer, uint32_t color, int x, int y)
 	setPixel(buffer, color, x, y);
 }
 
-void sglDrawPixel(sglBuffer* buffer, uint8_t r, uint8_t g, uint8_t b,
-	uint8_t a, int x, int y)
+void sglDrawPixel(
+	sglBuffer* buffer, uint8_t r, uint8_t g, uint8_t b, uint8_t a, int x, int y)
 {
 	sglDrawPixelRaw(buffer, sglMapRGBA(r, g, b, a, buffer->pf), x, y);
 }
@@ -293,19 +293,37 @@ void sglDrawLine(sglBuffer* buffer, uint32_t color, int startX, int startY,
 	}
 }
 
-void sglFillRectangle(sglBuffer* buffer, uint32_t color, int startX,
-	int startY, int endX, int endY)
+void sglFillRectangle(
+	sglBuffer* buffer, uint32_t color, int startX, int startY, int w, int h)
 {
 	if (!buffer)
 		return;
 
-#define FILL_RECT(type, bpp)                                                  \
-	do {                                                                      \
-		for (int x = startX; x < endX; x++) {                                 \
-			for (int y = startY; y < endY; y++) {                             \
-				SET_PIXEL_FAST(x, y, type, bpp, color);                       \
-			}                                                                 \
-		}                                                                     \
+	sglRect clipped = (sglRect) {
+		.x = startX,
+		.y = startY,
+		.w = w,
+		.h = h
+	};
+
+	// if rect is not in clipping pane of the buffer just exit
+	if (!sglIntersectRect(&clipped, &buffer->clipRect, &clipped)) {
+		return;
+	}
+
+	SGL_DEBUG_PRINT("\n");
+	SGL_DEBUG_PRINT("x: %d\n", buffer->clipRect.x);
+	SGL_DEBUG_PRINT("y: %d\n", buffer->clipRect.y);
+	SGL_DEBUG_PRINT("w: %d\n", buffer->clipRect.w);
+	SGL_DEBUG_PRINT("h: %d\n", buffer->clipRect.h);
+
+#define FILL_RECT(type, bpp)                                          \
+	do {                                                              \
+		for (int x = clipped.x; x < clipped.x + clipped.w; x++) {     \
+			for (int y = clipped.y; y < clipped.y + clipped.h; y++) { \
+				SET_PIXEL_FAST(x, y, type, bpp, color);               \
+			}                                                         \
+		}                                                             \
 	} while (0);
 
 
@@ -370,9 +388,6 @@ uint32_t sglGetChannelOrder(sglPixelFormatEnum format)
 	return (format >> 5) & 0x7;
 }
 
-uint32_t sglGetChannelLayout(sglPixelFormatEnum format)
-{
-	return format & 0x3;
-}
+uint32_t sglGetChannelLayout(sglPixelFormatEnum format) { return format & 0x3; }
 
 const char* sglGetError(void) { return _sglError; }

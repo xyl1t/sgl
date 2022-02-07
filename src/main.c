@@ -109,7 +109,11 @@ int main(int argc, char* argv[])
 		// clear pixel buffer
 		sglClear(buf, WIDTH, HEIGHT);
 
-		if (false) {
+		bool test1 = false;
+		bool test2 = false;
+		bool test3 = true;
+
+		if (test1) {
 			for (int x = 0; x < buf->width; x++) {
 				for (int y = 0; y < buf->height; y++) {
 					// if ((x + y) % 2) continue;
@@ -122,7 +126,21 @@ int main(int argc, char* argv[])
 			}
 		}
 
-		sglDrawLine(buf, 0x00ff00ff, buf->width/2, buf->height/2, m.x, m.y);
+		if (test2) {
+			sglDrawLine(buf, 0x00ff00ff, buf->width/2, buf->height/2, m.x,m.y);
+		}
+
+		if (test3) {
+			sglRect clip = (sglRect) {
+				.x = 32,
+				.y = 32,
+				.w = 32,
+				.h = 32
+			};
+
+			sglSetClipRect(buf, &clip);
+			sglFillRectangle(buf, 0x203040ff, 16, 16, 128, 128);
+		}
 
 
 		// clock_t begin = clock();

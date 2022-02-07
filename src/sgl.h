@@ -231,7 +231,15 @@ uint32_t sglGetPixelRaw(sglBuffer* buffer, int x, int y);
 void sglGetPixel(sglBuffer* buffer, uint8_t* r, uint8_t* g, uint8_t* b,
 	uint8_t* a, int x, int y);
 
-// TODO: implement
+/**
+ * @brief Draw a line on buffer
+ * @parameter buffer Buffer to draw on
+ * @parameter color Color of the line
+ * @parameter startX x coordinate of the start point
+ * @parameter startY y coordinate of the start point
+ * @parameter endX x coordinate of the end point
+ * @parameter endY y coordinate of the end point
+ */
 void sglDrawLine(sglBuffer* buffer, uint32_t color, int startX, int startY,
 	int endX, int endY);
 
