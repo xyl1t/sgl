@@ -109,16 +109,21 @@ int main(int argc, char* argv[])
 		// clear pixel buffer
 		sglClear(buf, WIDTH, HEIGHT);
 
-		for (int x = 0; x < buf->width; x++) {
-			for (int y = 0; y < buf->height; y++) {
-				// if ((x + y) % 2) continue;
+		if (false) {
+			for (int x = 0; x < buf->width; x++) {
+				for (int y = 0; y < buf->height; y++) {
+					// if ((x + y) % 2) continue;
 
-				int i = x << (y % 256 / 32) % 256;
-				int j = y << (x % 256 / 32) % 256;
+					int i = x << (y % 256 / 32) % 256;
+					int j = y << (x % 256 / 32) % 256;
 
-				sglDrawPixel(buf, j, i, 255 - (i / 2 + j / 2), 255, x, y);
+					sglDrawPixel(buf, j, i, 255 - (i / 2 + j / 2), 255, x, y);
+				}
 			}
 		}
+
+		sglDrawLine(buf, 0x00ff00ff, buf->width/2, buf->height/2, m.x, m.y);
+
 
 		// clock_t begin = clock();
 		// for (int i = 0; i < 1000; i++)

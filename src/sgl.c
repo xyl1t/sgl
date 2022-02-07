@@ -276,6 +276,21 @@ void sglGetPixel(sglBuffer* buffer, uint8_t* r, uint8_t* g, uint8_t* b,
 void sglDrawLine(sglBuffer* buffer, uint32_t color, int startX, int startY,
 	int endX, int endY)
 {
+	int dx = endX - startX;
+	int dy = endY - startY;
+
+	int largest = (abs(dx) > abs(dy)) ? abs(dx) : abs(dy);
+
+	float stepX = dx / (float)largest;
+	float stepY = dy / (float)largest;
+
+	float x = startX + 0.5f;
+	float y = startY + 0.5f;
+	for (int i = 0; i < largest; i++) {
+		setPixel(buffer, color, x, y);
+		x += stepX;
+		y += stepY;
+	}
 }
 
 void sglFillRectangle(sglBuffer* buffer, uint32_t color, int startX,
