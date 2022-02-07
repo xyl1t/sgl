@@ -127,16 +127,12 @@ int main(int argc, char* argv[])
 		}
 
 		if (test2) {
-			sglDrawLine(buf, 0x00ff00ff, buf->width/2, buf->height/2, m.x,m.y);
+			sglDrawLine(
+				buf, 0x00ff00ff, buf->width / 2, buf->height / 2, m.x, m.y);
 		}
 
 		if (test3) {
-			sglRect clip = (sglRect) {
-				.x = 32,
-				.y = 32,
-				.w = 32,
-				.h = 32
-			};
+			sglRect clip = (sglRect) { .x = 32, .y = 32, .w = 32, .h = 32 };
 
 			sglSetClipRect(buf, &clip);
 			sglFillRectangle(buf, 0x203040ff, 16, 16, 128, 128);
@@ -150,8 +146,7 @@ int main(int argc, char* argv[])
 		// double time_spent = (double)(end - begin) / CLOCKS_PER_SEC;
 		// SGL_DEBUG_PRINT("time: %lf\n", time_spent);
 
-		SDL_UpdateTexture(
-			texture, NULL, buf->pixels, WIDTH * sizeof(uint32_t));
+		SDL_UpdateTexture(texture, NULL, buf->pixels, WIDTH * sizeof(uint32_t));
 		SDL_RenderClear(renderer);
 		SDL_RenderCopy(renderer, texture, NULL, NULL);
 		SDL_RenderPresent(renderer);

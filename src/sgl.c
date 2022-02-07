@@ -293,29 +293,28 @@ void sglDrawLine(sglBuffer* buffer, uint32_t color, int startX, int startY,
 	}
 }
 
+// TOOD: implement
+void sglDrawRectangle(
+		sglBuffer* buffer, uint32_t color, int startX, int startY, int w, int h)
+{
+	if (!buffer)
+		return;
+
+
+}
+
 void sglFillRectangle(
 	sglBuffer* buffer, uint32_t color, int startX, int startY, int w, int h)
 {
 	if (!buffer)
 		return;
 
-	sglRect clipped = (sglRect) {
-		.x = startX,
-		.y = startY,
-		.w = w,
-		.h = h
-	};
+	sglRect clipped = (sglRect) { .x = startX, .y = startY, .w = w, .h = h };
 
 	// if rect is not in clipping pane of the buffer just exit
 	if (!sglIntersectRect(&clipped, &buffer->clipRect, &clipped)) {
 		return;
 	}
-
-	SGL_DEBUG_PRINT("\n");
-	SGL_DEBUG_PRINT("x: %d\n", buffer->clipRect.x);
-	SGL_DEBUG_PRINT("y: %d\n", buffer->clipRect.y);
-	SGL_DEBUG_PRINT("w: %d\n", buffer->clipRect.w);
-	SGL_DEBUG_PRINT("h: %d\n", buffer->clipRect.h);
 
 #define FILL_RECT(type, bpp)                                          \
 	do {                                                              \
