@@ -1,3 +1,4 @@
+#include "SDL_rect.h"
 #include <stdbool.h>
 #include <stdio.h>
 #include <string.h>
@@ -18,30 +19,35 @@ struct mouse {
 } m;
 
 struct point {
-
-};
+	int x;
+	int y;
+} p1, p2;
 
 int main(int argc, char* argv[])
 {
 	SDL_Init(SDL_INIT_EVERYTHING);
 
-	const int WIDTH = 512;
-	const int HEIGHT = 512;
+	const int WINDOW_WIDTH = 512;
+	const int WINDOW_HEIGHT = 512;
+
+	const int CANVAS_WIDTH = 256;
+	const int CANVAS_HEIGHT = 256;
 
 	SDL_Window* window = SDL_CreateWindow("sgl demo", SDL_WINDOWPOS_CENTERED,
-		SDL_WINDOWPOS_CENTERED, WIDTH, HEIGHT, SDL_WINDOW_SHOWN);
+		SDL_WINDOWPOS_CENTERED, WINDOW_WIDTH, WINDOW_HEIGHT, SDL_WINDOW_SHOWN);
 	SDL_Renderer* renderer = SDL_CreateRenderer(
 		window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
 
 	SDL_Texture* texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ABGR32,
-		SDL_TEXTUREACCESS_STREAMING, WIDTH, HEIGHT);
+		SDL_TEXTUREACCESS_STREAMING, CANVAS_WIDTH, CANVAS_HEIGHT);
 	SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
 
-	uint32_t* pixels = (uint32_t*)malloc(WIDTH * HEIGHT * sizeof(pixels));
-	memset(pixels, 0, WIDTH * HEIGHT * sizeof(uint32_t));
+	uint32_t* pixels
+		= (uint32_t*)malloc(CANVAS_WIDTH * CANVAS_HEIGHT * sizeof(pixels));
+	memset(pixels, 0, CANVAS_WIDTH * CANVAS_HEIGHT * sizeof(uint32_t));
 
-	sglBuffer* buf
-		= sglCreateBuffer(pixels, WIDTH, HEIGHT, SGL_PIXELFORMAT_ABGR32);
+	sglBuffer* buf = sglCreateBuffer(
+		pixels, CANVAS_WIDTH, CANVAS_HEIGHT, SGL_PIXELFORMAT_ABGR32);
 
 	// SGL_DEBUG_PRINT("SGL_PIXELFORMAT_ABGR32 %#010x\n",
 	// 		sglGetChannelLayout(SGL_PIXELFORMAT_ABGR32));
@@ -104,14 +110,22 @@ int main(int argc, char* argv[])
 				break;
 			}
 			uint32_t buttons = SDL_GetMouseState(&m.x, &m.y);
+			m.x /= WINDOW_WIDTH / CANVAS_WIDTH;
+			m.y /= WINDOW_HEIGHT / CANVAS_HEIGHT;
 			m.left = (buttons & SDL_BUTTON_LMASK) != 0;
 			m.right = (buttons & SDL_BUTTON_RMASK) != 0;
 		}
-		if (m.left) { }
-		if (m.right) { }
+		if (m.left) {
+			p1.x = m.x;
+			p1.y = m.y;
+		}
+		if (m.right) {
+			p2.x = m.x;
+			p2.y = m.y;
+		}
 
 		// clear pixel buffer
-		sglClear(buf, WIDTH, HEIGHT);
+		sglClear(buf);
 		sglResetClipRect(buf);
 
 		bool test1 = false;
@@ -147,16 +161,20 @@ int main(int argc, char* argv[])
 
 		if (test3) {
 
-			sglDrawLine(
-					buf, 0xff0000ff, 240, 240, m.x, m.y);
+			sglRect clip = (sglRect) { .x = 32, .y = 32, .w = 150, .h = 150 };
 
-			sglRect clip = (sglRect) { .x = 32, .y = 32, .w = 200, .h = 200 };
+			sglFillRectangle(buf, 0x203040ff, clip.x, clip.y, clip.w, clip.h);
+
+			sglDrawLine(buf, 0xff0000ff, p1.x, p1.y, p2.x, p2.y);
+
 			sglSetClipRect(buf, &clip);
 
-			sglFillRectangle(buf, 0x203040ff, 16, 16, 256, 256);
+			sglDrawLine(buf, 0x00ff00ff, p1.x, p1.y, p2.x, p2.y);
 
-			sglDrawLine(
-					buf, 0x00ff00ff, 240, 240, m.x, m.y);
+			// SGL_DEBUG_PRINT("x1: %d\n", p1.x);
+			// SGL_DEBUG_PRINT("y1: %d\n", p1.y);
+			// SGL_DEBUG_PRINT("x2: %d\n", p2.x);
+			// SGL_DEBUG_PRINT("y2: %d\n", p2.y);
 		}
 
 
@@ -167,9 +185,12 @@ int main(int argc, char* argv[])
 		// double time_spent = (double)(end - begin) / CLOCKS_PER_SEC;
 		// SGL_DEBUG_PRINT("time: %lf\n", time_spent);
 
-		SDL_UpdateTexture(texture, NULL, buf->pixels, WIDTH * sizeof(uint32_t));
+		SDL_UpdateTexture(
+			texture, NULL, buf->pixels, CANVAS_WIDTH * sizeof(uint32_t));
 		SDL_RenderClear(renderer);
-		SDL_RenderCopy(renderer, texture, NULL, NULL);
+		SDL_Rect srcRect = {0, 0, WINDOW_WIDTH, WINDOW_HEIGHT};
+		SDL_Rect dstRect = {0, 0, CANVAS_WIDTH, CANVAS_HEIGHT};
+		SDL_RenderCopy(renderer, texture, &dstRect, &srcRect);
 		SDL_RenderPresent(renderer);
 	}
 

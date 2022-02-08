@@ -3,6 +3,10 @@
  * @brief Main header for sgl
  */
 
+#ifdef SGL_FAST_MATH
+#define SGL_FAST_MATH
+#endif
+
 #ifndef SGL_H
 
 // Check bounds by default in sglSetPixel()
@@ -192,7 +196,7 @@ void sglResetClipRect(sglBuffer* buffer);
  * @param width Width of the buffer
  * @param height Height of the buffer
  */
-void sglClear(sglBuffer* buffer, int width, int height);
+void sglClear(sglBuffer* buffer);
 
 /**
  * @brief set pixel in buffer using a 32 bit value
