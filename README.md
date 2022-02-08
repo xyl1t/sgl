@@ -8,9 +8,8 @@ Lots of things inspired from SDL :D
 
 ## TODO
 
-* [x] _clipping_ is diff than buffer size https://excalidraw.com/#json=NeZCoIxJUkEwVPzVzYm1h,6kXWGEhKPBWoN1WS_CSQKg
-* [x] different code for putting pixels
-* [x] implement `sglGetError()` https://wiki.libsdl.org/SDL\_GetError
+### Core
+
 * [ ] implement all basic drawing functions
 	* [x] Point
 	* [x] Rectangles
@@ -21,6 +20,7 @@ Lots of things inspired from SDL :D
 	* [ ] Images
 		* [ ] Linear sampling
 	* [ ] Text
+	* [ ] Shaders
 * [ ] Utility
 	* [ ] HSV
 	* [ ] HSL
@@ -28,3 +28,6 @@ Lots of things inspired from SDL :D
 	* [ ] Gamma correction
 	* [ ] (ordered) Dithering
 
+### Other
+
+* [x] implement `sglGetError()` https://wiki.libsdl.org/SDL\_GetError

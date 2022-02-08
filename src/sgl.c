@@ -214,8 +214,20 @@ static void setPixel(sglBuffer* buffer, uint32_t color, int x, int y)
 
 void sglClear(sglBuffer* buffer)
 {
-	memset(
-		buffer->pixels, 0, buffer->width * buffer->height * sizeof(uint32_t));
+	// memset(buffer->pixels, 0,
+	// 		buffer->width * buffer->height * buffer->pf->bytesPerPixel);
+	memset(buffer->pixels, 0, buffer->pitch * buffer->height);
+}
+void sglClearClipRect(sglBuffer* buffer)
+{
+	if (!buffer)
+		return;
+
+	for (int y = buffer->clipRect.y; y < buffer->clipRect.y + buffer->clipRect.h; y++) {
+		memset(buffer->pixels + buffer->clipRect.x * buffer->pf->bytesPerPixel
+				+ buffer->pitch * y,
+			0, buffer->clipRect.w * buffer->pf->bytesPerPixel);
+	}
 }
 
 void sglDrawPixelRaw(sglBuffer* buffer, uint32_t color, int x, int y)
@@ -321,7 +333,6 @@ void sglDrawLine(sglBuffer* buffer, uint32_t color, int startX, int startY,
 	}
 }
 
-// TOOD: implement
 void sglDrawRectangle(
 	sglBuffer* buffer, uint32_t color, int x, int y, int w, int h)
 {

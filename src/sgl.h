@@ -191,12 +191,21 @@ void sglResetClipRect(sglBuffer* buffer);
 // TODO: rename sgl***Pixel() to sgl***RGB() and sgl***RGBA()
 
 /**
- * @brief clear buffer
+ * @brief clear the whole buffer
  * @param buffer Buffer to clear
  * @param width Width of the buffer
  * @param height Height of the buffer
  */
 void sglClear(sglBuffer* buffer);
+
+/**
+ * @brief clear the clipping rectangle part of the buffer
+ * @param buffer Buffer to clear
+ * @param width Width of the buffer
+ * @param height Height of the buffer
+ */
+void sglClearClipRect(sglBuffer* buffer);
+
 
 /**
  * @brief set pixel in buffer using a 32 bit value
