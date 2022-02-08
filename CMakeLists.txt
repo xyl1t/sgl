@@ -33,6 +33,7 @@ endif()
 if (WIN32)
 	target_link_libraries(${PROJECT_NAME} PRIVATE SDL2main SDL2 hid setupapi imagehlp dinput8 dxguid dxerr8 user32 gdi32 winmm imm32 ole32 oleaut32 shell32 version uuid)
 else()
+	target_link_libraries(${PROJECT_NAME} m)
 	target_link_libraries(${PROJECT_NAME} ${SDL2_LIBRARIES})
 endif()
 
