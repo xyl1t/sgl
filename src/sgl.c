@@ -323,10 +323,15 @@ void sglDrawLine(sglBuffer* buffer, uint32_t color, int startX, int startY,
 
 // TOOD: implement
 void sglDrawRectangle(
-	sglBuffer* buffer, uint32_t color, int startX, int startY, int w, int h)
+	sglBuffer* buffer, uint32_t color, int x, int y, int w, int h)
 {
 	if (!buffer)
 		return;
+
+	sglDrawLine(buffer, color, x, y, x + w, y);
+	sglDrawLine(buffer, color, x, y, x, y + h);
+	sglDrawLine(buffer, color, x + w, y, x + w, y + h);
+	sglDrawLine(buffer, color, x, y + h, x + w, y + h);
 }
 
 void sglFillRectangle(

@@ -217,8 +217,8 @@ void sglDrawPixelRaw(sglBuffer* buffer, uint32_t color, int x, int y);
  * @param b blue channel
  * @param a alpha channel
  */
-void sglDrawPixel(sglBuffer* buffer, uint8_t r, uint8_t g, uint8_t b,
-	uint8_t a, int x, int y);
+void sglDrawPixel(sglBuffer* buffer, uint8_t r, uint8_t g, uint8_t b, uint8_t a,
+	int x, int y);
 
 /**
  * @brief get pixel in buffer
@@ -262,8 +262,8 @@ void sglDrawLine(sglBuffer* buffer, uint32_t color, int startX, int startY,
  * @parameter w Width of the rectangle
  * @parameter h Height of the rectangle
  */
-void sglFillRectangle(sglBuffer* buffer, uint32_t color, int startX,
-	int startY, int w, int h);
+void sglFillRectangle(
+	sglBuffer* buffer, uint32_t color, int startX, int startY, int w, int h);
 
 /**
  * @brief Draw a rectangle on the buffer
@@ -274,8 +274,8 @@ void sglFillRectangle(sglBuffer* buffer, uint32_t color, int startX,
  * @parameter w Width of the rectangle
  * @parameter h Height of the rectangle
  */
-void sglDrawRectangle(sglBuffer* buffer, uint32_t color, int startX,
-		int startY, int w, int h);
+void sglDrawRectangle(
+	sglBuffer* buffer, uint32_t color, int x, int y, int w, int h);
 
 
 /*****************************************************************************
@@ -308,8 +308,8 @@ double sglLerpd(double a, double b, double t);
 int sglLerpi(int a, int b, int t);
 
 
-bool clipLine(const sglRect* clipRect, int startX, int startY, int endX, int endY,
-	int* cstartX, int* cstartY, int* cendX, int* cendY);
+bool clipLine(const sglRect* clipRect, int startX, int startY, int endX,
+	int endY, int* cstartX, int* cstartY, int* cendX, int* cendY);
 
 /**
  * @brief Map single rgba values to a 32 bit uint32_t using a pixel format

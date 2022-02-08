@@ -171,6 +171,8 @@ int main(int argc, char* argv[])
 
 			sglDrawLine(buf, 0x00ff00ff, p1.x, p1.y, p2.x, p2.y);
 
+			sglDrawRectangle(buf, 0x00ff00ff, p1.x, p1.y, p2.x - p1.x, p2.y - p1.y);
+
 			// SGL_DEBUG_PRINT("x1: %d\n", p1.x);
 			// SGL_DEBUG_PRINT("y1: %d\n", p1.y);
 			// SGL_DEBUG_PRINT("x2: %d\n", p2.x);

@@ -13,7 +13,7 @@ Lots of things inspired from SDL :D
 * [x] implement `sglGetError()` https://wiki.libsdl.org/SDL\_GetError
 * [ ] implement all basic drawing functions
 	* [x] Point
-	* [ ] Rectangles
+	* [x] Rectangles
 	* [x] Line
 	* [ ] Circles
 	* [ ] Arcs
