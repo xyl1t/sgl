@@ -10,13 +10,13 @@
 
 #ifndef NDEBUG
 #include <stdio.h>
-#define SGL_DEBUG_PRINT(...)                                                  \
-	do {                                                                      \
-		fprintf(stderr, __VA_ARGS__);                                         \
+#define SGL_DEBUG_PRINT(...)          \
+	do {                              \
+		fprintf(stderr, __VA_ARGS__); \
 	} while (0)
 #else
-#define SGL_DEBUG_PRINT(...)                                                  \
-	do {                                                                      \
+#define SGL_DEBUG_PRINT(...) \
+	do {                     \
 	} while (0)
 #endif
 
@@ -160,6 +160,7 @@ sglBuffer* sglCreateBuffer(uint32_t* pixels, uint32_t width, uint32_t height,
  * @parameter buffer The buffer to delete
  */
 void sglDestroyBuffer(sglBuffer* buffer);
+
 /**
  * @brief Sets the clipping rectangle of the buffer, meaning that you won't
  * be able to draw outside the clipping rectangle
@@ -171,6 +172,11 @@ void sglDestroyBuffer(sglBuffer* buffer);
  * @parameter rect The clipping rectangle that should be used by the buffer
  */
 bool sglSetClipRect(sglBuffer* buffer, const sglRect* rect);
+/**
+ * @brief Resets the clipping rectangle of the buffer to the full buffer size
+ * @parameter buffer The buffer
+ */
+void sglResetClipRect(sglBuffer* buffer);
 
 
 
@@ -296,6 +302,10 @@ double sglLerpd(double a, double b, double t);
  * @return Mix between a and b using t
  */
 int sglLerpi(int a, int b, int t);
+
+
+bool clipLine(const sglRect* clipRect, int startX, int startY, int endX, int endY,
+	int* cstartX, int* cstartY, int* cendX, int* cendY);
 
 /**
  * @brief Map single rgba values to a 32 bit uint32_t using a pixel format

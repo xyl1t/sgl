@@ -150,7 +150,16 @@ bool sglSetClipRect(sglBuffer* buffer, const sglRect* rect)
 
 	return intersects;
 }
-
+void sglResetClipRect(sglBuffer* buffer)
+{
+	if (!buffer) return;
+	buffer->clipRect = (sglRect) {
+		.x = 0,
+		.y = 0,
+		.w = buffer->width,
+		.h = buffer->height,
+	};
+}
 
 
 /*****************************************************************************
@@ -276,6 +285,11 @@ void sglGetPixel(sglBuffer* buffer, uint8_t* r, uint8_t* g, uint8_t* b,
 void sglDrawLine(sglBuffer* buffer, uint32_t color, int startX, int startY,
 	int endX, int endY)
 {
+	if (!clipLine(&buffer->clipRect, startX, startY, endX, endY, &startX,
+			&startY, &endX, &endY)) {
+		return;
+	}
+
 	int dx = endX - startX;
 	int dy = endY - startY;
 
@@ -295,12 +309,10 @@ void sglDrawLine(sglBuffer* buffer, uint32_t color, int startX, int startY,
 
 // TOOD: implement
 void sglDrawRectangle(
-		sglBuffer* buffer, uint32_t color, int startX, int startY, int w, int h)
+	sglBuffer* buffer, uint32_t color, int startX, int startY, int w, int h)
 {
 	if (!buffer)
 		return;
-
-
 }
 
 void sglFillRectangle(
@@ -352,6 +364,85 @@ void sglFillRectangle(
 float sglLerpf(float a, float b, float t) { return a + t * (b - a); }
 double sglLerpd(double a, double b, double t) { return a + t * (b - a); }
 int sglLerpi(int a, int b, int t) { return a + t * (b - a); }
+
+
+static int findRegion(const sglRect* r, int x, int y)
+{
+	if (!r)
+		return -1;
+
+	int code = 0;
+
+	if (y >= r->h)
+		code |= 1; // top
+	else if (y < r->y)
+		code |= 2; // bottom
+	if (x >= r->w)
+		code |= 4; // right
+	else if (x < r->x)
+		code |= 8; // left
+
+	return (code);
+}
+bool clipLine(const sglRect* clipRect, int startX, int startY, int endX,
+	int endY, int* cstartX, int* cstartY, int* cendX, int* cendY)
+{
+	int code1, code2, codeout;
+	bool accept = 0, done = 0;
+	code1 = findRegion(clipRect, startX, startY);
+	code2 = findRegion(clipRect, endX, endY);
+
+	do {
+		if (!(code1 | code2))
+			accept = done = 1;
+		else if (code1 & code2)
+			done = 1;
+
+		else {
+			int x, y;
+			codeout = code1 ? code1 : code2;
+			if (codeout & 1) { // top
+				x = startX
+					+ (endX - startX) * (clipRect->h - startY)
+						/ (endY - startY);
+				y = clipRect->h - 1;
+			} else if (codeout & 2) { // bottom
+				x = startX + (endX - startX) * (clipRect->y - startY) / (endY - startY);
+				y = clipRect->y;
+			} else if (codeout & 4) { // right
+				y = startY
+					+ (endY - startY) * (clipRect->w - startX)
+						/ (endX - startX);
+				x = clipRect->w - 1;
+			} else { // left
+				y = startY + (endY - startY) * (clipRect->x - startX) / (endX - startX);
+				x = clipRect->x;
+				
+			}
+
+			if (codeout == code1) {
+				startX = x;
+				startY = y;
+				code1 = findRegion(clipRect, startX, startY);
+			} else {
+				endX = x;
+				endY = y;
+				code2 = findRegion(clipRect, endX, endY);
+			}
+		}
+	} while (done == 0);
+
+	if (accept) {
+		*cstartX = startX;
+		*cendX = endX;
+		*cstartY = startY;
+		*cendY = endY;
+		return 1;
+	} else {
+		*cstartX = *cstartY = *cendX = *cendY = 0;
+		return 0;
+	}
+}
 
 uint32_t sglMapRGBA(
 	uint8_t r, uint8_t g, uint8_t b, uint8_t a, const sglPixelFormat* pf)

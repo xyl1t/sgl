@@ -108,6 +108,7 @@ int main(int argc, char* argv[])
 
 		// clear pixel buffer
 		sglClear(buf, WIDTH, HEIGHT);
+		sglResetClipRect(buf);
 
 		bool test1 = false;
 		bool test2 = false;
@@ -127,15 +128,31 @@ int main(int argc, char* argv[])
 		}
 
 		if (test2) {
-			sglDrawLine(
-				buf, 0x00ff00ff, buf->width / 2, buf->height / 2, m.x, m.y);
+			SGL_DEBUG_PRINT("=== TEST 2 ===========\n");
+			sglRect clip = (sglRect) { .x = 32, .y = 32, .w = 400, .h = 401 };
+			sglSetClipRect(buf, &clip);
+
+
+			// int x1, y1, x2, y2;
+			// clipLine(&clip, 32, 20, 80, 80, &x1, &y1, &x2, &y2);
+			// SGL_DEBUG_PRINT("x1: %d\n", x1);
+			// SGL_DEBUG_PRINT("y1: %d\n", y1);
+			// SGL_DEBUG_PRINT("x2: %d\n", x2);
+			// SGL_DEBUG_PRINT("y2: %d\n", y2);
 		}
 
 		if (test3) {
-			sglRect clip = (sglRect) { .x = 32, .y = 32, .w = 32, .h = 32 };
 
+			sglDrawLine(
+					buf, 0xff0000ff, buf->width / 2, buf->height / 2, m.x, m.y);
+
+			sglRect clip = (sglRect) { .x = 32, .y = 32, .w = 200, .h = 200 };
 			sglSetClipRect(buf, &clip);
-			sglFillRectangle(buf, 0x203040ff, 16, 16, 128, 128);
+
+			sglFillRectangle(buf, 0x203040ff, 16, 16, 256, 256);
+
+			sglDrawLine(
+					buf, 0x00ff00ff, buf->width / 2, buf->height / 2, m.x, m.y);
 		}
 
 
