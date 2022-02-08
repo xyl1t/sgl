@@ -211,8 +211,7 @@ void sglDrawPixelRaw(sglBuffer* buffer, uint32_t color, int x, int y)
 	// 		x >= buffer->width || y >= buffer->height) return;
 	// #endif
 
-	if (!buffer)
-		return;
+	if (!buffer) return;
 
 	if (x < buffer->clipRect.x || y < buffer->clipRect.y
 		|| x >= buffer->clipRect.x + buffer->clipRect.w
@@ -231,8 +230,7 @@ void sglDrawPixel(
 uint32_t sglGetPixelRaw(sglBuffer* buffer, int x, int y)
 {
 #ifdef SGL_CHECK_BUFFER_BOUNDS
-	if (x < 0 || y < 0 || x >= buffer->width || y >= buffer->height)
-		return 0;
+	if (x < 0 || y < 0 || x >= buffer->width || y >= buffer->height) return 0;
 #endif
 
 	switch (buffer->pf->bytesPerPixel) {
@@ -262,24 +260,15 @@ void sglGetPixel(sglBuffer* buffer, uint8_t* r, uint8_t* g, uint8_t* b,
 {
 
 #ifdef SGL_CHECK_BUFFER_BOUNDS
-	if (x < 0 || y < 0 || x >= buffer->width || y >= buffer->height)
-		return;
+	if (x < 0 || y < 0 || x >= buffer->width || y >= buffer->height) return;
 #endif
 	// uint32_t color = buffer->pixels[x + y * buffer->width];
 	uint32_t color = sglGetPixelRaw(buffer, x, y);
 
-	if (r) {
-		*r = (color & buffer->pf->rmask) >> buffer->pf->rshift;
-	}
-	if (g) {
-		*g = (color & buffer->pf->gmask) >> buffer->pf->gshift;
-	}
-	if (b) {
-		*b = (color & buffer->pf->bmask) >> buffer->pf->bshift;
-	}
-	if (a) {
-		*a = (color & buffer->pf->amask) >> buffer->pf->ashift;
-	}
+	if (r) { *r = (color & buffer->pf->rmask) >> buffer->pf->rshift; }
+	if (g) { *g = (color & buffer->pf->gmask) >> buffer->pf->gshift; }
+	if (b) { *b = (color & buffer->pf->bmask) >> buffer->pf->bshift; }
+	if (a) { *a = (color & buffer->pf->amask) >> buffer->pf->ashift; }
 }
 
 void sglDrawLine(sglBuffer* buffer, uint32_t color, int startX, int startY,
@@ -311,22 +300,18 @@ void sglDrawLine(sglBuffer* buffer, uint32_t color, int startX, int startY,
 void sglDrawRectangle(
 	sglBuffer* buffer, uint32_t color, int startX, int startY, int w, int h)
 {
-	if (!buffer)
-		return;
+	if (!buffer) return;
 }
 
 void sglFillRectangle(
 	sglBuffer* buffer, uint32_t color, int startX, int startY, int w, int h)
 {
-	if (!buffer)
-		return;
+	if (!buffer) return;
 
 	sglRect clipped = (sglRect) { .x = startX, .y = startY, .w = w, .h = h };
 
 	// if rect is not in clipping pane of the buffer just exit
-	if (!sglIntersectRect(&clipped, &buffer->clipRect, &clipped)) {
-		return;
-	}
+	if (!sglIntersectRect(&clipped, &buffer->clipRect, &clipped)) { return; }
 
 #define FILL_RECT(type, bpp)                                          \
 	do {                                                              \
@@ -368,19 +353,14 @@ int sglLerpi(int a, int b, int t) { return a + t * (b - a); }
 
 static int findRegion(const sglRect* r, int x, int y)
 {
-	if (!r)
-		return -1;
+	if (!r) return -1;
 
 	int code = 0;
 
-	if (y >= r->h)
-		code |= 1; // top
-	else if (y < r->y)
-		code |= 2; // bottom
-	if (x >= r->w)
-		code |= 4; // right
-	else if (x < r->x)
-		code |= 8; // left
+	if (y >= r->y + r->h) code |= 1; // top
+	else if (y < r->y) code |= 2; // bottom
+	if (x >= r->x + r->w) code |= 4; // right
+	else if (x < r->x) code |= 8; // left
 
 	return (code);
 }
@@ -393,31 +373,32 @@ bool clipLine(const sglRect* clipRect, int startX, int startY, int endX,
 	code2 = findRegion(clipRect, endX, endY);
 
 	do {
-		if (!(code1 | code2))
-			accept = done = 1;
-		else if (code1 & code2)
-			done = 1;
+		if (!(code1 | code2)) accept = done = 1;
+		else if (code1 & code2) done = 1;
 
 		else {
 			int x, y;
 			codeout = code1 ? code1 : code2;
 			if (codeout & 1) { // top
 				x = startX
-					+ (endX - startX) * (clipRect->h - startY)
+					+ (endX - startX) * (clipRect->y + clipRect->h - startY)
 						/ (endY - startY);
-				y = clipRect->h - 1;
+				y = clipRect->y + clipRect->h - 1;
 			} else if (codeout & 2) { // bottom
-				x = startX + (endX - startX) * (clipRect->y - startY) / (endY - startY);
+				x = startX
+					+ (endX - startX) * (clipRect->y - startY)
+						/ (endY - startY);
 				y = clipRect->y;
 			} else if (codeout & 4) { // right
 				y = startY
-					+ (endY - startY) * (clipRect->w - startX)
+					+ (endY - startY) * (clipRect->x + clipRect->w - startX)
 						/ (endX - startX);
-				x = clipRect->w - 1;
+				x = clipRect->x + clipRect->w - 1;
 			} else { // left
-				y = startY + (endY - startY) * (clipRect->x - startX) / (endX - startX);
+				y = startY
+					+ (endY - startY) * (clipRect->x - startX)
+						/ (endX - startX);
 				x = clipRect->x;
-				
 			}
 
 			if (codeout == code1) {
@@ -454,18 +435,10 @@ uint32_t sglMapRGBA(
 void sglGetRGBA(uint32_t color, const sglPixelFormat* pf, uint8_t* r,
 	uint8_t* g, uint8_t* b, uint8_t* a)
 {
-	if (r) {
-		*r = (color & pf->rmask) >> pf->rshift;
-	}
-	if (g) {
-		*g = (color & pf->gmask) >> pf->gshift;
-	}
-	if (b) {
-		*b = (color & pf->bmask) >> pf->bshift;
-	}
-	if (a) {
-		*a = (color & pf->amask) >> pf->ashift;
-	}
+	if (r) { *r = (color & pf->rmask) >> pf->rshift; }
+	if (g) { *g = (color & pf->gmask) >> pf->gshift; }
+	if (b) { *b = (color & pf->bmask) >> pf->bshift; }
+	if (a) { *a = (color & pf->amask) >> pf->ashift; }
 }
 
 uint32_t sglGetPixelType(sglPixelFormatEnum format)
