@@ -289,7 +289,7 @@ void sglDrawLine(sglBuffer* buffer, uint32_t color, int startX, int startY,
 
 	float x = startX + 0.5f;
 	float y = startY + 0.5f;
-	for (int i = 0; i < largest; i++) {
+	for (int i = 0; i <= largest; i++) {
 		setPixel(buffer, color, x, y);
 		x += stepX;
 		y += stepY;
@@ -357,8 +357,8 @@ static int findRegion(const sglRect* r, int x, int y)
 
 	int code = 0;
 
-	if (y >= r->y + r->h) code |= 1; // top
-	else if (y < r->y) code |= 2; // bottom
+	if (y >= r->y + r->h) code |= 1; // bottom
+	else if (y < r->y) code |= 2; // top
 	if (x >= r->x + r->w) code |= 4; // right
 	else if (x < r->x) code |= 8; // left
 
@@ -379,19 +379,19 @@ bool clipLine(const sglRect* clipRect, int startX, int startY, int endX,
 		else {
 			int x, y;
 			codeout = code1 ? code1 : code2;
-			if (codeout & 1) { // top
+			if (codeout & 1) { // bottom
 				x = startX
-					+ (endX - startX) * (clipRect->y + clipRect->h - startY)
+					+ (endX - startX) * (clipRect->y + clipRect->h - 1 - startY)
 						/ (endY - startY);
 				y = clipRect->y + clipRect->h - 1;
-			} else if (codeout & 2) { // bottom
+			} else if (codeout & 2) { // top
 				x = startX
 					+ (endX - startX) * (clipRect->y - startY)
 						/ (endY - startY);
 				y = clipRect->y;
 			} else if (codeout & 4) { // right
 				y = startY
-					+ (endY - startY) * (clipRect->x + clipRect->w - startX)
+					+ (endY - startY) * (clipRect->x + clipRect->w - 1 - startX)
 						/ (endX - startX);
 				x = clipRect->x + clipRect->w - 1;
 			} else { // left

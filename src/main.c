@@ -17,6 +17,10 @@ struct mouse {
 	bool right;
 } m;
 
+struct point {
+
+};
+
 int main(int argc, char* argv[])
 {
 	SDL_Init(SDL_INIT_EVERYTHING);
@@ -144,7 +148,7 @@ int main(int argc, char* argv[])
 		if (test3) {
 
 			sglDrawLine(
-					buf, 0xff0000ff, buf->width / 2, buf->height / 2, m.x, m.y);
+					buf, 0xff0000ff, 240, 240, m.x, m.y);
 
 			sglRect clip = (sglRect) { .x = 32, .y = 32, .w = 200, .h = 200 };
 			sglSetClipRect(buf, &clip);
@@ -152,7 +156,7 @@ int main(int argc, char* argv[])
 			sglFillRectangle(buf, 0x203040ff, 16, 16, 256, 256);
 
 			sglDrawLine(
-					buf, 0x00ff00ff, buf->width / 2, buf->height / 2, m.x, m.y);
+					buf, 0x00ff00ff, 240, 240, m.x, m.y);
 		}
 
 
