@@ -385,6 +385,31 @@ void sglFillRectangle(
 	}
 }
 
+void sglDrawCircle(sglBuffer* buffer, uint32_t color,
+	int cntrX, int cntrY, int radius)
+{
+	if (!buffer) return;
+	if (radius < 1) return;
+	if (radius == 1) { sglDrawPixelRaw(buffer, color, cntrX, cntrY); return; }
+
+	float x = radius;
+	float y = 0;
+
+	while((int)x > (int)y) {
+		x = sqrt(x * x - 2 * y - 1);
+
+		sglDrawPixelRaw(buffer, color, (int) x + cntrX, (int) y + cntrY);
+		sglDrawPixelRaw(buffer, color, (int)-x + cntrX, (int) y + cntrY);
+		sglDrawPixelRaw(buffer, color, (int) x + cntrX, (int)-y + cntrY);
+		sglDrawPixelRaw(buffer, color, (int)-x + cntrX, (int)-y + cntrY);
+		sglDrawPixelRaw(buffer, color, (int) y + cntrX, (int) x + cntrY);
+		sglDrawPixelRaw(buffer, color, (int)-y + cntrX, (int) x + cntrY);
+		sglDrawPixelRaw(buffer, color, (int) y + cntrX, (int)-x + cntrY);
+		sglDrawPixelRaw(buffer, color, (int)-y + cntrX, (int)-x + cntrY);
+
+		y++;
+	}
+}
 
 
 /*****************************************************************************

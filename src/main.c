@@ -38,16 +38,16 @@ int main(int argc, char* argv[])
 	SDL_Renderer* renderer = SDL_CreateRenderer(
 		window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
 
-	SDL_Texture* texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGB332,
+	SDL_Texture* texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ABGR32,
 		SDL_TEXTUREACCESS_STREAMING, CANVAS_WIDTH, CANVAS_HEIGHT);
 	SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
 
-	uint8_t* pixels
-		= (uint8_t*)malloc(CANVAS_WIDTH * CANVAS_HEIGHT * sizeof(pixels));
-	memset(pixels, 0, CANVAS_WIDTH * CANVAS_HEIGHT * sizeof(uint8_t));
+	uint32_t* pixels
+		= (uint32_t*)malloc(CANVAS_WIDTH * CANVAS_HEIGHT * sizeof(pixels));
+	memset(pixels, 0, CANVAS_WIDTH * CANVAS_HEIGHT * sizeof(uint32_t));
 
 	sglBuffer* buf = sglCreateBuffer(
-		pixels, CANVAS_WIDTH, CANVAS_HEIGHT, SGL_PIXELFORMAT_RGB332);
+		pixels, CANVAS_WIDTH, CANVAS_HEIGHT, SGL_PIXELFORMAT_ABGR32);
 
 	// SGL_DEBUG_PRINT("SGL_PIXELFORMAT_ABGR32 %#010x\n",
 	// 		sglGetChannelLayout(SGL_PIXELFORMAT_ABGR32));
@@ -128,11 +128,10 @@ int main(int argc, char* argv[])
 		sglClear(buf);
 		sglResetClipRect(buf);
 
-		sglDrawPixel(buf, 7, 7, 3, 0, 10, 20);
-
 		bool test1 = false;
 		bool test2 = false;
 		bool test3 = false;
+		bool test4 = true;
 
 		if (test1) {
 			for (int x = 0; x < buf->width; x++) {
@@ -177,6 +176,19 @@ int main(int argc, char* argv[])
 
 			sglDrawRectangle(buf, 0x00ff00ff, p1.x, p1.y, p2.x - p1.x, p2.y - p1.y)	;
 
+		}
+
+		if (test4) {
+			float radius = 16;
+			float distance = 64;
+			int maxCircles = 32;
+			for (int circleCount = 0; circleCount < maxCircles; circleCount++) {
+				int x = cos(circleCount/(float)maxCircles*2*3.14) * distance + buf->width/2.f;
+				int y = sin(circleCount/(float)maxCircles*2*3.14) * distance + buf->width/2.f;
+				sglDrawCircle(buf, 0x00ff00ff, x, y, radius);
+				radius -= 0.5;
+				distance -= 2;
+			}
 		}
 
 

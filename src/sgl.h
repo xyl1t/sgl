@@ -157,8 +157,8 @@ typedef struct sglBuffer {
  * @parameter height Height of the buffer
  * @parameter format Pixel format of the pixel buffer
  */
-sglBuffer* sglCreateBuffer(void* pixels, uint32_t width, uint32_t height,
-	sglPixelFormatEnum format);
+sglBuffer* sglCreateBuffer(
+	void* pixels, uint32_t width, uint32_t height, sglPixelFormatEnum format);
 /**
  * @brief Destroys an sgl buffer
  * @parameter buffer The buffer to delete
@@ -277,7 +277,7 @@ void sglFillRectangle(
 /**
  * @brief Draw a rectangle on the buffer
  * @parameter buffer Buffer to draw on
- * @parameter color Color of the rectangle
+ * @parameter color Stroke color of the rectangle
  * @parameter startX x coordinate of the rectangle
  * @parameter startY y coordinate of the rectangle
  * @parameter w Width of the rectangle
@@ -286,6 +286,15 @@ void sglFillRectangle(
 void sglDrawRectangle(
 	sglBuffer* buffer, uint32_t color, int x, int y, int w, int h);
 
+/**
+ * @brief Draw a cricle on the buffer
+ * @parameter buffer Buffer to draw on
+ * @parameter color Stroke color of the circle
+ * @parameter ctrX x coordinate of the center of the cirlce
+ * @parameter ctrY y coordinate of the center of the cirlce
+ * @parameter radius radius of the circle
+ */
+void sglDrawCircle(sglBuffer* buffer, uint32_t color, int x, int y, int radius);
 
 /*****************************************************************************
  * UTILITY FUNCTIONS                                                         *
