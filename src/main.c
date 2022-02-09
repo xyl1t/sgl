@@ -36,7 +36,7 @@ int main(int argc, char* argv[])
 	SDL_Window* window = SDL_CreateWindow("sgl demo", SDL_WINDOWPOS_CENTERED,
 		SDL_WINDOWPOS_CENTERED, WINDOW_WIDTH, WINDOW_HEIGHT, SDL_WINDOW_SHOWN);
 	SDL_Renderer* renderer = SDL_CreateRenderer(
-		window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+		window, -1, SDL_RENDERER_ACCELERATED/*  | SDL_RENDERER_PRESENTVSYNC */);
 
 	SDL_Texture* texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ABGR32,
 		SDL_TEXTUREACCESS_STREAMING, CANVAS_WIDTH, CANVAS_HEIGHT);
@@ -98,6 +98,8 @@ int main(int argc, char* argv[])
 
 	SDL_Event event;
 	bool alive = true;
+	uint32_t delta = 0;
+
 	while (alive) {
 		while (SDL_PollEvent(&event)) {
 			if (event.type == SDL_QUIT) {
@@ -123,6 +125,10 @@ int main(int argc, char* argv[])
 			p2.x = m.x;
 			p2.y = m.y;
 		}
+
+		uint32_t tic = SDL_GetTicks();
+
+		//////////////////////////////////////////////////////////////////////
 
 		// clear pixel buffer
 		sglClear(buffer);
@@ -197,13 +203,7 @@ int main(int argc, char* argv[])
 			}
 		}
 
-
-		// clock_t begin = clock();
-		// for (int i = 0; i < 1000; i++)
-		// 	sglFillRectangle(buf, 0x00ff00ff, 0, 0, buf->width, buf->height);
-		// clock_t end = clock();
-		// double time_spent = (double)(end - begin) / CLOCKS_PER_SEC;
-		// SGL_DEBUG_PRINT("time: %lf\n", time_spent);
+		//////////////////////////////////////////////////////////////////////
 
 		SDL_UpdateTexture(
 			texture, NULL, buffer->pixels, CANVAS_WIDTH * sizeof(uint32_t));
@@ -212,6 +212,17 @@ int main(int argc, char* argv[])
 		SDL_Rect dstRect = {0, 0, CANVAS_WIDTH, CANVAS_HEIGHT};
 		SDL_RenderCopy(renderer, texture, &dstRect, &srcRect);
 		SDL_RenderPresent(renderer);
+
+		uint32_t toc = SDL_GetTicks();
+		delta += toc - tic;
+
+		static uint32_t acc = 0;
+		acc++;
+		if (delta > 1000) {
+			SGL_DEBUG_PRINT("elapsed time: %.2fms\n", delta / (float)acc);
+			delta = 0;
+			acc = 0;
+		}
 	}
 
 	sglDestroyBuffer(buffer);
