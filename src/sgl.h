@@ -263,6 +263,18 @@ void sglDrawLine(sglBuffer* buffer, uint32_t color, int startX, int startY,
 	int endX, int endY);
 
 /**
+ * @brief Draw a rectangle on the buffer
+ * @parameter buffer Buffer to draw on
+ * @parameter color Stroke color of the rectangle
+ * @parameter startX x coordinate of the rectangle
+ * @parameter startY y coordinate of the rectangle
+ * @parameter w Width of the rectangle
+ * @parameter h Height of the rectangle
+ */
+void sglDrawRectangle(
+		sglBuffer* buffer, uint32_t color, int x, int y, int w, int h);
+
+/**
  * @brief Draw a filled rectangle on the buffer
  * @parameter buffer Buffer to draw on
  * @parameter color Fill color of the rectangle
@@ -273,18 +285,6 @@ void sglDrawLine(sglBuffer* buffer, uint32_t color, int startX, int startY,
  */
 void sglFillRectangle(
 	sglBuffer* buffer, uint32_t color, int startX, int startY, int w, int h);
-
-/**
- * @brief Draw a rectangle on the buffer
- * @parameter buffer Buffer to draw on
- * @parameter color Stroke color of the rectangle
- * @parameter startX x coordinate of the rectangle
- * @parameter startY y coordinate of the rectangle
- * @parameter w Width of the rectangle
- * @parameter h Height of the rectangle
- */
-void sglDrawRectangle(
-	sglBuffer* buffer, uint32_t color, int x, int y, int w, int h);
 
 /**
  * @brief Draw a cricle on the buffer

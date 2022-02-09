@@ -345,46 +345,6 @@ void sglDrawRectangle(
 	sglDrawLine(buffer, color, x, y + h, x + w, y + h);
 }
 
-void sglFillRectangle(
-	sglBuffer* buffer, uint32_t color, int startX, int startY, int w, int h)
-{
-	if (!buffer)
-		return;
-
-	sglRect clipped = (sglRect) { .x = startX, .y = startY, .w = w, .h = h };
-
-	// if rect is not in clipping pane of the buffer just exit
-	if (!sglIntersectRect(&clipped, &buffer->clipRect, &clipped)) {
-		return;
-	}
-
-#define FILL_RECT(type, bpp)                                          \
-	do {                                                              \
-		for (int x = clipped.x; x < clipped.x + clipped.w; x++) {     \
-			for (int y = clipped.y; y < clipped.y + clipped.h; y++) { \
-				SET_PIXEL_FAST(x, y, type, bpp, color);               \
-			}                                                         \
-		}                                                             \
-	} while (0);
-
-
-	switch (buffer->pf->bytesPerPixel) {
-	case 1:
-		FILL_RECT(uint8_t, 1);
-		break;
-	case 2:
-		FILL_RECT(uint16_t, 2);
-		break;
-	case 3:
-		sglError(
-			"Unsupported pixel format (3 bytes per pixel are not supported)");
-		break;
-	case 4:
-		FILL_RECT(uint32_t, 4);
-		break;
-	}
-}
-
 void sglDrawCircle(sglBuffer* buffer, uint32_t color,
 	int cntrX, int cntrY, int radius)
 {
@@ -408,6 +368,46 @@ void sglDrawCircle(sglBuffer* buffer, uint32_t color,
 		sglDrawPixelRaw(buffer, color, (int)-y + cntrX, (int)-x + cntrY);
 
 		y++;
+	}
+}
+
+void sglFillRectangle(
+		sglBuffer* buffer, uint32_t color, int startX, int startY, int w, int h)
+{
+	if (!buffer)
+		return;
+
+	sglRect clipped = (sglRect) { .x = startX, .y = startY, .w = w, .h = h };
+
+	// if rect is not in clipping pane of the buffer just exit
+	if (!sglIntersectRect(&clipped, &buffer->clipRect, &clipped)) {
+		return;
+	}
+
+#define FILL_RECT(type, bpp)                                          \
+	do {                                                              \
+		for (int x = clipped.x; x < clipped.x + clipped.w; x++) {     \
+			for (int y = clipped.y; y < clipped.y + clipped.h; y++) { \
+				SET_PIXEL_FAST(x, y, type, bpp, color);               \
+			}                                                         \
+		}                                                             \
+	} while (0);
+
+
+	switch (buffer->pf->bytesPerPixel) {
+		case 1:
+			FILL_RECT(uint8_t, 1);
+			break;
+		case 2:
+			FILL_RECT(uint16_t, 2);
+			break;
+		case 3:
+			sglError(
+					"Unsupported pixel format (3 bytes per pixel are not supported)");
+			break;
+		case 4:
+			FILL_RECT(uint32_t, 4);
+			break;
 	}
 }
 
