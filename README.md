@@ -1,6 +1,6 @@
 # SGL
 
-| **S**oftware **G**raphics **L**ibrary
+> **S**oftware **G**raphics **L**ibrary
 
 Created with 🤕 in C!
 
@@ -15,7 +15,7 @@ Implement basic drawing functions
 * [x] Point
 * [x] Rectangles
 * [x] Line
-* [ ] Circles
+* [x] Circles
 * [ ] Arcs
 * [ ] Triangles
 	* [ ] Color interpolation
@@ -36,4 +36,7 @@ Implement basic drawing functions
 ### Other
 
 * [x] implement `sglGetError()` https://wiki.libsdl.org/SDL\_GetError
+* [ ] optimize circle drawing
+* [ ] add more pixel formats
+* [ ] make the library header only
 

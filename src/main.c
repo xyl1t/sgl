@@ -46,7 +46,7 @@ int main(int argc, char* argv[])
 		= (uint32_t*)malloc(CANVAS_WIDTH * CANVAS_HEIGHT * sizeof(pixels));
 	memset(pixels, 0, CANVAS_WIDTH * CANVAS_HEIGHT * sizeof(uint32_t));
 
-	sglBuffer* buf = sglCreateBuffer(
+	sglBuffer* buffer = sglCreateBuffer(
 		pixels, CANVAS_WIDTH, CANVAS_HEIGHT, SGL_PIXELFORMAT_ABGR32);
 
 	// SGL_DEBUG_PRINT("SGL_PIXELFORMAT_ABGR32 %#010x\n",
@@ -60,10 +60,10 @@ int main(int argc, char* argv[])
 	// SGL_DEBUG_PRINT("SGL_PIXELFORMAT_RGB332 %#010x\n",
 	// 		sglGetChannelLayout(SGL_PIXELFORMAT_RGB332));
 
-	sglDrawPixel(buf, 0, 0, 7, 7, 3, 4);
+	sglDrawPixel(buffer, 0, 0, 7, 7, 3, 4);
 	uint8_t r, g, b, a;
-	sglGetPixel(buf, &r, &g, &b, &a, 0, 0);
-	SGL_DEBUG_PRINT("%#010x\n", sglGetPixelRaw(buf, 0, 0));
+	sglGetPixel(buffer, &r, &g, &b, &a, 0, 0);
+	SGL_DEBUG_PRINT("%#010x\n", sglGetPixelRaw(buffer, 0, 0));
 	SGL_DEBUG_PRINT("r %d\n", r);
 	SGL_DEBUG_PRINT("g %d\n", g);
 	SGL_DEBUG_PRINT("b %d\n", b);
@@ -125,8 +125,8 @@ int main(int argc, char* argv[])
 		}
 
 		// clear pixel buffer
-		sglClear(buf);
-		sglResetClipRect(buf);
+		sglClear(buffer);
+		sglResetClipRect(buffer);
 
 		bool test1 = false;
 		bool test2 = false;
@@ -134,14 +134,14 @@ int main(int argc, char* argv[])
 		bool test4 = true;
 
 		if (test1) {
-			for (int x = 0; x < buf->width; x++) {
-				for (int y = 0; y < buf->height; y++) {
+			for (int x = 0; x < buffer->width; x++) {
+				for (int y = 0; y < buffer->height; y++) {
 					// if ((x + y) % 2) continue;
 
 					int i = x << (y % 256 / 32) % 256;
 					int j = y << (x % 256 / 32) % 256;
 
-					sglDrawPixel(buf, j, i, 255 - (i / 2 + j / 2), 255, x, y);
+					sglDrawPixel(buffer, j, i, 255 - (i / 2 + j / 2), 255, x, y);
 				}
 			}
 		}
@@ -149,7 +149,7 @@ int main(int argc, char* argv[])
 		if (test2) {
 			SGL_DEBUG_PRINT("=== TEST 2 ===========\n");
 			sglRect clip = (sglRect) { .x = 32, .y = 32, .w = 400, .h = 401 };
-			sglSetClipRect(buf, &clip);
+			sglSetClipRect(buffer, &clip);
 
 
 			// int x1, y1, x2, y2;
@@ -164,28 +164,34 @@ int main(int argc, char* argv[])
 
 			sglRect clip = (sglRect) { .x = 32, .y = 32, .w = 150, .h = 150 };
 
-			sglFillRectangle(buf, 0x203040ff, 0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+			sglFillRectangle(buffer, 0x203040ff, 0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
 
-			sglDrawLine(buf, 0xff0000ff, p1.x, p1.y, p2.x, p2.y);
-			sglDrawRectangle(buf, 0xff0000ff, p1.x, p1.y, p2.x - p1.x, p2.y - p1.y)	;
+			sglDrawLine(buffer, 0xff0000ff, p1.x, p1.y, p2.x, p2.y);
+			sglDrawRectangle(buffer, 0xff0000ff, p1.x, p1.y, p2.x - p1.x, p2.y - p1.y)	;
 
-			sglSetClipRect(buf, &clip);
-			sglClearClipRect(buf);
+			sglSetClipRect(buffer, &clip);
+			sglClearClipRect(buffer);
 
-			sglDrawLine(buf, 0x00ff00ff, p1.x, p1.y, p2.x, p2.y);
+			sglDrawLine(buffer, 0x00ff00ff, p1.x, p1.y, p2.x, p2.y);
 
-			sglDrawRectangle(buf, 0x00ff00ff, p1.x, p1.y, p2.x - p1.x, p2.y - p1.y)	;
+			sglDrawRectangle(buffer, 0x00ff00ff, p1.x, p1.y, p2.x - p1.x, p2.y - p1.y)	;
 
 		}
 
 		if (test4) {
 			float radius = 16;
-			float distance = 64;
+			float distance = 96;
 			int maxCircles = 32;
 			for (int circleCount = 0; circleCount < maxCircles; circleCount++) {
-				int x = cos(circleCount/(float)maxCircles*2*3.14) * distance + buf->width/2.f;
-				int y = sin(circleCount/(float)maxCircles*2*3.14) * distance + buf->width/2.f;
-				sglDrawCircle(buf, 0x00ff00ff, x, y, radius);
+				int x = cos(circleCount/(float)maxCircles*2*3.14) * distance + buffer->width/2.f;
+				int y = sin(circleCount/(float)maxCircles*2*3.14) * distance + buffer->width/2.f;
+
+				if (circleCount % 2){
+					sglDrawCircle(buffer, 0x00ff00ff, x, y, radius);
+				} else {
+					sglFillCircle(buffer, 0x00ff00ff, x, y, radius);
+				}
+
 				radius -= 0.5;
 				distance -= 2;
 			}
@@ -200,7 +206,7 @@ int main(int argc, char* argv[])
 		// SGL_DEBUG_PRINT("time: %lf\n", time_spent);
 
 		SDL_UpdateTexture(
-			texture, NULL, buf->pixels, CANVAS_WIDTH * sizeof(uint32_t));
+			texture, NULL, buffer->pixels, CANVAS_WIDTH * sizeof(uint32_t));
 		SDL_RenderClear(renderer);
 		SDL_Rect srcRect = {0, 0, WINDOW_WIDTH, WINDOW_HEIGHT};
 		SDL_Rect dstRect = {0, 0, CANVAS_WIDTH, CANVAS_HEIGHT};
@@ -208,7 +214,7 @@ int main(int argc, char* argv[])
 		SDL_RenderPresent(renderer);
 	}
 
-	sglDestroyBuffer(buf);
+	sglDestroyBuffer(buffer);
 
 	SDL_DestroyTexture(texture);
 	SDL_DestroyRenderer(renderer);

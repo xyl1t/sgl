@@ -411,6 +411,29 @@ void sglDrawCircle(sglBuffer* buffer, uint32_t color,
 	}
 }
 
+void sglFillCircle(sglBuffer* buffer, uint32_t color,
+		int cntrX, int cntrY, int radius)
+{
+
+	if (!buffer) return;
+	if (radius < 1) return;
+	if (radius == 1) { sglDrawPixelRaw(buffer, color, cntrX, cntrY); return; }
+
+	float x = radius;
+	float y = 0;
+
+	while((int) x > 0) {
+		x = sqrt(x * x - 2 * y);
+
+		int end = x + cntrX + 0.5f;
+		for(int i = -x + cntrX + 0.5f; i < end; i++) {
+			sglDrawPixelRaw(buffer, color, i,  y + cntrY + 0.5f);
+			sglDrawPixelRaw(buffer, color, i, -y + cntrY + 0.5f);
+		}
+
+		y++;
+	}
+}
 
 /*****************************************************************************
  * UTILITY FUNCTIONS                                                         *

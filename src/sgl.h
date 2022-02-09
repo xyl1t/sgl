@@ -265,7 +265,7 @@ void sglDrawLine(sglBuffer* buffer, uint32_t color, int startX, int startY,
 /**
  * @brief Draw a filled rectangle on the buffer
  * @parameter buffer Buffer to draw on
- * @parameter color Color of the rectangle
+ * @parameter color Fill color of the rectangle
  * @parameter startX x coordinate of the rectangle
  * @parameter startY y coordinate of the rectangle
  * @parameter w Width of the rectangle
@@ -294,7 +294,20 @@ void sglDrawRectangle(
  * @parameter ctrY y coordinate of the center of the cirlce
  * @parameter radius radius of the circle
  */
-void sglDrawCircle(sglBuffer* buffer, uint32_t color, int x, int y, int radius);
+void sglDrawCircle(sglBuffer* buffer, uint32_t color,
+	int cntrX, int cntrY, int radius);
+
+/**
+ * @brief Draw a filled cricle on the buffer
+ * @parameter buffer Buffer to draw on
+ * @parameter color Fill color of the circle
+ * @parameter ctrX x coordinate of the center of the cirlce
+ * @parameter ctrY y coordinate of the center of the cirlce
+ * @parameter radius radius of the circle
+ */
+void sglFillCircle(sglBuffer* buffer, uint32_t color,
+	int cntrX, int cntrY, int radius);
+
 
 /*****************************************************************************
  * UTILITY FUNCTIONS                                                         *
