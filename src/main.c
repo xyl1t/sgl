@@ -38,16 +38,16 @@ int main(int argc, char* argv[])
 	SDL_Renderer* renderer = SDL_CreateRenderer(
 		window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
 
-	SDL_Texture* texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ABGR32,
+	SDL_Texture* texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGB332,
 		SDL_TEXTUREACCESS_STREAMING, CANVAS_WIDTH, CANVAS_HEIGHT);
 	SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
 
-	uint32_t* pixels
-		= (uint32_t*)malloc(CANVAS_WIDTH * CANVAS_HEIGHT * sizeof(pixels));
-	memset(pixels, 0, CANVAS_WIDTH * CANVAS_HEIGHT * sizeof(uint32_t));
+	uint8_t* pixels
+		= (uint8_t*)malloc(CANVAS_WIDTH * CANVAS_HEIGHT * sizeof(pixels));
+	memset(pixels, 0, CANVAS_WIDTH * CANVAS_HEIGHT * sizeof(uint8_t));
 
 	sglBuffer* buf = sglCreateBuffer(
-		pixels, CANVAS_WIDTH, CANVAS_HEIGHT, SGL_PIXELFORMAT_ABGR32);
+		pixels, CANVAS_WIDTH, CANVAS_HEIGHT, SGL_PIXELFORMAT_RGB332);
 
 	// SGL_DEBUG_PRINT("SGL_PIXELFORMAT_ABGR32 %#010x\n",
 	// 		sglGetChannelLayout(SGL_PIXELFORMAT_ABGR32));
@@ -128,9 +128,11 @@ int main(int argc, char* argv[])
 		sglClear(buf);
 		sglResetClipRect(buf);
 
+		sglDrawPixel(buf, 7, 7, 3, 0, 10, 20);
+
 		bool test1 = false;
 		bool test2 = false;
-		bool test3 = true;
+		bool test3 = false;
 
 		if (test1) {
 			for (int x = 0; x < buf->width; x++) {

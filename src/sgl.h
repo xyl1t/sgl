@@ -157,7 +157,7 @@ typedef struct sglBuffer {
  * @parameter height Height of the buffer
  * @parameter format Pixel format of the pixel buffer
  */
-sglBuffer* sglCreateBuffer(uint32_t* pixels, uint32_t width, uint32_t height,
+sglBuffer* sglCreateBuffer(void* pixels, uint32_t width, uint32_t height,
 	sglPixelFormatEnum format);
 /**
  * @brief Destroys an sgl buffer

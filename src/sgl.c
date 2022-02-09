@@ -79,13 +79,13 @@ sglPixelFormat* sglCreatePixelFormat(sglPixelFormatEnum format)
 	case SGL_PIXELFORMAT_RGB332:
 		pf->bitsPerPixel = 8;
 		pf->bytesPerPixel = 1;
-		pf->rmask = 0x07;
-		pf->gmask = 0x38;
-		pf->bmask = 0xC0;
+		pf->rmask = 0xE0;
+		pf->gmask = 0x1C;
+		pf->bmask = 0x03;
 		pf->amask = 0x00;
-		pf->rshift = 0;
-		pf->gshift = 3;
-		pf->bshift = 6;
+		pf->rshift = 5;
+		pf->gshift = 2;
+		pf->bshift = 0;
 		pf->ashift = 0;
 		break;
 	}
@@ -119,7 +119,7 @@ bool sglIntersectRect(const sglRect* A, const sglRect* B, sglRect* result)
 	return false;
 }
 
-sglBuffer* sglCreateBuffer(uint32_t* pixels, uint32_t width, uint32_t height,
+sglBuffer* sglCreateBuffer(void* pixels, uint32_t width, uint32_t height,
 	sglPixelFormatEnum format)
 {
 	sglBuffer* b = malloc(sizeof(sglBuffer));
@@ -483,8 +483,10 @@ bool clipLine(const sglRect* clipRect, int startX, int startY, int endX,
 uint32_t sglMapRGBA(
 	uint8_t r, uint8_t g, uint8_t b, uint8_t a, const sglPixelFormat* pf)
 {
-	return ((r << pf->rshift) & pf->rmask) + ((g << pf->gshift) & pf->gmask)
-		+ ((b << pf->bshift) & pf->bmask) + ((a << pf->ashift) & pf->amask);
+	return ((r << pf->rshift) & pf->rmask)
+		+ ((g << pf->gshift) & pf->gmask)
+		+ ((b << pf->bshift) & pf->bmask)
+		+ ((a << pf->ashift) & pf->amask);
 }
 
 void sglGetRGBA(uint32_t color, const sglPixelFormat* pf, uint8_t* r,
