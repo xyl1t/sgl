@@ -137,6 +137,14 @@ bool sglHasIntersection(const sglRect* A, const sglRect* B);
  */
 bool sglIntersectRect(const sglRect* A, const sglRect* B, sglRect* result);
 
+/**
+ * @brief A simple rectangle struct
+ */
+typedef struct sglPoint {
+	int x;
+	int y;
+} sglPoint;
+
 
 /**
  * @brief A buffer is a thing that sgl uses to draw things on
@@ -308,6 +316,18 @@ void sglDrawCircle(sglBuffer* buffer, uint32_t color,
 void sglFillCircle(sglBuffer* buffer, uint32_t color,
 	int cntrX, int cntrY, int radius);
 
+/**
+ * @brief Draw a filled cricle on the buffer
+ * @parameter buffer Buffer to draw on
+ * @parameter color Fill color of the circle
+ * @parameter ctrX x coordinate of the center of the cirlce
+ * @parameter ctrY y coordinate of the center of the cirlce
+ * @parameter radius radius of the circle
+ */
+void sglDrawArc(sglBuffer* buffer, uint32_t color,
+		int cntrX, int cntrY, int radius, float startAngle, float endAngle);
+
+
 
 /*****************************************************************************
  * UTILITY FUNCTIONS                                                         *
@@ -338,6 +358,11 @@ double sglLerpd(double a, double b, double t);
  */
 int sglLerpi(int a, int b, int t);
 
+float sglGetDistancePoint(sglPoint a, sglPoint b);
+float sglGetDistance(float a_x, float a_y, float b_x, float b_y);
+
+#define sgl_normalize_angle(angle) \
+	fmod(fmod((angle), M_PI * 2) + M_PI * 2, M_PI * 2)
 
 bool clipLine(const sglRect* clipRect, int startX, int startY, int endX,
 	int endY, int* cstartX, int* cstartY, int* cendX, int* cendY);

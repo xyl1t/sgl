@@ -119,8 +119,8 @@ bool sglIntersectRect(const sglRect* A, const sglRect* B, sglRect* result)
 	return false;
 }
 
-sglBuffer* sglCreateBuffer(void* pixels, uint32_t width, uint32_t height,
-	sglPixelFormatEnum format)
+sglBuffer* sglCreateBuffer(
+	void* pixels, uint32_t width, uint32_t height, sglPixelFormatEnum format)
 {
 	sglBuffer* b = malloc(sizeof(sglBuffer));
 	b->pixels = pixels;
@@ -223,7 +223,8 @@ void sglClearClipRect(sglBuffer* buffer)
 	if (!buffer)
 		return;
 
-	for (int y = buffer->clipRect.y; y < buffer->clipRect.y + buffer->clipRect.h; y++) {
+	for (int y = buffer->clipRect.y;
+		 y < buffer->clipRect.y + buffer->clipRect.h; y++) {
 		memset(buffer->pixels + buffer->clipRect.x * buffer->pf->bytesPerPixel
 				+ buffer->pitch * y,
 			0, buffer->clipRect.w * buffer->pf->bytesPerPixel);
@@ -345,34 +346,8 @@ void sglDrawRectangle(
 	sglDrawLine(buffer, color, x, y + h, x + w, y + h);
 }
 
-void sglDrawCircle(sglBuffer* buffer, uint32_t color,
-	int cntrX, int cntrY, int radius)
-{
-	if (!buffer) return;
-	if (radius < 1) return;
-	if (radius == 1) { sglDrawPixelRaw(buffer, color, cntrX, cntrY); return; }
-
-	float x = radius;
-	float y = 0;
-
-	while((int)x > (int)y) {
-		x = sqrt(x * x - 2 * y - 1);
-
-		sglDrawPixelRaw(buffer, color, (int) x + cntrX, (int) y + cntrY);
-		sglDrawPixelRaw(buffer, color, (int)-x + cntrX, (int) y + cntrY);
-		sglDrawPixelRaw(buffer, color, (int) x + cntrX, (int)-y + cntrY);
-		sglDrawPixelRaw(buffer, color, (int)-x + cntrX, (int)-y + cntrY);
-		sglDrawPixelRaw(buffer, color, (int) y + cntrX, (int) x + cntrY);
-		sglDrawPixelRaw(buffer, color, (int)-y + cntrX, (int) x + cntrY);
-		sglDrawPixelRaw(buffer, color, (int) y + cntrX, (int)-x + cntrY);
-		sglDrawPixelRaw(buffer, color, (int)-y + cntrX, (int)-x + cntrY);
-
-		y++;
-	}
-}
-
 void sglFillRectangle(
-		sglBuffer* buffer, uint32_t color, int startX, int startY, int w, int h)
+	sglBuffer* buffer, uint32_t color, int startX, int startY, int w, int h)
 {
 	if (!buffer)
 		return;
@@ -395,41 +370,201 @@ void sglFillRectangle(
 
 
 	switch (buffer->pf->bytesPerPixel) {
-		case 1:
-			FILL_RECT(uint8_t, 1);
-			break;
-		case 2:
-			FILL_RECT(uint16_t, 2);
-			break;
-		case 3:
-			sglError(
-					"Unsupported pixel format (3 bytes per pixel are not supported)");
-			break;
-		case 4:
-			FILL_RECT(uint32_t, 4);
-			break;
+	case 1:
+		FILL_RECT(uint8_t, 1);
+		break;
+	case 2:
+		FILL_RECT(uint16_t, 2);
+		break;
+	case 3:
+		sglError(
+			"Unsupported pixel format (3 bytes per pixel are not supported)");
+		break;
+	case 4:
+		FILL_RECT(uint32_t, 4);
+		break;
 	}
 }
 
-void sglFillCircle(sglBuffer* buffer, uint32_t color,
-		int cntrX, int cntrY, int radius)
-{
 
-	if (!buffer) return;
-	if (radius < 1) return;
-	if (radius == 1) { sglDrawPixelRaw(buffer, color, cntrX, cntrY); return; }
+void sglDrawCircle(
+	sglBuffer* buffer, uint32_t color, int cntrX, int cntrY, int radius)
+{
+	if (!buffer)
+		return;
+	if (radius < 1)
+		return;
+	if (radius == 1) {
+		sglDrawPixelRaw(buffer, color, cntrX, cntrY);
+		return;
+	}
 
 	float x = radius;
 	float y = 0;
 
-	while((int) x > 0) {
+	while ((int)x > (int)y) {
+		x = sqrt(x * x - 2 * y - 1);
+
+		sglDrawPixelRaw(buffer, color, (int)x + cntrX, (int)y + cntrY);
+		sglDrawPixelRaw(buffer, color, (int)-x + cntrX, (int)y + cntrY);
+		sglDrawPixelRaw(buffer, color, (int)x + cntrX, (int)-y + cntrY);
+		sglDrawPixelRaw(buffer, color, (int)-x + cntrX, (int)-y + cntrY);
+		sglDrawPixelRaw(buffer, color, (int)y + cntrX, (int)x + cntrY);
+		sglDrawPixelRaw(buffer, color, (int)-y + cntrX, (int)x + cntrY);
+		sglDrawPixelRaw(buffer, color, (int)y + cntrX, (int)-x + cntrY);
+		sglDrawPixelRaw(buffer, color, (int)-y + cntrX, (int)-x + cntrY);
+
+		y++;
+	}
+}
+
+void sglFillCircle(
+	sglBuffer* buffer, uint32_t color, int cntrX, int cntrY, int radius)
+{
+
+	if (!buffer)
+		return;
+	if (radius < 1)
+		return;
+	if (radius == 1) {
+		sglDrawPixelRaw(buffer, color, cntrX, cntrY);
+		return;
+	}
+
+	float x = radius;
+	float y = 0;
+
+	while ((int)x > 0) {
 		x = sqrt(x * x - 2 * y);
 
 		int end = x + cntrX + 0.5f;
-		for(int i = -x + cntrX + 0.5f; i < end; i++) {
-			sglDrawPixelRaw(buffer, color, i,  y + cntrY + 0.5f);
+		for (int i = -x + cntrX + 0.5f; i < end; i++) {
+			sglDrawPixelRaw(buffer, color, i, y + cntrY + 0.5f);
 			sglDrawPixelRaw(buffer, color, i, -y + cntrY + 0.5f);
 		}
+
+		y++;
+	}
+}
+
+bool sglIsAngeInRange(float a, float s, float e) { return false; }
+
+bool checkSlope(
+	float x, float y, float k_s, float k_e, int q_s, int q_e, bool isConcave)
+{
+	float expected_y_s = k_s * x;
+	float expected_y_e = k_e * x;
+	// SGL_DEBUG_PRINT("sy: %f\n", expected_y_s);
+	// SGL_DEBUG_PRINT("ey: %f\n", expected_y_e);
+
+	bool s = false;
+	bool e = false;
+
+	if (!(q_s % 3)) {
+		if (y >= expected_y_s) {
+			s = true;
+			// SGL_DEBUG_PRINT("1\n");
+		}
+	} else {
+		if (y <= expected_y_s) {
+			s = true;
+			// SGL_DEBUG_PRINT("2\n");
+		}
+	}
+
+	if (!(q_e % 3)) {
+		if (y <= expected_y_e) {
+			e = true;
+			// SGL_DEBUG_PRINT("3\n");
+		}
+	} else {
+		if (y >= expected_y_e) {
+			e = true;
+			// SGL_DEBUG_PRINT("4\n");
+		}
+	}
+
+	// SGL_DEBUG_PRINT("s: %i\n", s);
+	// SGL_DEBUG_PRINT("e: %i\n", e);
+
+	if (isConcave)
+		return s || e;
+	else
+		return s && e;
+}
+
+int getQuadrant(float angle) { return angle / M_PI_2; }
+
+void sglDrawArc(sglBuffer* buffer, uint32_t color, int cntrX, int cntrY,
+	int radius, float startAngle, float endAngle)
+{
+	if (!buffer)
+		return;
+	if (radius < 1)
+		return;
+	if (radius == 1) {
+		sglDrawPixelRaw(buffer, color, cntrX, cntrY);
+		return;
+	}
+	if (startAngle == 0 && endAngle == M_PI * 2)
+		sglDrawCircle(buffer, color, cntrX, cntrY, radius);
+
+	float x = radius;
+	float y = 0;
+
+	float k_s = tanf(startAngle);
+	float k_e = tanf(endAngle);
+
+	// SGL_DEBUG_PRINT("k_s: %f\n", k_s);
+	// SGL_DEBUG_PRINT("k_e: %f\n", k_e);
+
+	int quadrant_s = getQuadrant(startAngle);
+	int quadrant_e = getQuadrant(endAngle);
+
+	startAngle = sgl_normalize_angle(startAngle);
+	endAngle = sgl_normalize_angle(endAngle);
+
+	// SGL_DEBUG_PRINT("start: %f\n", startAngle);
+	// SGL_DEBUG_PRINT("end  : %f\n", endAngle);
+	// SGL_DEBUG_PRINT("diff : %f\n\n", fabsf(endAngle - startAngle));
+
+	bool isConcave = startAngle < endAngle && fabsf(endAngle - startAngle) > M_PI
+		|| startAngle > endAngle && fabsf(endAngle - startAngle) < M_PI;
+
+	// SGL_DEBUG_PRINT("quadrant_s: %i\n", quadrant_s);
+	// SGL_DEBUG_PRINT("quadrant_e: %i\n", quadrant_e);
+
+	while ((int)x > (int)y) {
+		x = sqrt(x * x - 2 * y - 1);
+
+		// float k = y / k;
+
+
+		// sglDrawPixelRaw(buffer, color, (int) x + cntrX, (int) y + cntrY);
+		// sglDrawPixelRaw(buffer, color, (int)-x + cntrX, (int) y + cntrY);
+		// sglDrawPixelRaw(buffer, color, (int) x + cntrX, (int)-y + cntrY);
+		// sglDrawPixelRaw(buffer, color, (int)-x + cntrX, (int)-y + cntrY);
+		// sglDrawPixelRaw(buffer, color, (int) y + cntrX, (int) x + cntrY);
+		// sglDrawPixelRaw(buffer, color, (int)-y + cntrX, (int) x + cntrY);
+		// sglDrawPixelRaw(buffer, color, (int) y + cntrX, (int)-x + cntrY);
+		// sglDrawPixelRaw(buffer, color, (int)-y + cntrX, (int)-x + cntrY);
+
+		if (checkSlope(x, y, k_s, k_e, quadrant_s, quadrant_e, isConcave))
+			sglDrawPixelRaw(buffer, color, (int)x + cntrX, (int)y + cntrY);
+		if (checkSlope(-x, y, k_s, k_e, quadrant_s, quadrant_e, isConcave))
+			sglDrawPixelRaw(buffer, color, (int)-x + cntrX, (int)y + cntrY);
+		if (checkSlope(x, -y, k_s, k_e, quadrant_s, quadrant_e, isConcave))
+			sglDrawPixelRaw(buffer, color, (int)x + cntrX, (int)-y + cntrY);
+		if (checkSlope(-x, -y, k_s, k_e, quadrant_s, quadrant_e, isConcave))
+			sglDrawPixelRaw(buffer, color, (int)-x + cntrX, (int)-y + cntrY);
+		if (checkSlope(y, x, k_s, k_e, quadrant_s, quadrant_e, isConcave))
+			sglDrawPixelRaw(buffer, color, (int)y + cntrX, (int)x + cntrY);
+		if (checkSlope(-y, x, k_s, k_e, quadrant_s, quadrant_e, isConcave))
+			sglDrawPixelRaw(buffer, color, (int)-y + cntrX, (int)x + cntrY);
+		if (checkSlope(y, -x, k_s, k_e, quadrant_s, quadrant_e, isConcave))
+			sglDrawPixelRaw(buffer, color, (int)y + cntrX, (int)-x + cntrY);
+		if (checkSlope(-y, -x, k_s, k_e, quadrant_s, quadrant_e, isConcave))
+			sglDrawPixelRaw(buffer, color, (int)-y + cntrX, (int)-x + cntrY);
 
 		y++;
 	}
@@ -442,6 +577,18 @@ void sglFillCircle(sglBuffer* buffer, uint32_t color,
 float sglLerpf(float a, float b, float t) { return a + t * (b - a); }
 double sglLerpd(double a, double b, double t) { return a + t * (b - a); }
 int sglLerpi(int a, int b, int t) { return a + t * (b - a); }
+
+#define SGL_DISTANCE(a_x, a_y, b_x, b_y) \
+	sqrtf(powf((b_x) - (a_x), 2) + powf((b_y) - (a_y), 2))
+
+float sglGetDistancePoint(sglPoint a, sglPoint b)
+{
+	return SGL_DISTANCE(a.x, a.y, b.x, b.y);
+}
+float sglGetDistance(float a_x, float a_y, float b_x, float b_y)
+{
+	return SGL_DISTANCE(a_x, a_y, b_x, b_y);
+}
 
 
 static int findRegion(const sglRect* r, int x, int y)
@@ -531,10 +678,8 @@ bool clipLine(const sglRect* clipRect, int startX, int startY, int endX,
 uint32_t sglMapRGBA(
 	uint8_t r, uint8_t g, uint8_t b, uint8_t a, const sglPixelFormat* pf)
 {
-	return ((r << pf->rshift) & pf->rmask)
-		+ ((g << pf->gshift) & pf->gmask)
-		+ ((b << pf->bshift) & pf->bmask)
-		+ ((a << pf->ashift) & pf->amask);
+	return ((r << pf->rshift) & pf->rmask) + ((g << pf->gshift) & pf->gmask)
+		+ ((b << pf->bshift) & pf->bmask) + ((a << pf->ashift) & pf->amask);
 }
 
 void sglGetRGBA(uint32_t color, const sglPixelFormat* pf, uint8_t* r,

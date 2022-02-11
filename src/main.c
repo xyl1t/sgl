@@ -1,4 +1,5 @@
 #include "SDL_rect.h"
+#include "SDL_timer.h"
 #include <stdbool.h>
 #include <stdio.h>
 #include <string.h>
@@ -22,6 +23,7 @@ struct point {
 	int x;
 	int y;
 } p1, p2;
+typedef struct point point;
 
 int main(int argc, char* argv[])
 {
@@ -96,6 +98,9 @@ int main(int argc, char* argv[])
 
 	// return 0;
 
+	p2.x = 64;
+	p2.y = 64;
+
 	SDL_Event event;
 	bool alive = true;
 	uint32_t delta = 0;
@@ -137,7 +142,8 @@ int main(int argc, char* argv[])
 		bool test1 = false;
 		bool test2 = false;
 		bool test3 = false;
-		bool test4 = true;
+		bool test4 = false;
+		bool test5 = true;
 
 		if (test1) {
 			for (int x = 0; x < buffer->width; x++) {
@@ -201,6 +207,55 @@ int main(int argc, char* argv[])
 				radius -= 0.5;
 				distance -= 2;
 			}
+		}
+
+		if (test5) {
+			static float start_angle = 0;
+			static float end_angle = 3*M_PI/2;
+			int radius = 32;
+
+			sglPoint s = {
+				cos(start_angle)*radius + p2.x + 0.5f,
+				sin(start_angle)*radius + p2.y + 0.5f
+			};
+			sglPoint e = {
+				cos(end_angle)*radius + p2.x + 0.5f,
+				sin(end_angle)*radius + p2.y + 0.5f,
+			};
+
+			sglDrawLine(buffer, 0x00ff00ff, p2.x, p2.y, s.x, s.y);
+			sglDrawLine(buffer, 0xff0000ff, p2.x, p2.y, e.x, e.y);
+
+			sglDrawCircle(buffer, 0x00ff00ff, s.x, s.y, 3);
+			sglDrawCircle(buffer, 0xff0000ff, e.x, e.y, 3);
+
+			sglDrawArc(buffer, 0xffffffff, p2.x, p2.y, radius + 1, start_angle, end_angle);
+
+			float angle = atan2f(m.y - p2.y, m.x - p2.x);
+
+			static bool sHeld = false;
+			static bool eHeld = false;
+
+			if (!eHeld && m.left && sglGetDistance(s.x, s.y, m.x, m.y) < 4 || sHeld) {
+				start_angle = angle;
+				sHeld = true;
+			}
+			if (!sHeld && m.left && sglGetDistance(e.x, e.y, m.x, m.y) < 4 || eHeld) {
+				end_angle = angle;
+				eHeld = true;
+			}
+
+			sHeld &= m.left;
+			eHeld &= m.left;
+
+			// sglDrawArc(buffer, 0x00ff00ff, m.x, m.y, 32,
+			// 		0, 2*M_PI-0.1f);
+			//
+			// bool checkSlope(float x, float y, float k_s, float k_e, int q_s, int q_e);
+			//
+			// bool isInside = checkSlope(-1, -1, 0, 0, 0, 0);
+			//
+			// SGL_DEBUG_PRINT("Test: %i\n", isInside);
 		}
 
 		//////////////////////////////////////////////////////////////////////
