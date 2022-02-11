@@ -6,6 +6,26 @@ Created with 🤕 in C!
 
 Lots of things inspired from SDL :D
 
+## Build the demo
+
+##### Dependencies
+
+* A c99 compatible compiler
+* SDL2
+* CMake
+
+##### Building
+
+Clone the repo and execute these commands from the `sgl/` directory
+
+```bash
+mkdir build
+cd build
+cmake ..
+make
+./sgl
+```
+
 ## TODO
 
 ### Core
