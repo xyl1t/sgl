@@ -391,7 +391,7 @@ float sglGetDistance(float a_x, float a_y, float b_x, float b_y);
  * @param angle the angle
  * @return new angle that is between 0 and 2π
  */
-#define sgl_normalize_angle(angle) \
+#define sglNormalizeAngle(angle) \
 	fmod(fmod((angle), M_PI * 2) + M_PI * 2, M_PI * 2)
 
 /**
@@ -406,7 +406,7 @@ float sglGetDistance(float a_x, float a_y, float b_x, float b_y);
  * @param[out] cendX x coordinate of the end point of the clipped line
  * @param[out] cendY y coordinate of the end point of the clipped line
  */
-bool clipLine(const sglRect* clipRect, int startX, int startY, int endX,
+bool sglClipLine(const sglRect* clipRect, int startX, int startY, int endX,
 	int endY, int* cstartX, int* cstartY, int* cendX, int* cendY);
 
 /**

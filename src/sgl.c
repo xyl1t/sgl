@@ -312,7 +312,7 @@ void sglGetPixel(sglBuffer* buffer, uint8_t* r, uint8_t* g, uint8_t* b,
 void sglDrawLine(sglBuffer* buffer, uint32_t color, int startX, int startY,
 	int endX, int endY)
 {
-	if (!clipLine(&buffer->clipRect, startX, startY, endX, endY, &startX,
+	if (!sglClipLine(&buffer->clipRect, startX, startY, endX, endY, &startX,
 			&startY, &endX, &endY)) {
 		return;
 	}
@@ -493,8 +493,8 @@ void sglDrawArc(sglBuffer* buffer, uint32_t color, int cntrX, int cntrY,
 	int isOnPositiveXSide_s = !(getQuadrant(startAngle) % 3);
 	int isOnPositiveXSide_e = !(getQuadrant(endAngle) % 3);
 
-	startAngle = sgl_normalize_angle(startAngle);
-	endAngle = sgl_normalize_angle(endAngle);
+	startAngle = sglNormalizeAngle(startAngle);
+	endAngle = sglNormalizeAngle(endAngle);
 
 	bool isConcave = startAngle < endAngle && fabsf(endAngle - startAngle) > M_PI
 		|| startAngle > endAngle && fabsf(endAngle - startAngle) < M_PI;
@@ -546,8 +546,8 @@ void sglFillArc(sglBuffer* buffer, uint32_t color,
 	int isOnPositiveXSide_s = !(getQuadrant(startAngle) % 3);
 	int isOnPositiveXSide_e = !(getQuadrant(endAngle) % 3);
 
-	startAngle = sgl_normalize_angle(startAngle);
-	endAngle = sgl_normalize_angle(endAngle);
+	startAngle = sglNormalizeAngle(startAngle);
+	endAngle = sglNormalizeAngle(endAngle);
 
 	bool isConcave = startAngle < endAngle && fabsf(endAngle - startAngle) > M_PI
 		|| startAngle > endAngle && fabsf(endAngle - startAngle) < M_PI;
@@ -610,7 +610,7 @@ static int findRegion(const sglRect* r, int x, int y)
 
 	return (code);
 }
-bool clipLine(const sglRect* clipRect, int startX, int startY, int endX,
+bool sglClipLine(const sglRect* clipRect, int startX, int startY, int endX,
 	int endY, int* cstartX, int* cstartY, int* cendX, int* cendY)
 {
 	int code1, code2, codeout;
