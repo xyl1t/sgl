@@ -212,7 +212,8 @@ int main(int argc, char* argv[])
 		if (test5) {
 			static float start_angle = 0;
 			static float end_angle = 3*M_PI/2;
-			int radius = 32;
+			// int radius = 32;
+			int radius = 24+(sin(SDL_GetTicks()/1000.f)/2.f+0.5)*8;
 
 			sglPoint s = {
 				cos(start_angle)*radius + p2.x + 0.5f,
@@ -223,39 +224,31 @@ int main(int argc, char* argv[])
 				sin(end_angle)*radius + p2.y + 0.5f,
 			};
 
-			sglDrawLine(buffer, 0x00ff00ff, p2.x, p2.y, s.x, s.y);
-			sglDrawLine(buffer, 0xff0000ff, p2.x, p2.y, e.x, e.y);
-
 			sglDrawCircle(buffer, 0x00ff00ff, s.x, s.y, 3);
 			sglDrawCircle(buffer, 0xff0000ff, e.x, e.y, 3);
 
-			sglDrawArc(buffer, 0xffffffff, p2.x, p2.y, radius + 1, start_angle, end_angle);
+			sglFillArc(buffer, 0xffffffff, p2.x, p2.y, radius, start_angle, end_angle);
+			sglDrawArc(buffer, 0x3377ffff, p2.x, p2.y, radius, start_angle, end_angle);
+
+			sglDrawLine(buffer, 0x00ff00ff, p2.x, p2.y, s.x, s.y);
+			sglDrawLine(buffer, 0xff0000ff, p2.x, p2.y, e.x, e.y);
 
 			float angle = atan2f(m.y - p2.y, m.x - p2.x);
 
 			static bool sHeld = false;
 			static bool eHeld = false;
 
-			if (!eHeld && m.left && sglGetDistance(s.x, s.y, m.x, m.y) < 4 || sHeld) {
+			if (!eHeld && m.left && sglGetDistance(s.x, s.y, m.x, m.y) < 6 || sHeld) {
 				start_angle = angle;
 				sHeld = true;
 			}
-			if (!sHeld && m.left && sglGetDistance(e.x, e.y, m.x, m.y) < 4 || eHeld) {
+			if (!sHeld && m.left && sglGetDistance(e.x, e.y, m.x, m.y) < 6 || eHeld) {
 				end_angle = angle;
 				eHeld = true;
 			}
 
 			sHeld &= m.left;
 			eHeld &= m.left;
-
-			// sglDrawArc(buffer, 0x00ff00ff, m.x, m.y, 32,
-			// 		0, 2*M_PI-0.1f);
-			//
-			// bool checkSlope(float x, float y, float k_s, float k_e, int q_s, int q_e);
-			//
-			// bool isInside = checkSlope(-1, -1, 0, 0, 0, 0);
-			//
-			// SGL_DEBUG_PRINT("Test: %i\n", isInside);
 		}
 
 		//////////////////////////////////////////////////////////////////////

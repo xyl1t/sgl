@@ -327,6 +327,19 @@ void sglFillCircle(sglBuffer* buffer, uint32_t color,
 void sglDrawArc(sglBuffer* buffer, uint32_t color,
 		int cntrX, int cntrY, int radius, float startAngle, float endAngle);
 
+/**
+ * @brief Draw a filled cricle on the buffer
+ * @parameter buffer Buffer to draw on
+ * @parameter color Fill color of the circle
+ * @parameter ctrX x coordinate of the center of the cirlce
+ * @parameter ctrY y coordinate of the center of the cirlce
+ * @parameter radius radius of the circle
+ */
+void sglFillArc(sglBuffer* buffer, uint32_t color,
+		int cntrX, int cntrY, int radius, float startAngle, float endAngle);
+
+
+
 
 
 /*****************************************************************************

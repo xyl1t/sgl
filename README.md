@@ -6,15 +6,15 @@ Created with 🤕 in C!
 
 Lots of things inspired from SDL :D
 
-## Build the demo
+## Build the demo (Linux / Mac)
 
-##### Dependencies
+#### Dependencies
 
 * A c99 compatible compiler
 * SDL2
 * CMake
 
-##### Building
+#### Building
 
 Clone the repo and execute these commands from the `sgl/` directory
 
@@ -36,7 +36,7 @@ Implement basic drawing functions
 * [x] Rectangles
 * [x] Line
 * [x] Circles
-* [ ] Arcs
+* [x] Arcs
 * [ ] Triangles
 	* [ ] Color interpolation
 	* [ ] Textured triangles
@@ -56,7 +56,8 @@ Implement basic drawing functions
 ### Other
 
 * [x] implement `sglGetError()` https://wiki.libsdl.org/SDL\_GetError
-* [ ] optimize circle drawing
 * [ ] add more pixel formats
 * [ ] make the library header only
+* [ ] optimize circle drawing
+* [ ] optimize arc drawing
 
