@@ -123,16 +123,16 @@ typedef struct sglRect {
 
 /**
  * @brief Checks if two rectangles intersect
- * @parameter A First rectangle
- * @parameter B second rectangle
+ * @param A First rectangle
+ * @param B second rectangle
  * @return True if rectangle A and B intersect
  */
 bool sglHasIntersection(const sglRect* A, const sglRect* B);
 /**
  * @brief Checks if two rectangles intersect
- * @parameter A First rectangle
- * @parameter B second rectangle
- * @parameter result Intersecting rectangle of rectangles A and B
+ * @param A First rectangle
+ * @param B second rectangle
+ * @param result Intersecting rectangle of rectangles A and B
  * @return True if rectangle A and B intersect
  */
 bool sglIntersectRect(const sglRect* A, const sglRect* B, sglRect* result);
@@ -160,16 +160,16 @@ typedef struct sglBuffer {
 
 /**
  * @brief Creates an sgl buffer based on a pixel buffer
- * @parameter pixels The pixel buffer that will be used to draw on
- * @parameter width Width of the buffer
- * @parameter height Height of the buffer
- * @parameter format Pixel format of the pixel buffer
+ * @param pixels The pixel buffer that will be used to draw on
+ * @param width Width of the buffer
+ * @param height Height of the buffer
+ * @param format Pixel format of the pixel buffer
  */
 sglBuffer* sglCreateBuffer(
 	void* pixels, uint32_t width, uint32_t height, sglPixelFormatEnum format);
 /**
  * @brief Destroys an sgl buffer
- * @parameter buffer The buffer to delete
+ * @param buffer The buffer to delete
  */
 void sglDestroyBuffer(sglBuffer* buffer);
 
@@ -180,13 +180,13 @@ void sglDestroyBuffer(sglBuffer* buffer);
  * The clipping rectangle will be a result of the intersection of the buffer
  * size and the rect parameter.
  *
- * @parameter buffer The buffer
- * @parameter rect The clipping rectangle that should be used by the buffer
+ * @param buffer The buffer
+ * @param rect The clipping rectangle that should be used by the buffer
  */
 bool sglSetClipRect(sglBuffer* buffer, const sglRect* rect);
 /**
  * @brief Resets the clipping rectangle of the buffer to the full buffer size
- * @parameter buffer The buffer
+ * @param buffer The buffer
  */
 void sglResetClipRect(sglBuffer* buffer);
 
@@ -260,80 +260,80 @@ void sglGetPixel(sglBuffer* buffer, uint8_t* r, uint8_t* g, uint8_t* b,
 
 /**
  * @brief Draw a line on buffer
- * @parameter buffer Buffer to draw on
- * @parameter color Color of the line
- * @parameter startX x coordinate of the start point
- * @parameter startY y coordinate of the start point
- * @parameter endX x coordinate of the end point
- * @parameter endY y coordinate of the end point
+ * @param buffer Buffer to draw on
+ * @param color Color of the line
+ * @param startX x coordinate of the start point
+ * @param startY y coordinate of the start point
+ * @param endX x coordinate of the end point
+ * @param endY y coordinate of the end point
  */
 void sglDrawLine(sglBuffer* buffer, uint32_t color, int startX, int startY,
 	int endX, int endY);
 
 /**
  * @brief Draw a rectangle on the buffer
- * @parameter buffer Buffer to draw on
- * @parameter color Stroke color of the rectangle
- * @parameter startX x coordinate of the rectangle
- * @parameter startY y coordinate of the rectangle
- * @parameter w Width of the rectangle
- * @parameter h Height of the rectangle
+ * @param buffer Buffer to draw on
+ * @param color Stroke color of the rectangle
+ * @param startX x coordinate of the rectangle
+ * @param startY y coordinate of the rectangle
+ * @param w Width of the rectangle
+ * @param h Height of the rectangle
  */
 void sglDrawRectangle(
 		sglBuffer* buffer, uint32_t color, int x, int y, int w, int h);
 
 /**
  * @brief Draw a filled rectangle on the buffer
- * @parameter buffer Buffer to draw on
- * @parameter color Fill color of the rectangle
- * @parameter startX x coordinate of the rectangle
- * @parameter startY y coordinate of the rectangle
- * @parameter w Width of the rectangle
- * @parameter h Height of the rectangle
+ * @param buffer Buffer to draw on
+ * @param color Fill color of the rectangle
+ * @param startX x coordinate of the rectangle
+ * @param startY y coordinate of the rectangle
+ * @param w Width of the rectangle
+ * @param h Height of the rectangle
  */
 void sglFillRectangle(
 	sglBuffer* buffer, uint32_t color, int startX, int startY, int w, int h);
 
 /**
  * @brief Draw a cricle on the buffer
- * @parameter buffer Buffer to draw on
- * @parameter color Stroke color of the circle
- * @parameter ctrX x coordinate of the center of the cirlce
- * @parameter ctrY y coordinate of the center of the cirlce
- * @parameter radius radius of the circle
+ * @param buffer Buffer to draw on
+ * @param color Stroke color of the circle
+ * @param ctrX x coordinate of the center of the cirlce
+ * @param ctrY y coordinate of the center of the cirlce
+ * @param radius radius of the circle
  */
 void sglDrawCircle(sglBuffer* buffer, uint32_t color,
 	int cntrX, int cntrY, int radius);
 
 /**
  * @brief Draw a filled cricle on the buffer
- * @parameter buffer Buffer to draw on
- * @parameter color Fill color of the circle
- * @parameter ctrX x coordinate of the center of the cirlce
- * @parameter ctrY y coordinate of the center of the cirlce
- * @parameter radius radius of the circle
+ * @param buffer Buffer to draw on
+ * @param color Fill color of the circle
+ * @param ctrX x coordinate of the center of the cirlce
+ * @param ctrY y coordinate of the center of the cirlce
+ * @param radius radius of the circle
  */
 void sglFillCircle(sglBuffer* buffer, uint32_t color,
 	int cntrX, int cntrY, int radius);
 
 /**
  * @brief Draw a filled cricle on the buffer
- * @parameter buffer Buffer to draw on
- * @parameter color Fill color of the circle
- * @parameter ctrX x coordinate of the center of the cirlce
- * @parameter ctrY y coordinate of the center of the cirlce
- * @parameter radius radius of the circle
+ * @param buffer Buffer to draw on
+ * @param color Fill color of the circle
+ * @param ctrX x coordinate of the center of the cirlce
+ * @param ctrY y coordinate of the center of the cirlce
+ * @param radius radius of the circle
  */
 void sglDrawArc(sglBuffer* buffer, uint32_t color,
 		int cntrX, int cntrY, int radius, float startAngle, float endAngle);
 
 /**
  * @brief Draw a filled cricle on the buffer
- * @parameter buffer Buffer to draw on
- * @parameter color Fill color of the circle
- * @parameter ctrX x coordinate of the center of the cirlce
- * @parameter ctrY y coordinate of the center of the cirlce
- * @parameter radius radius of the circle
+ * @param buffer Buffer to draw on
+ * @param color Fill color of the circle
+ * @param ctrX x coordinate of the center of the cirlce
+ * @param ctrY y coordinate of the center of the cirlce
+ * @param radius radius of the circle
  */
 void sglFillArc(sglBuffer* buffer, uint32_t color,
 		int cntrX, int cntrY, int radius, float startAngle, float endAngle);
@@ -348,35 +348,64 @@ void sglFillArc(sglBuffer* buffer, uint32_t color,
 
 /**
  * @brief Linear interpolation using float
- * @parameter a First value
- * @parameter b Second value
- * @parameter t Value between 0 and 1 that mixes a and b
+ * @param a First value
+ * @param b Second value
+ * @param t Value between 0 and 1 that mixes a and b
  * @return Mix between a and b using t
  */
 float sglLerpf(float a, float b, float t);
 /**
  * @brief Linear interpolation using double
- * @parameter a First value
- * @parameter b Second value
- * @parameter t Value between 0 and 1 that mixes a and b
+ * @param a First value
+ * @param b Second value
+ * @param t Value between 0 and 1 that mixes a and b
  * @return Mix between a and b using t
  */
 double sglLerpd(double a, double b, double t);
 /**
  * @brief Linear interpolation using int
- * @parameter a First value
- * @parameter b Second value
- * @parameter t Value between 0 and 1 that mixes a and b
+ * @param a First value
+ * @param b Second value
+ * @param t Value between 0 and 1 that mixes a and b
  * @return Mix between a and b using t
  */
 int sglLerpi(int a, int b, int t);
 
+/**
+ * @brief Gets the distance between two points
+ * @param a first point
+ * @param b second point
+ * @return distance between point a and point b
+ */
 float sglGetDistancePoint(sglPoint a, sglPoint b);
+/**
+ * @brief Gets the distance between two points
+ * @param a first point
+ * @param b second point
+ * @return distance between point a and point b
+ */
 float sglGetDistance(float a_x, float a_y, float b_x, float b_y);
 
+/**
+ * @brief normalizes any angle to a range between 0 and 2π
+ * @param angle the angle
+ * @return new angle that is between 0 and 2π
+ */
 #define sgl_normalize_angle(angle) \
 	fmod(fmod((angle), M_PI * 2) + M_PI * 2, M_PI * 2)
 
+/**
+ * @breif clip a line in a given rectangle
+ * @param clipRect the rectangle the lines should be cliped to
+ * @param startX x coordinate of the start point of the line
+ * @param startY y coordinate of the start point of the line
+ * @param endX x coordinate of the end point of the line
+ * @param endY y coordinate of the end point of the line
+ * @param[out] cstartX x coordinate of the start point of the clipped line
+ * @param[out] cstartY y coordinate of the start point of the clipped line
+ * @param[out] cendX x coordinate of the end point of the clipped line
+ * @param[out] cendY y coordinate of the end point of the clipped line
+ */
 bool clipLine(const sglRect* clipRect, int startX, int startY, int endX,
 	int endY, int* cstartX, int* cstartY, int* cendX, int* cendY);
 
