@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
+#include <math.h>
 #if __has_include("SDL2/SDL.h")
 #include <SDL2/SDL.h>
 #else
@@ -143,7 +144,8 @@ int main(int argc, char* argv[])
 		bool test2 = false;
 		bool test3 = false;
 		bool test4 = false;
-		bool test5 = true;
+		bool test5 = false;
+		bool test6 = true;
 
 		if (test1) {
 			for (int x = 0; x < buffer->width; x++) {
@@ -251,6 +253,54 @@ int main(int argc, char* argv[])
 			eHeld &= m.left;
 		}
 
+		if (test6) {
+			static sglPoint t[3] = {
+				{ .x = 128, .y = 32 },
+				{ .x = 200, .y = 64 },
+				{ .x = 100, .y = 96 }
+			};
+			static int current = -1;
+
+			sglDrawCircle(buffer, 0xff0000ff, t[0].x, t[0].y, 3);
+			sglDrawCircle(buffer, 0x00ff00ff, t[1].x, t[1].y, 3);
+			sglDrawCircle(buffer, 0x0000ffff, t[2].x, t[2].y, 3);
+
+			if (m.left) {
+				for (int i = 0; i < 3 && current == -1; i++) {
+					if (sglGetDistance(t[i].x, t[i].y, m.x, m.y) < 6) {
+						current = i;
+					}
+				}
+				t[current].x = m.x;
+				t[current].y = m.y;
+			} else {
+				current = -1;
+			}
+
+
+			float a = sglGetDistancePoint(t[0], t[1]);
+			float b = sglGetDistancePoint(t[1], t[2]);
+			float c = sglGetDistancePoint(t[0], t[2]);
+			float s = (a + b + c)/2;
+			float A = sqrt(s*(s-a)*(s-b)*(s-c));
+
+			// SGL_DEBUG_PRINT("0, 1: %f\n", sglGetDistancePoint(t[0], t[1]));
+			// SGL_DEBUG_PRINT("1, 2: %f\n", sglGetDistancePoint(t[1], t[2]));
+			// SGL_DEBUG_PRINT("0, 2: %f\n", sglGetDistancePoint(t[0], t[2]));
+			// SGL_DEBUG_PRINT("area: %f\n", A);
+
+			sglFillTriangle(buffer, 0xffffffff,
+					t[0].x, t[0].y, t[1].x, t[1].y, t[2].x, t[2].y);
+			sglDrawTriangle(buffer, 0x3366EEff,
+					t[0].x, t[0].y, t[1].x, t[1].y, t[2].x, t[2].y);
+
+			sglFillTriangle(buffer, 0xffffffff,
+					30, 30, 20, 60, 60, 70);
+			sglFillTriangle(buffer, 0xffffffff,
+					30, 30, 60, 70, 90, 40);
+
+		}
+
 		//////////////////////////////////////////////////////////////////////
 
 		SDL_UpdateTexture(
@@ -268,6 +318,7 @@ int main(int argc, char* argv[])
 		acc++;
 		if (delta > 1000) {
 			SGL_DEBUG_PRINT("elapsed time: %.2fms\n", delta / (float)acc);
+			// SGL_DEBUG_PRINT("x: %d, y: %d\n", m.x, m.y);
 			delta = 0;
 			acc = 0;
 		}

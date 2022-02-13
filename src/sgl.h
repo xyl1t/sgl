@@ -338,7 +338,33 @@ void sglDrawArc(sglBuffer* buffer, uint32_t color,
 void sglFillArc(sglBuffer* buffer, uint32_t color,
 		int cntrX, int cntrY, int radius, float startAngle, float endAngle);
 
+/**
+ * @brief Draw a triangle
+ * @param buffer the buffer to draw on
+ * @param color stroke color of triangle
+ * @param x x coordinate of first point
+ * @param y y coordinate of first point
+ * @param x x coordinate of second point
+ * @param y y coordinate of second point
+ * @param x x coordinate of thrid point
+ * @param y y coordinate of thrid point
+ */
+void sglDrawTriangle(sglBuffer* buffer, uint32_t color,
+		int x1, int y1, int x2, int y2, int x3, int y3);
 
+/**
+ * @brief Draw a filled triangle
+ * @param buffer the buffer to draw on
+ * @param color fill color of the triangle
+ * @param x x coordinate of first point
+ * @param y y coordinate of first point
+ * @param x x coordinate of second point
+ * @param y y coordinate of second point
+ * @param x x coordinate of thrid point
+ * @param y y coordinate of thrid point
+ */
+void sglFillTriangle(sglBuffer* buffer, uint32_t color,
+		int x1, int y1, int x2, int y2, int x3, int y3);
 
 
 

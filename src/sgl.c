@@ -475,6 +475,8 @@ static bool checkSlope(
 
 static int getQuadrant(float angle) { return angle / M_PI_2; }
 
+// https://excalidraw.com/#json=kAaT2aqfqX3a18n5nrNBV,JXiyMP0jQeniTYq6XpTp_g
+
 void sglDrawArc(sglBuffer* buffer, uint32_t color, int cntrX, int cntrY,
 	int radius, float startAngle, float endAngle)
 {
@@ -571,9 +573,107 @@ void sglFillArc(sglBuffer* buffer, uint32_t color,
 
 }
 
-/*******************************************************************************
- *  UTILITY FUNCTIONS                                                          *
- *******************************************************************************/
+void sglDrawTriangle(sglBuffer* buffer, uint32_t color,
+		int x1, int y1, int x2, int y2, int x3, int y3)
+{
+	sglDrawLine(buffer, color, x1, y1, x2, y2);
+	sglDrawLine(buffer, color, x2, y2, x3, y3);
+	sglDrawLine(buffer, color, x1, y1, x3, y3);
+}
+
+void sglFillTriangle(sglBuffer* buffer, uint32_t color,
+		int x1, int y1, int x2, int y2, int x3, int y3)
+{
+	if (!buffer) return;
+
+	int temp;
+
+	if (y1 > y3) {
+		temp = y3;
+		y3 = y1;
+		y1 = temp;
+		temp = x3;
+		x3 = x1;
+		x1 = temp;
+	}
+	if (y2 > y3) {
+		temp = y3;
+		y3 = y2;
+		y2 = temp;
+		temp = x3;
+		x3 = x2;
+		x2 = temp;
+	}
+	if (y2 < y1) {
+		temp = y1;
+		y1 = y2;
+		y2 = temp;
+		temp = x1;
+		x1 = x2;
+		x2 = temp;
+	}
+
+
+	float t = (y2 - y1) / (float)(y3 - y1);
+	float betwix = sglLerpf(x1, x3, t);
+
+#define drawTrianglePart(sy, ey, sx, ex, ax, bx)   \
+	do {                                           \
+	for (int y = sy; y < ey; y++) {                \
+		t = (y - sy) / (float)(ey - sy);           \
+		int startX = sglLerpf(sx, ex, t) + 0.5f;   \
+		int endX = sglLerpf(ax, bx, t) + 0.5f;     \
+		if (endX < startX) {                       \
+			temp = startX;                         \
+			startX = endX;                         \
+			endX = temp;                           \
+		}                                          \
+		for (int x = startX; x < endX; x++) {      \
+			sglDrawPixelRaw(buffer, color, x, y);  \
+		}                                          \
+	}                                              \
+	} while(0);
+
+
+	drawTrianglePart(y1, y2, x1, x2, x1, betwix);
+	drawTrianglePart(y2, y3, x2, x3, betwix, x3);
+
+	// for (int y = y1; y < y2; y++) {
+	// 	t = (y - y1) / (float)(y2 - y1);
+	// 	int startX = sglLerpf(x1, x2, t) + 0.5f;
+	// 	int endX = sglLerpf(x1, betwix, t) + 0.5f;
+	//
+	// 	if (endX < startX) {
+	// 		temp = startX;
+	// 		startX = endX;
+	// 		endX = temp;
+	// 	}
+	//
+	// 	for (int x = startX; x < endX; x++) {
+	// 		sglDrawPixelRaw(buffer, color, x, y);
+	// 	}
+	// }
+	//
+	// for (int y = y2; y < y3; y++) {
+	// 	t = (y - y2) / (float)(y3 - y2);
+	// 	int startX = sglLerpf(x2, x3, t) + 0.5f;
+	// 	int endX = sglLerpf(betwix, x3, t) + 0.5f;
+	//
+	// 	if (endX < startX) {
+	// 		temp = startX;
+	// 		startX = endX;
+	// 		endX = temp;
+	// 	}
+	//
+	// 	for (int x = startX; x < endX; x++) {
+	// 		sglDrawPixelRaw(buffer, color, x, y);
+	// 	}
+	// }
+}
+
+/*****************************************************************************
+ *  UTILITY FUNCTIONS                                                        *
+ *****************************************************************************/
 
 float sglLerpf(float a, float b, float t) { return a + t * (b - a); }
 double sglLerpd(double a, double b, double t) { return a + t * (b - a); }
