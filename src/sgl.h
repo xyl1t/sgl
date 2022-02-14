@@ -395,7 +395,7 @@ void sglDrawColorInterpolatedTriangle(sglBuffer* buffer, int x1, int y1, int x2,
  * @param t Value between 0 and 1 that mixes a and b
  * @return Mix between a and b using t
  */
-float sglLerpf(float a, float b, float t);
+extern inline float sglLerpf(float a, float b, float t);
 /**
  * @brief Linear interpolation using double
  * @param a First value
@@ -403,7 +403,7 @@ float sglLerpf(float a, float b, float t);
  * @param t Value between 0 and 1 that mixes a and b
  * @return Mix between a and b using t
  */
-double sglLerpd(double a, double b, double t);
+extern inline double sglLerpd(double a, double b, double t);
 /**
  * @brief Linear interpolation using int
  * @param a First value
@@ -411,7 +411,9 @@ double sglLerpd(double a, double b, double t);
  * @param t Value between 0 and 1 that mixes a and b
  * @return Mix between a and b using t
  */
-int sglLerpi(int a, int b, int t);
+extern inline int sglLerpi(int a, int b, int t);
+
+#define sglLerp(a, b, t) ({float retval; retval = a + t * (b - a); retval;})
 
 /**
  * @brief Gets the distance between two points

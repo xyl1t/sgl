@@ -40,10 +40,11 @@ Implement basic drawing functions
 * [ ] Triangles
 	* [x] Stroke
 	* [x] Fill
-	* [ ] Color interpolation
+	* [x] Color interpolation
 	* [ ] Textured triangles
-* [ ] Images
+* [ ] Images (using stb_image.h)
 	* [ ] Linear sampling
+	* [ ] Wrapping
 * [ ] Text
 * [ ] Shaders
 
@@ -60,6 +61,9 @@ Implement basic drawing functions
 * [x] implement `sglGetError()` https://wiki.libsdl.org/SDL\_GetError
 * [ ] add more pixel formats
 * [ ] make the library header only
-* [ ] optimize circle drawing
-* [ ] optimize arc drawing
+* [ ] Live demo code update
+* [ ] optimize
+	* [ ] circle drawing
+	* [ ] arc drawing
+	* [ ] triangles
 

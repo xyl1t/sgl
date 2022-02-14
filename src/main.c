@@ -118,8 +118,8 @@ int main(int argc, char* argv[])
 				break;
 			}
 			uint32_t buttons = SDL_GetMouseState(&m.x, &m.y);
-			m.x /= WINDOW_WIDTH / CANVAS_WIDTH;
-			m.y /= WINDOW_HEIGHT / CANVAS_HEIGHT;
+			m.x /= WINDOW_WIDTH / (float)CANVAS_WIDTH;
+			m.y /= WINDOW_HEIGHT / (float)CANVAS_HEIGHT;
 			m.left = (buttons & SDL_BUTTON_LMASK) != 0;
 			m.right = (buttons & SDL_BUTTON_RMASK) != 0;
 		}
@@ -258,10 +258,14 @@ int main(int argc, char* argv[])
 		}
 
 		if (test6) {
-			static sglPoint t[3] = {
+			static sglPoint t[] = {
 				{ .x = 128, .y = 32 },
 				{ .x = 200, .y = 64 },
-				{ .x = 100, .y = 96 }
+				{ .x = 100, .y = 96 },
+
+				{ .x = 64, .y = 32 },
+				{ .x = 100, .y = 64 },
+				{ .x = 16, .y = 98 },
 			};
 			static int current = -1;
 
@@ -269,8 +273,12 @@ int main(int argc, char* argv[])
 			sglDrawCircle(buffer, 0x00ff00ff, t[1].x, t[1].y, 3);
 			sglDrawCircle(buffer, 0x0000ffff, t[2].x, t[2].y, 3);
 
+			sglDrawCircle(buffer, 0xffffffff, t[3].x, t[3].y, 3);
+			sglDrawCircle(buffer, 0xffffffff, t[4].x, t[4].y, 3);
+			sglDrawCircle(buffer, 0xffffffff, t[5].x, t[5].y, 3);
+
 			if (m.left) {
-				for (int i = 0; i < 3 && current == -1; i++) {
+				for (int i = 0; i < sizeof(t) && current == -1; i++) {
 					if (sglGetDistance(t[i].x, t[i].y, m.x, m.y) < 6) {
 						current = i;
 					}
@@ -281,15 +289,11 @@ int main(int argc, char* argv[])
 				current = -1;
 			}
 
-
-			float a = sglGetDistancePoint(t[0], t[1]);
-			float b = sglGetDistancePoint(t[1], t[2]);
-			float c = sglGetDistancePoint(t[0], t[2]);
-			float s = (a + b + c)/2;
-			float A = sqrt(s*(s-a)*(s-b)*(s-c));
-
 			sglFillTriangle(buffer, 0xffffffff,
-					t[0].x, t[0].y, t[1].x, t[1].y, t[2].x, t[2].y);
+					t[3].x, t[3].y, t[4].x, t[4].y, t[5].x, t[5].y);
+			sglDrawColorInterpolatedTriangle(buffer,
+					t[0].x, t[0].y, t[1].x, t[1].y, t[2].x, t[2].y,
+					0xff0000ff, 0x00ff00ff, 0x0000ffff);
 			sglDrawTriangle(buffer, 0x3366EEff,
 					t[0].x, t[0].y, t[1].x, t[1].y, t[2].x, t[2].y);
 

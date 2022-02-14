@@ -639,7 +639,119 @@ void sglFillTriangle(sglBuffer* buffer, uint32_t color, int x1, int y1, int x2,
 	drawTrianglePart(y1, y2, x1, x2, x1, betwix);
 	// bottom
 	drawTrianglePart(y2, y3, x2, x3, betwix, x3);
+
+#undef drawTrianglePart
 }
+
+void sglDrawColorInterpolatedTriangle(sglBuffer* buffer, int x1, int y1, int x2,
+	int y2, int x3, int y3, uint32_t c1, uint32_t c2, uint32_t c3)
+{
+	if (!buffer) return;
+
+	int temp;
+	if (y1 > y3) {
+		temp = y3; y3 = y1; y1 = temp;
+		temp = x3; x3 = x1; x1 = temp;
+		temp = c3; c3 = c1; c1 = temp;
+	}
+	if (y2 > y3) {
+		temp = y3; y3 = y2; y2 = temp;
+		temp = x3; x3 = x2; x2 = temp;
+		temp = c3; c3 = c2; c2 = temp;
+	}
+	if (y2 < y1) {
+		temp = y1; y1 = y2; y2 = temp;
+		temp = x1; x1 = x2; x2 = temp;
+		temp = c1; c1 = c2; c2 = temp;
+	}
+
+	uint8_t r1, g1, b1, a1;
+	sglGetRGBA(c1, buffer->pf, &r1, &g1, &b1, &a1);
+	uint8_t r2, g2, b2, a2;
+	sglGetRGBA(c2, buffer->pf, &r2, &g2, &b2, &a2);
+	uint8_t r3, g3, b3, a3;
+	sglGetRGBA(c3, buffer->pf, &r3, &g3, &b3, &a3);
+
+	float t = (y2 - y1) / (float)(y3 - y1);
+	float betwix = sglLerpf(x1, x3, t);
+	float betwir = sglLerpf(r1, r3, t);
+	float betwig = sglLerpf(g1, g3, t);
+	float betwib = sglLerpf(b1, b3, t);
+	float betwia = sglLerpf(a1, a3, t);
+
+	for (int y = y1; y < y2; y++) {
+		t = (y - y1) / (float)(y2 - y1);
+		int startX = sglLerpf(x1, x2, t) + 0.5f;
+		int endX = sglLerpf(x1, betwix, t) + 0.5f;
+
+		uint8_t s_r = sglLerpf(r1, r2, t) + 0.5f;
+		uint8_t s_g = sglLerpf(g1, g2, t) + 0.5f;
+		uint8_t s_b = sglLerpf(b1, b2, t) + 0.5f;
+		uint8_t s_a = sglLerpf(a1, a2, t) + 0.5f;
+
+		uint8_t e_r = sglLerpf(r1, betwir, t) + 0.5f;
+		uint8_t e_g = sglLerpf(g1, betwig, t) + 0.5f;
+		uint8_t e_b = sglLerpf(b1, betwib, t) + 0.5f;
+		uint8_t e_a = sglLerpf(a1, betwia, t) + 0.5f;
+
+		if (endX < startX) {
+			temp = startX; startX = endX; endX = temp;
+			temp = s_r; s_r = e_r; e_r = temp;
+			temp = s_g; s_g = e_g; e_g = temp;
+			temp = s_b; s_b = e_b; e_b = temp;
+			temp = s_a; s_a = e_a; e_a = temp;
+		}
+
+		for (int x = startX; x < endX; x++) {
+			t = (x - startX) / (float)(endX - startX);
+			uint32_t color = sglMapRGBA(
+					sglLerpf(s_r, e_r, t),
+					sglLerpf(s_g, e_g, t),
+					sglLerpf(s_b, e_b, t),
+					sglLerpf(s_a, e_a, t),
+					buffer->pf);
+			sglDrawPixelRaw(buffer, color, x, y);
+		}
+	}
+	
+	for (int y = y2; y < y3; y++) {
+		t = (y - y2) / (float)(y3 - y2);
+		int startX = sglLerpf(x2, x3, t) + 0.5f;
+		int endX = sglLerpf(betwix, x3, t) + 0.5f;
+
+		uint8_t s_r = sglLerpf(r2, r3, t) + 0.5f;
+		uint8_t s_g = sglLerpf(g2, g3, t) + 0.5f;
+		uint8_t s_b = sglLerpf(b2, b3, t) + 0.5f;
+		uint8_t s_a = sglLerpf(a2, a3, t) + 0.5f;
+
+		uint8_t e_r = sglLerpf(betwir, r3, t) + 0.5f;
+		uint8_t e_g = sglLerpf(betwig, g3, t) + 0.5f;
+		uint8_t e_b = sglLerpf(betwib, b3, t) + 0.5f;
+		uint8_t e_a = sglLerpf(betwia, a3, t) + 0.5f;
+
+		if (endX < startX) {
+			temp = startX; startX = endX; endX = temp;
+			temp = s_r; s_r = e_r; e_r = temp;
+			temp = s_g; s_g = e_g; e_g = temp;
+			temp = s_b; s_b = e_b; e_b = temp;
+			temp = s_a; s_a = e_a; e_a = temp;
+		}
+
+		for (int x = startX; x < endX; x++) {
+			t = (x - startX) / (float)(endX - startX);
+			uint32_t color = sglMapRGBA(
+					sglLerpf(s_r, e_r, t),
+					sglLerpf(s_g, e_g, t),
+					sglLerpf(s_b, e_b, t),
+					sglLerpf(s_a, e_a, t),
+					buffer->pf);
+			sglDrawPixelRaw(buffer, color, x, y);
+		}
+	}
+	
+}
+
+
 
 /*****************************************************************************
  *  UTILITY FUNCTIONS                                                        *
