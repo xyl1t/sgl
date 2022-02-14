@@ -586,33 +586,20 @@ void sglFillTriangle(sglBuffer* buffer, uint32_t color,
 {
 	if (!buffer) return;
 
+	// swap so that y1 is first, y2 second, y3 thrid
 	int temp;
-
 	if (y1 > y3) {
-		temp = y3;
-		y3 = y1;
-		y1 = temp;
-		temp = x3;
-		x3 = x1;
-		x1 = temp;
+		temp = y3; y3 = y1; y1 = temp;
+		temp = x3; x3 = x1; x1 = temp;
 	}
 	if (y2 > y3) {
-		temp = y3;
-		y3 = y2;
-		y2 = temp;
-		temp = x3;
-		x3 = x2;
-		x2 = temp;
+		temp = y3; y3 = y2; y2 = temp;
+		temp = x3; x3 = x2; x2 = temp;
 	}
 	if (y2 < y1) {
-		temp = y1;
-		y1 = y2;
-		y2 = temp;
-		temp = x1;
-		x1 = x2;
-		x2 = temp;
+		temp = y1; y1 = y2; y2 = temp;
+		temp = x1; x1 = x2; x2 = temp;
 	}
-
 
 	float t = (y2 - y1) / (float)(y3 - y1);
 	float betwix = sglLerpf(x1, x3, t);
@@ -634,41 +621,10 @@ void sglFillTriangle(sglBuffer* buffer, uint32_t color,
 	}                                              \
 	} while(0);
 
-
+	// top
 	drawTrianglePart(y1, y2, x1, x2, x1, betwix);
+	// bottom
 	drawTrianglePart(y2, y3, x2, x3, betwix, x3);
-
-	// for (int y = y1; y < y2; y++) {
-	// 	t = (y - y1) / (float)(y2 - y1);
-	// 	int startX = sglLerpf(x1, x2, t) + 0.5f;
-	// 	int endX = sglLerpf(x1, betwix, t) + 0.5f;
-	//
-	// 	if (endX < startX) {
-	// 		temp = startX;
-	// 		startX = endX;
-	// 		endX = temp;
-	// 	}
-	//
-	// 	for (int x = startX; x < endX; x++) {
-	// 		sglDrawPixelRaw(buffer, color, x, y);
-	// 	}
-	// }
-	//
-	// for (int y = y2; y < y3; y++) {
-	// 	t = (y - y2) / (float)(y3 - y2);
-	// 	int startX = sglLerpf(x2, x3, t) + 0.5f;
-	// 	int endX = sglLerpf(betwix, x3, t) + 0.5f;
-	//
-	// 	if (endX < startX) {
-	// 		temp = startX;
-	// 		startX = endX;
-	// 		endX = temp;
-	// 	}
-	//
-	// 	for (int x = startX; x < endX; x++) {
-	// 		sglDrawPixelRaw(buffer, color, x, y);
-	// 	}
-	// }
 }
 
 /*****************************************************************************

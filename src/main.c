@@ -284,20 +284,10 @@ int main(int argc, char* argv[])
 			float s = (a + b + c)/2;
 			float A = sqrt(s*(s-a)*(s-b)*(s-c));
 
-			// SGL_DEBUG_PRINT("0, 1: %f\n", sglGetDistancePoint(t[0], t[1]));
-			// SGL_DEBUG_PRINT("1, 2: %f\n", sglGetDistancePoint(t[1], t[2]));
-			// SGL_DEBUG_PRINT("0, 2: %f\n", sglGetDistancePoint(t[0], t[2]));
-			// SGL_DEBUG_PRINT("area: %f\n", A);
-
 			sglFillTriangle(buffer, 0xffffffff,
 					t[0].x, t[0].y, t[1].x, t[1].y, t[2].x, t[2].y);
 			sglDrawTriangle(buffer, 0x3366EEff,
 					t[0].x, t[0].y, t[1].x, t[1].y, t[2].x, t[2].y);
-
-			sglFillTriangle(buffer, 0xffffffff,
-					30, 30, 20, 60, 60, 70);
-			sglFillTriangle(buffer, 0xffffffff,
-					30, 30, 60, 70, 90, 40);
 
 		}
 
