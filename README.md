@@ -38,6 +38,8 @@ Implement basic drawing functions
 * [x] Circles
 * [x] Arcs
 * [ ] Triangles
+	* [x] Stroke
+	* [x] Fill
 	* [ ] Color interpolation
 	* [ ] Textured triangles
 * [ ] Images
