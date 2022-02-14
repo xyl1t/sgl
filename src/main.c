@@ -1,10 +1,10 @@
 #include "SDL_rect.h"
 #include "SDL_timer.h"
+#include <math.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
-#include <math.h>
 #if __has_include("SDL2/SDL.h")
 #include <SDL2/SDL.h>
 #else
@@ -38,8 +38,8 @@ int main(int argc, char* argv[])
 
 	SDL_Window* window = SDL_CreateWindow("sgl demo", SDL_WINDOWPOS_CENTERED,
 		SDL_WINDOWPOS_CENTERED, WINDOW_WIDTH, WINDOW_HEIGHT, SDL_WINDOW_SHOWN);
-	SDL_Renderer* renderer = SDL_CreateRenderer(
-		window, -1, SDL_RENDERER_ACCELERATED/*  | SDL_RENDERER_PRESENTVSYNC */);
+	SDL_Renderer* renderer = SDL_CreateRenderer(window, -1,
+		SDL_RENDERER_ACCELERATED /*  | SDL_RENDERER_PRESENTVSYNC */);
 
 	SDL_Texture* texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ABGR32,
 		SDL_TEXTUREACCESS_STREAMING, CANVAS_WIDTH, CANVAS_HEIGHT);
@@ -155,7 +155,7 @@ int main(int argc, char* argv[])
 					int i = x << (y % 256 / 32) % 256;
 					int j = y << (x % 256 / 32) % 256;
 
-					sglDrawPixel(buffer, j, i, 255 - (i / 2 + j / 2), 255, x, y);
+					sglDrawPixel(buffer, j, i, 255 - (i/2 + j/2), 255, x, y);
 				}
 			}
 		}
@@ -178,18 +178,20 @@ int main(int argc, char* argv[])
 
 			sglRect clip = (sglRect) { .x = 32, .y = 32, .w = 150, .h = 150 };
 
-			sglFillRectangle(buffer, 0x203040ff, 0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+			sglFillRectangle(
+				buffer, 0x203040ff, 0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
 
 			sglDrawLine(buffer, 0xff0000ff, p1.x, p1.y, p2.x, p2.y);
-			sglDrawRectangle(buffer, 0xff0000ff, p1.x, p1.y, p2.x - p1.x, p2.y - p1.y)	;
+			sglDrawRectangle(
+				buffer, 0xff0000ff, p1.x, p1.y, p2.x - p1.x, p2.y - p1.y);
 
 			sglSetClipRect(buffer, &clip);
 			sglClearClipRect(buffer);
 
 			sglDrawLine(buffer, 0x00ff00ff, p1.x, p1.y, p2.x, p2.y);
 
-			sglDrawRectangle(buffer, 0x00ff00ff, p1.x, p1.y, p2.x - p1.x, p2.y - p1.y)	;
-
+			sglDrawRectangle(
+				buffer, 0x00ff00ff, p1.x, p1.y, p2.x - p1.x, p2.y - p1.y);
 		}
 
 		if (test4) {
@@ -197,10 +199,10 @@ int main(int argc, char* argv[])
 			float distance = 96;
 			int maxCircles = 32;
 			for (int circleCount = 0; circleCount < maxCircles; circleCount++) {
-				int x = cos(circleCount/(float)maxCircles*2*3.14) * distance + buffer->width/2.f;
-				int y = sin(circleCount/(float)maxCircles*2*3.14) * distance + buffer->width/2.f;
+				int x = cos(circleCount / (float)maxCircles * 2 * 3.14) * distance + buffer->width / 2.f;
+				int y = sin(circleCount / (float)maxCircles * 2 * 3.14) * distance + buffer->width / 2.f;
 
-				if (circleCount % 2){
+				if (circleCount % 2) {
 					sglDrawCircle(buffer, 0x00ff00ff, x, y, radius);
 				} else {
 					sglFillCircle(buffer, 0x00ff00ff, x, y, radius);
@@ -213,24 +215,26 @@ int main(int argc, char* argv[])
 
 		if (test5) {
 			static float start_angle = 0;
-			static float end_angle = 3*M_PI/2;
+			static float end_angle = 3 * M_PI / 2;
 			// int radius = 32;
-			int radius = 24+(sin(SDL_GetTicks()/1000.f)/2.f+0.5)*8;
+			int radius = 24 + (sin(SDL_GetTicks() / 1000.f) / 2.f + 0.5) * 8;
 
 			sglPoint s = {
-				cos(start_angle)*radius + p2.x + 0.5f,
-				sin(start_angle)*radius + p2.y + 0.5f
+				cos(start_angle) * radius + p2.x + 0.5f,
+				sin(start_angle) * radius + p2.y + 0.5f
 			};
 			sglPoint e = {
-				cos(end_angle)*radius + p2.x + 0.5f,
-				sin(end_angle)*radius + p2.y + 0.5f,
+				cos(end_angle) * radius + p2.x + 0.5f,
+				sin(end_angle) * radius + p2.y + 0.5f,
 			};
 
 			sglDrawCircle(buffer, 0x00ff00ff, s.x, s.y, 3);
 			sglDrawCircle(buffer, 0xff0000ff, e.x, e.y, 3);
 
-			sglFillArc(buffer, 0xffffffff, p2.x, p2.y, radius, start_angle, end_angle);
-			sglDrawArc(buffer, 0x3377ffff, p2.x, p2.y, radius, start_angle, end_angle);
+			sglFillArc(
+				buffer, 0xffffffff, p2.x, p2.y, radius, start_angle, end_angle);
+			sglDrawArc(
+				buffer, 0x3377ffff, p2.x, p2.y, radius, start_angle, end_angle);
 
 			sglDrawLine(buffer, 0x00ff00ff, p2.x, p2.y, s.x, s.y);
 			sglDrawLine(buffer, 0xff0000ff, p2.x, p2.y, e.x, e.y);
@@ -296,8 +300,8 @@ int main(int argc, char* argv[])
 		SDL_UpdateTexture(
 			texture, NULL, buffer->pixels, CANVAS_WIDTH * sizeof(uint32_t));
 		SDL_RenderClear(renderer);
-		SDL_Rect srcRect = {0, 0, WINDOW_WIDTH, WINDOW_HEIGHT};
-		SDL_Rect dstRect = {0, 0, CANVAS_WIDTH, CANVAS_HEIGHT};
+		SDL_Rect srcRect = { 0, 0, WINDOW_WIDTH, WINDOW_HEIGHT };
+		SDL_Rect dstRect = { 0, 0, CANVAS_WIDTH, CANVAS_HEIGHT };
 		SDL_RenderCopy(renderer, texture, &dstRect, &srcRect);
 		SDL_RenderPresent(renderer);
 

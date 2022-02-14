@@ -280,7 +280,7 @@ void sglDrawLine(sglBuffer* buffer, uint32_t color, int startX, int startY,
  * @param h Height of the rectangle
  */
 void sglDrawRectangle(
-		sglBuffer* buffer, uint32_t color, int x, int y, int w, int h);
+	sglBuffer* buffer, uint32_t color, int x, int y, int w, int h);
 
 /**
  * @brief Draw a filled rectangle on the buffer
@@ -313,8 +313,8 @@ void sglDrawCircle(sglBuffer* buffer, uint32_t color,
  * @param ctrY y coordinate of the center of the cirlce
  * @param radius radius of the circle
  */
-void sglFillCircle(sglBuffer* buffer, uint32_t color,
-	int cntrX, int cntrY, int radius);
+void sglFillCircle(
+	sglBuffer* buffer, uint32_t color, int cntrX, int cntrY, int radius);
 
 /**
  * @brief Draw a filled cricle on the buffer
@@ -324,8 +324,8 @@ void sglFillCircle(sglBuffer* buffer, uint32_t color,
  * @param ctrY y coordinate of the center of the cirlce
  * @param radius radius of the circle
  */
-void sglDrawArc(sglBuffer* buffer, uint32_t color,
-		int cntrX, int cntrY, int radius, float startAngle, float endAngle);
+void sglDrawArc(sglBuffer* buffer, uint32_t color, int cntrX, int cntrY,
+	int radius, float startAngle, float endAngle);
 
 /**
  * @brief Draw a filled cricle on the buffer
@@ -335,8 +335,8 @@ void sglDrawArc(sglBuffer* buffer, uint32_t color,
  * @param ctrY y coordinate of the center of the cirlce
  * @param radius radius of the circle
  */
-void sglFillArc(sglBuffer* buffer, uint32_t color,
-		int cntrX, int cntrY, int radius, float startAngle, float endAngle);
+void sglFillArc(sglBuffer* buffer, uint32_t color, int cntrX, int cntrY,
+	int radius, float startAngle, float endAngle);
 
 /**
  * @brief Draw a triangle
@@ -349,8 +349,8 @@ void sglFillArc(sglBuffer* buffer, uint32_t color,
  * @param x x coordinate of thrid point
  * @param y y coordinate of thrid point
  */
-void sglDrawTriangle(sglBuffer* buffer, uint32_t color,
-		int x1, int y1, int x2, int y2, int x3, int y3);
+void sglDrawTriangle(sglBuffer* buffer, uint32_t color, int x1, int y1, int x2,
+	int y2, int x3, int y3);
 
 /**
  * @brief Draw a filled triangle
@@ -363,8 +363,24 @@ void sglDrawTriangle(sglBuffer* buffer, uint32_t color,
  * @param x x coordinate of thrid point
  * @param y y coordinate of thrid point
  */
-void sglFillTriangle(sglBuffer* buffer, uint32_t color,
-		int x1, int y1, int x2, int y2, int x3, int y3);
+void sglFillTriangle(sglBuffer* buffer, uint32_t color, int x1, int y1, int x2,
+	int y2, int x3, int y3);
+
+/**
+ * @brief Draw a filled triangle
+ * @param buffer the buffer to draw on
+ * @param x x coordinate of first point
+ * @param y y coordinate of first point
+ * @param x x coordinate of second point
+ * @param y y coordinate of second point
+ * @param x x coordinate of thrid point
+ * @param y y coordinate of thrid point
+ * @param c1 color of the first point
+ * @param c2 color of the first point
+ * @param c3 color of the first point
+ */
+void sglDrawColorInterpolatedTriangle(sglBuffer* buffer, int x1, int y1, int x2,
+	int y2, int x3, int y3, uint32_t c1, uint32_t c2, uint32_t c3);
 
 
 
