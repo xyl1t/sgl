@@ -8,6 +8,7 @@
 #endif
 
 #ifndef SGL_H
+#define SGL_H
 
 // Check bounds by default in sglSetPixel()
 #define SGL_CHECK_BUFFER_BOUNDS
