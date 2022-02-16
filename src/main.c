@@ -7,6 +7,12 @@
 #include <string.h>
 #include <time.h>
 
+#include <unistd.h>
+#include <stdio.h>
+#include <limits.h>
+
+#include <dlfcn.h>
+
 #if __has_include("SDL2/SDL.h")
 #include <SDL2/SDL.h>
 #else
@@ -18,6 +24,32 @@
 
 const uint8_t* keyboard;
 static mouse m;
+
+demos_f* reloadDemos(void)
+{
+	static void* libDemoHandle = NULL;
+
+	if (libDemoHandle) {
+		dlclose(libDemoHandle);
+		libDemoHandle = NULL;
+	}
+
+	libDemoHandle = dlopen("../src/demo.so", RTLD_NOW);
+
+	if (libDemoHandle) {
+		demos_f* dyDemos = dlsym(libDemoHandle, "demos");
+		char* result = dlerror();
+		if (result) {
+			printf("Cannot find demos() in %s: %s\n", "demo.so", result);
+		} else {
+			return dyDemos;
+		}
+	} else {
+		printf("Cannot load %s: %s", "demo.so\n", dlerror());
+	}
+
+	return NULL;
+}
 
 int main(int argc, char* argv[])
 {
@@ -45,53 +77,8 @@ int main(int argc, char* argv[])
 	sglBuffer* buffer = sglCreateBuffer(
 		pixels, CANVAS_WIDTH, CANVAS_HEIGHT, SGL_PIXELFORMAT_ABGR32);
 
-	// SGL_DEBUG_PRINT("SGL_PIXELFORMAT_ABGR32 %#010x\n",
-	// 		sglGetChannelLayout(SGL_PIXELFORMAT_ABGR32));
-	// SGL_DEBUG_PRINT("SGL_PIXELFORMAT_BGRA32 %#010x\n",
-	// 		sglGetChannelLayout(SGL_PIXELFORMAT_BGRA32));
-	// SGL_DEBUG_PRINT("SGL_PIXELFORMAT_RGBA32 %#010x\n",
-	// 		sglGetChannelLayout(SGL_PIXELFORMAT_RGBA32));
-	// SGL_DEBUG_PRINT("SGL_PIXELFORMAT_ARGB32 %#010x\n",
-	// 		sglGetChannelLayout(SGL_PIXELFORMAT_ARGB32));
-	// SGL_DEBUG_PRINT("SGL_PIXELFORMAT_RGB332 %#010x\n",
-	// 		sglGetChannelLayout(SGL_PIXELFORMAT_RGB332));
 
-	sglDrawPixel(buffer, 0, 0, 7, 7, 3, 4);
-	uint8_t r, g, b, a;
-	sglGetPixel(buffer, &r, &g, &b, &a, 0, 0);
-	SGL_DEBUG_PRINT("%#010x\n", sglGetPixelRaw(buffer, 0, 0));
-	SGL_DEBUG_PRINT("r %d\n", r);
-	SGL_DEBUG_PRINT("g %d\n", g);
-	SGL_DEBUG_PRINT("b %d\n", b);
-	SGL_DEBUG_PRINT("a %d\n", a);
-	SGL_DEBUG_PRINT("\n");
-
-	sglRect A = { .x = 0, .y = 0, .w = 5, .h = 5 };
-	sglRect B = { .x = 3, .y = -2, .w = 4, .h = 4 };
-	sglRect result;
-
-	SGL_DEBUG_PRINT("intersect %d\n", sglIntersectRect(&A, &B, &result));
-	SGL_DEBUG_PRINT("r.x = %d\n", result.x);
-	SGL_DEBUG_PRINT("r.y = %d\n", result.y);
-	SGL_DEBUG_PRINT("r.w = %d\n", result.w);
-	SGL_DEBUG_PRINT("r.h = %d\n", result.h);
-	SGL_DEBUG_PRINT("\n");
-
-	// sglRect clipRect = {
-	// 	.x = -25,
-	// 	.y = -25,
-	// 	.w = 100,
-	// 	.h = 100
-	// };
-	// SGL_DEBUG_PRINT("clip %d\n", sglSetClipRect(buf, &clipRect));
-	//
-	// SGL_DEBUG_PRINT("clip.x = %d\n", clipRect.x);
-	// SGL_DEBUG_PRINT("clip.y = %d\n", clipRect.y);
-	// SGL_DEBUG_PRINT("clip.w = %d\n", clipRect.w);
-	// SGL_DEBUG_PRINT("clip.h = %d\n", clipRect.h);
-
-	// return 0;
-
+	demos_f* dyDemos = reloadDemos();
 
 	sglPoint p1;
 	sglPoint p2;
@@ -110,6 +97,10 @@ int main(int argc, char* argv[])
 			}
 			switch (event.type) {
 			case SDL_KEYDOWN:
+				if (event.key.keysym.sym == SDLK_r) {
+					printf("Reloading demo.so...\n");
+					dyDemos = reloadDemos();
+				}
 				break;
 			case SDL_KEYUP:
 				break;
@@ -133,13 +124,19 @@ int main(int argc, char* argv[])
 
 		uint32_t tic = SDL_GetTicks();
 
+		// static uint32_t reloadDemoCounter = 0;
+		// if (reloadDemoCounter - tic > 1000) {
+		// 	dyDemos = reloadDemos();
+		// 	reloadDemoCounter = tic;
+		// }
+
 		//////////////////////////////////////////////////////////////////////
 
 		// clear pixel buffer
 		sglClear(buffer);
 		sglResetClipRect(buffer);
 
-		tests(buffer, &m);
+		dyDemos(buffer, &m);
 
 		//////////////////////////////////////////////////////////////////////
 
@@ -171,6 +168,7 @@ int main(int argc, char* argv[])
 	SDL_DestroyWindow(window);
 
 	SDL_Quit();
+
 
 	return 0;
 }

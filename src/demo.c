@@ -1,15 +1,15 @@
 #include "demo.h"
 
-void tests(sglBuffer* buffer, mouse* m) {
-	// test1(buffer, m);
-	// test2(buffer, m);
-	// test3(buffer, m);
-	// test4(buffer, m);
-	// test5(buffer, m);
-	test6(buffer, m);
+void demos(sglBuffer* buffer, mouse* m) {
+	// demo1(buffer, m);
+	// demo2(buffer, m);
+	// demo3(buffer, m);
+	// demo4(buffer, m);
+	// demo5(buffer, m);
+	demo6(buffer, m);
 }
 
-void test1(sglBuffer* buffer, mouse* m)
+void demo1(sglBuffer* buffer, mouse* m)
 {
 	for (int x = 0; x < buffer->width; x++) {
 		for (int y = 0; y < buffer->height; y++) {
@@ -23,13 +23,13 @@ void test1(sglBuffer* buffer, mouse* m)
 	}
 }
 
-void test2(sglBuffer* buffer, mouse* m)
+void demo2(sglBuffer* buffer, mouse* m)
 {
 	sglRect clip = (sglRect) { .x = 32, .y = 32, .w = 400, .h = 401 };
 	sglSetClipRect(buffer, &clip);
 }
 
-void test3(sglBuffer* buffer, mouse* m)
+void demo3(sglBuffer* buffer, mouse* m)
 {
 	static sglPoint p1;
 	static sglPoint p2;
@@ -52,7 +52,7 @@ void test3(sglBuffer* buffer, mouse* m)
 			buffer, 0x00ff00ff, p1.x, p1.y, p2.x - p1.x, p2.y - p1.y);
 }
 
-void test4(sglBuffer* buffer, mouse* m)
+void demo4(sglBuffer* buffer, mouse* m)
 {
 	float radius = 16;
 	float distance = 96;
@@ -72,7 +72,7 @@ void test4(sglBuffer* buffer, mouse* m)
 	}
 }
 
-void test5(sglBuffer* buffer, mouse* m)
+void demo5(sglBuffer* buffer, mouse* m)
 {
 	static sglPoint p1;
 	static sglPoint p2;
@@ -80,7 +80,8 @@ void test5(sglBuffer* buffer, mouse* m)
 	static float start_angle = 0;
 	static float end_angle = 3 * M_PI / 2;
 	// int radius = 32;
-	int radius = 24 + (sin(SDL_GetTicks() / 1000.f) / 2.f + 0.5) * 8;
+	// int radius = 24 + (sin(SDL_GetTicks() / 1000.f) / 2.f + 0.5) * 8;
+	int radius = 24;
 
 	sglPoint s = {
 		cos(start_angle) * radius + p2.x + 0.5f,
@@ -120,7 +121,7 @@ void test5(sglBuffer* buffer, mouse* m)
 	eHeld &= m->left;
 }
 
-void test6(sglBuffer* buffer, mouse* m)
+void demo6(sglBuffer* buffer, mouse* m)
 {
 	static sglPoint t[] = {
 		{ .x = 128, .y = 32 },
@@ -132,14 +133,6 @@ void test6(sglBuffer* buffer, mouse* m)
 		{ .x = 16, .y = 98 },
 	};
 	static int current = -1;
-
-	sglDrawCircle(buffer, 0xff0000ff, t[0].x, t[0].y, 3);
-	sglDrawCircle(buffer, 0x00ff00ff, t[1].x, t[1].y, 3);
-	sglDrawCircle(buffer, 0x0000ffff, t[2].x, t[2].y, 3);
-
-	sglDrawCircle(buffer, 0xffffffff, t[3].x, t[3].y, 3);
-	sglDrawCircle(buffer, 0xffffffff, t[4].x, t[4].y, 3);
-	sglDrawCircle(buffer, 0xffffffff, t[5].x, t[5].y, 3);
 
 	if (m->left) {
 		for (int i = 0; i < sizeof(t) && current == -1; i++) {
@@ -155,11 +148,20 @@ void test6(sglBuffer* buffer, mouse* m)
 
 	sglFillTriangle(buffer, 0xffffffff,
 			t[3].x, t[3].y, t[4].x, t[4].y, t[5].x, t[5].y);
+	sglDrawTriangle(buffer, 0x3366EEff,
+			t[3].x, t[3].y, t[4].x, t[4].y, t[5].x, t[5].y);
 	sglDrawColorInterpolatedTriangle(buffer,
 			t[0].x, t[0].y, t[1].x, t[1].y, t[2].x, t[2].y,
 			0xff0000ff, 0x00ff00ff, 0x0000ffff);
 	sglDrawTriangle(buffer, 0x3366EEff,
 			t[0].x, t[0].y, t[1].x, t[1].y, t[2].x, t[2].y);
 
+	sglDrawCircle(buffer, 0xff0000ff, t[0].x, t[0].y, 3);
+	sglDrawCircle(buffer, 0x00ff00ff, t[1].x, t[1].y, 3);
+	sglDrawCircle(buffer, 0x0000ffff, t[2].x, t[2].y, 3);
+
+	sglDrawCircle(buffer, 0xffffffff, t[3].x, t[3].y, 3);
+	sglDrawCircle(buffer, 0xffffffff, t[4].x, t[4].y, 3);
+	sglDrawCircle(buffer, 0xffffffff, t[5].x, t[5].y, 3);
 }
 

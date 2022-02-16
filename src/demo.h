@@ -18,13 +18,15 @@ typedef struct mouse {
 } mouse;
 
 
-void tests(sglBuffer* buffer, mouse* m);
+#define DEMOS(name) void name(sglBuffer* buffer, mouse* m)
+typedef DEMOS(demos_f);
+void demos(sglBuffer* buffer, mouse* m);
 
-void test1(sglBuffer* buffer, mouse* m);
-void test2(sglBuffer* buffer, mouse* m);
-void test3(sglBuffer* buffer, mouse* m);
-void test4(sglBuffer* buffer, mouse* m);
-void test5(sglBuffer* buffer, mouse* m);
-void test6(sglBuffer* buffer, mouse* m);
+void demo1(sglBuffer* buffer, mouse* m);
+void demo2(sglBuffer* buffer, mouse* m);
+void demo3(sglBuffer* buffer, mouse* m);
+void demo4(sglBuffer* buffer, mouse* m);
+void demo5(sglBuffer* buffer, mouse* m);
+void demo6(sglBuffer* buffer, mouse* m);
 
 #endif
