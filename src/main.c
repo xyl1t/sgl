@@ -34,21 +34,25 @@ demos_f* reloadDemos(void)
 		libDemoHandle = NULL;
 	}
 
-	libDemoHandle = dlopen("../src/demo.so", RTLD_NOW);
+	libDemoHandle = dlopen("demo.so", RTLD_NOW);
+	demos_f* dyDemos = NULL;
 
 	if (libDemoHandle) {
-		demos_f* dyDemos = dlsym(libDemoHandle, "demos");
+		dyDemos = dlsym(libDemoHandle, "demos");
 		char* result = dlerror();
 		if (result) {
 			printf("Cannot find demos() in %s: %s\n", "demo.so", result);
-		} else {
-			return dyDemos;
 		}
 	} else {
-		printf("Cannot load %s: %s", "demo.so\n", dlerror());
+		printf("Cannot load %s: %s\n", "demo.so", dlerror());
 	}
 
-	return NULL;
+	if (!dyDemos) {
+		dyDemos = demos;
+		printf("Error: demo.so not aviable\n");
+	}
+
+	return dyDemos;
 }
 
 int main(int argc, char* argv[])

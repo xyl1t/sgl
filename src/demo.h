@@ -20,7 +20,7 @@ typedef struct mouse {
 
 #define DEMOS(name) void name(sglBuffer* buffer, mouse* m)
 typedef DEMOS(demos_f);
-void demos(sglBuffer* buffer, mouse* m);
+DEMOS(demos);
 
 void demo1(sglBuffer* buffer, mouse* m);
 void demo2(sglBuffer* buffer, mouse* m);

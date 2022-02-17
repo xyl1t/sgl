@@ -1,6 +1,6 @@
 #include "demo.h"
 
-void demos(sglBuffer* buffer, mouse* m) {
+DEMOS(demos) {
 	// demo1(buffer, m);
 	// demo2(buffer, m);
 	// demo3(buffer, m);
@@ -146,7 +146,7 @@ void demo6(sglBuffer* buffer, mouse* m)
 		current = -1;
 	}
 
-	sglFillTriangle(buffer, 0xffffffff,
+	sglFillTriangle(buffer, 0x00ffffff,
 			t[3].x, t[3].y, t[4].x, t[4].y, t[5].x, t[5].y);
 	sglDrawTriangle(buffer, 0x3366EEff,
 			t[3].x, t[3].y, t[4].x, t[4].y, t[5].x, t[5].y);
