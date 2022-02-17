@@ -58,10 +58,10 @@ Implement basic drawing functions
 
 ### Other
 
-* [x] implement `sglGetError()` https://wiki.libsdl.org/SDL\_GetError
+* [x] implement `sglGetError()` <https://wiki.libsdl.org/SDL\_GetError>
 * [ ] add more pixel formats
 * [ ] make the library header only
-* [ ] Live demo code update
+* [x] live demo code update
 * [ ] optimize
 	* [ ] circle drawing
 	* [ ] arc drawing
