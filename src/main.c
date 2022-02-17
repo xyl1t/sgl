@@ -82,13 +82,11 @@ int main(int argc, char* argv[])
 		pixels, CANVAS_WIDTH, CANVAS_HEIGHT, SGL_PIXELFORMAT_ABGR32);
 
 
+	sglPoint controlPoints[0x1F] = { };
+	int currentControlPoint = -1;
+
 	demos_f* dyDemos = reloadDemos();
-
-	sglPoint p1;
-	sglPoint p2;
-
-	p2.x = 64;
-	p2.y = 64;
+	dyDemos(buffer, &m, keyboard, controlPoints, true);
 
 	SDL_Event event;
 	bool alive = true;
@@ -99,6 +97,7 @@ int main(int argc, char* argv[])
 			if (event.type == SDL_QUIT) {
 				alive = false;
 			}
+			// TODO: reload demos on window focus
 			switch (event.type) {
 			case SDL_KEYDOWN:
 				if (event.key.keysym.sym == SDLK_r) {
@@ -117,22 +116,26 @@ int main(int argc, char* argv[])
 
 			keyboard = SDL_GetKeyboardState(NULL);
 		}
+
 		if (m.left) {
-			p1.x = m.x;
-			p1.y = m.y;
-		}
-		if (m.right) {
-			p2.x = m.x;
-			p2.y = m.y;
+			for (int i = 0; i < sizeof(controlPoints) && currentControlPoint == -1; i++) {
+				if (sglGetDistance(controlPoints[i].x, controlPoints[i].y, m.x, m.y) < 6) {
+					currentControlPoint = i;
+				}
+			}
+			controlPoints[currentControlPoint].x = m.x;
+			controlPoints[currentControlPoint].y = m.y;
+		} else {
+			currentControlPoint = -1;
 		}
 
 		uint32_t tic = SDL_GetTicks();
 
-		// static uint32_t reloadDemoCounter = 0;
-		// if (reloadDemoCounter - tic > 1000) {
-		// 	dyDemos = reloadDemos();
-		// 	reloadDemoCounter = tic;
-		// }
+		static uint32_t reloadDemoCounter = 0;
+		if (reloadDemoCounter - tic > 1000) {
+			dyDemos = reloadDemos();
+			reloadDemoCounter = tic;
+		}
 
 		//////////////////////////////////////////////////////////////////////
 
@@ -140,7 +143,7 @@ int main(int argc, char* argv[])
 		sglClear(buffer);
 		sglResetClipRect(buffer);
 
-		dyDemos(buffer, &m);
+		dyDemos(buffer, &m, keyboard, controlPoints, false);
 
 		//////////////////////////////////////////////////////////////////////
 
