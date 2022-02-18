@@ -11,7 +11,11 @@
 #include <stdio.h>
 #include <limits.h>
 
+#if defined(__APPLE__) || defined(__linux__)
 #include <dlfcn.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+#endif
 
 #if __has_include("SDL2/SDL.h")
 #include <SDL2/SDL.h>
@@ -25,6 +29,14 @@
 const uint8_t* keyboard;
 static mouse m;
 
+const char* demoLibPath = "demo.so";
+
+time_t getFileCreationTime(const char *path) {
+	struct stat attr;
+	stat(path, &attr);
+	return attr.st_mtime;
+}
+
 demos_f* reloadDemos(void)
 {
 	static void* libDemoHandle = NULL;
@@ -34,17 +46,17 @@ demos_f* reloadDemos(void)
 		libDemoHandle = NULL;
 	}
 
-	libDemoHandle = dlopen("demo.so", RTLD_NOW);
+	libDemoHandle = dlopen(demoLibPath, RTLD_NOW);
 	demos_f* dyDemos = NULL;
 
 	if (libDemoHandle) {
 		dyDemos = dlsym(libDemoHandle, "demos");
 		char* result = dlerror();
 		if (result) {
-			printf("Cannot find demos() in %s: %s\n", "demo.so", result);
+			printf("Cannot find demos() in %s: %s\n", demoLibPath, result);
 		}
 	} else {
-		printf("Cannot load %s: %s\n", "demo.so", dlerror());
+		printf("Cannot load %s: %s\n", demoLibPath, dlerror());
 	}
 
 	if (!dyDemos) {
@@ -82,11 +94,13 @@ int main(int argc, char* argv[])
 		pixels, CANVAS_WIDTH, CANVAS_HEIGHT, SGL_PIXELFORMAT_ABGR32);
 
 
-	sglPoint controlPoints[0x1F] = { };
+	// NOTE: 0xF(=16) demos and every demo has 0xF(=16) control points
+	sglPoint controlPoints[0xFF] = { };
 	int currentControlPoint = -1;
 
 	demos_f* dyDemos = reloadDemos();
-	dyDemos(buffer, &m, keyboard, controlPoints, true);
+	dyDemos(buffer, &m, keyboard, controlPoints, currentControlPoint, 0, true);
+	time_t demoLibCreationTime = 0;
 
 	SDL_Event event;
 	bool alive = true;
@@ -101,8 +115,9 @@ int main(int argc, char* argv[])
 			switch (event.type) {
 			case SDL_KEYDOWN:
 				if (event.key.keysym.sym == SDLK_r) {
-					printf("Reloading demo.so...\n");
+					SGL_DEBUG_PRINT("Reloading %s...\n", demoLibPath);
 					dyDemos = reloadDemos();
+					dyDemos(buffer, &m, keyboard, controlPoints, currentControlPoint, 0, true);
 				}
 				break;
 			case SDL_KEYUP:
@@ -118,7 +133,7 @@ int main(int argc, char* argv[])
 		}
 
 		if (m.left) {
-			for (int i = 0; i < sizeof(controlPoints) && currentControlPoint == -1; i++) {
+			for (int i = 0; i < sizeof(controlPoints) / sizeof(controlPoints[0]) && currentControlPoint == -1; i++) {
 				if (sglGetDistance(controlPoints[i].x, controlPoints[i].y, m.x, m.y) < 6) {
 					currentControlPoint = i;
 				}
@@ -131,11 +146,13 @@ int main(int argc, char* argv[])
 
 		uint32_t tic = SDL_GetTicks();
 
-		static uint32_t reloadDemoCounter = 0;
-		if (reloadDemoCounter - tic > 1000) {
+		time_t now = getFileCreationTime(demoLibPath);
+		if (now > demoLibCreationTime) {
+			SGL_DEBUG_PRINT("Reloading %s...\n", demoLibPath);
 			dyDemos = reloadDemos();
-			reloadDemoCounter = tic;
+			demoLibCreationTime = now;
 		}
+
 
 		//////////////////////////////////////////////////////////////////////
 
@@ -143,7 +160,7 @@ int main(int argc, char* argv[])
 		sglClear(buffer);
 		sglResetClipRect(buffer);
 
-		dyDemos(buffer, &m, keyboard, controlPoints, false);
+		dyDemos(buffer, &m, keyboard, controlPoints, currentControlPoint, tic, false);
 
 		//////////////////////////////////////////////////////////////////////
 
@@ -180,3 +197,4 @@ int main(int argc, char* argv[])
 	return 0;
 }
 
+// nnoremap <leader>b <cmd>wa<cr><cmd>!pushd build/ && ./build.sh; popd<cr>
