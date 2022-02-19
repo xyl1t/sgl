@@ -27,6 +27,5 @@ DEMOS(demo2);
 DEMOS(demo3);
 DEMOS(demo4);
 DEMOS(demo5);
-DEMOS(demo6);
 
 #endif

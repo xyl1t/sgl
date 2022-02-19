@@ -132,6 +132,7 @@ int main(int argc, char* argv[])
 			keyboard = SDL_GetKeyboardState(NULL);
 		}
 
+		// TODO: only check points of active demo
 		if (m.left) {
 			for (int i = 0; i < sizeof(controlPoints) / sizeof(controlPoints[0]) && currentControlPoint == -1; i++) {
 				if (sglGetDistance(controlPoints[i].x, controlPoints[i].y, m.x, m.y) < 6) {

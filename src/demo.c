@@ -2,11 +2,10 @@
 
 DEMOS(demos) {
 	// demo1(buffer, m, k, cp + 0x00, ccp - 0x00, time, init);
-	// demo2(buffer, m, k, cp + 0x10, ccp - 0x10, time, init);
-	// demo3(buffer, m, k, cp + 0x20, ccp - 0x20, time, init);
-	// demo4(buffer, m, k, cp + 0x30, ccp - 0x30, time, init);
-	demo5(buffer, m, k, cp + 0x40, ccp - 0x40, time, init);
-	// demo6(buffer, m, k, cp + 0x50, ccp - 0x50, time, init);
+	// demo2(buffer, m, k, cp + 0x20, ccp - 0x20, time, init);
+	// demo3(buffer, m, k, cp + 0x30, ccp - 0x30, time, init);
+	// demo4(buffer, m, k, cp + 0x40, ccp - 0x40, time, init);
+	demo5(buffer, m, k, cp + 0x50, ccp - 0x50, time, init);
 }
 
 DEMOS(demo1)
@@ -27,38 +26,38 @@ DEMOS(demo1)
 
 DEMOS(demo2)
 {
-	if (init) { return; }
-
-	sglRect clip = (sglRect) { .x = 32, .y = 32, .w = 400, .h = 401 };
-	sglSetClipRect(buffer, &clip);
-}
-
-DEMOS(demo3)
-{
-	if (init) { return; }
-
-	static sglPoint p1;
-	static sglPoint p2;
+	if (init) {
+		cp[1].x = 10;
+		cp[1].y = 10;
+		cp[2].x = 60;
+		cp[2].y = 60;
+		return;
+	}
 
 	sglRect clip = (sglRect) { .x = 32, .y = 32, .w = 150, .h = 150 };
 
 	sglFillRectangle(
 			buffer, 0x203040ff, 0, 0, buffer->width, buffer->height);
 
-	sglDrawLine(buffer, 0xff0000ff, p1.x, p1.y, p2.x, p2.y);
+	sglDrawLine(buffer, 0xff0000ff, cp[1].x, cp[1].y, cp[2].x, cp[2].y);
 	sglDrawRectangle(
-			buffer, 0xff0000ff, p1.x, p1.y, p2.x - p1.x, p2.y - p1.y);
+			buffer, 0xff0000ff, cp[1].x, cp[1].y, cp[2].x - cp[1].x, cp[2].y - cp[1].y);
 
 	sglSetClipRect(buffer, &clip);
 	sglClearClipRect(buffer);
 
-	sglDrawLine(buffer, 0x00ff00ff, p1.x, p1.y, p2.x, p2.y);
+	sglDrawLine(buffer, 0x00ff00ff, cp[1].x, cp[1].y, cp[2].x, cp[2].y);
 
 	sglDrawRectangle(
-			buffer, 0x00ff00ff, p1.x, p1.y, p2.x - p1.x, p2.y - p1.y);
+			buffer, 0x00ff00ff, cp[1].x, cp[1].y, cp[2].x - cp[1].x, cp[2].y - cp[1].y);
+
+	sglResetClipRect(buffer);
+	sglDrawCircle(buffer, 0xffffffff, cp[1].x, cp[1].y, 3);
+	sglDrawCircle(buffer, 0xffffffff, cp[2].x, cp[2].y, 3);
+
 }
 
-DEMOS(demo4)
+DEMOS(demo3)
 {
 	if (init) { return; }
 
@@ -80,7 +79,7 @@ DEMOS(demo4)
 	}
 }
 
-DEMOS(demo5)
+DEMOS(demo4)
 {
 	if (init) {
 		cp[0].x = 128;
@@ -97,7 +96,14 @@ DEMOS(demo5)
 	float start_angle = atan2f(cp[1].y - cp[0].y, cp[1].x - cp[0].x);
 	float end_angle = atan2f(cp[2].y - cp[0].y, cp[2].x - cp[0].x);
 
-	float radius = sglGetDistancePoint(cp[0], cp[3]);
+	static float radius = 24;
+
+	float agl = atan2f(cp[1].y - cp[0].y, cp[1].x - cp[0].x);
+
+	cp[3].x = cos(agl) * radius + cp[0].x;
+	cp[3].y = sin(agl) * radius + cp[0].y;
+
+	// float radius = sglGetDistancePoint(cp[0], cp[3]);
 
 	sglFillArc(
 			buffer, 0xffffffff, cp[0].x, cp[0].y, radius, start_angle, end_angle);
@@ -110,10 +116,13 @@ DEMOS(demo5)
 	sglDrawCircle(buffer, 0x3377ffff, cp[0].x, cp[0].y, 3);
 	sglDrawCircle(buffer, 0x00ff00ff, cp[1].x, cp[1].y, 3);
 	sglDrawCircle(buffer, 0xff0000ff, cp[2].x, cp[2].y, 3);
-	sglDrawCircle(buffer, 0x3377ffff, cp[3].x, cp[3].y, 3);
+	sglFillCircle(buffer, 0xffff00ff, cp[3].x, cp[3].y, 3);
 
 	float angle = atan2f(m->y - cp[0].y, m->x - cp[0].x);
 
+	if (m->left && ccp == 3) {
+		radius = sglGetDistance(m->x, m->y, cp[0].x, cp[0].y);
+	}
 	if (m->left && ccp == 1) {
 		start_angle = angle;
 	}
@@ -123,7 +132,7 @@ DEMOS(demo5)
 
 }
 
-DEMOS(demo6)
+DEMOS(demo5)
 {
 	if (init) {
 		cp[0] = (sglPoint){ .x = 128, .y = 32 };
