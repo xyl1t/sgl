@@ -1,5 +1,4 @@
 #include "sgl.h"
-#include <math.h>
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
@@ -760,6 +759,10 @@ void sglDrawColorInterpolatedTriangle(sglBuffer* buffer, int x1, int y1, int x2,
 float sglLerpf(float a, float b, float t) { return a + t * (b - a); }
 double sglLerpd(double a, double b, double t) { return a + t * (b - a); }
 int sglLerpi(int a, int b, int t) { return a + t * (b - a); }
+
+float sglGetLength(float x, float y) {
+	return sqrtf(x * x + y * y);
+}
 
 #define SGL_DISTANCE(a_x, a_y, b_x, b_y) \
 	sqrtf(powf((b_x) - (a_x), 2) + powf((b_y) - (a_y), 2))

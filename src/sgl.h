@@ -28,6 +28,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
+#include <math.h>
 
 #define sgl_member_size(type, member) sizeof(((type*)0)->member)
 
@@ -415,6 +416,14 @@ extern inline double sglLerpd(double a, double b, double t);
 extern inline int sglLerpi(int a, int b, int t);
 
 #define sglLerp(a, b, t) ({float retval; retval = a + t * (b - a); retval;})
+
+/**
+ * @brief Get length of a vector
+ * @param x x coordinate
+ * @param y y coordinate
+ * @return length
+ */
+float sglGetLength(float x, float y);
 
 /**
  * @brief Gets the distance between two points
