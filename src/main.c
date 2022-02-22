@@ -29,15 +29,19 @@
 const uint8_t* keyboard;
 static mouse m;
 
-const char* demoLibPath = "demo.so";
+#ifdef __linux__
+const char* demoLibPath = "./libdemo.so";
+#else
+const char* demoLibPath = "libdemo.so";
+#endif
 
-time_t getFileCreationTime(const char *path) {
+time_t getFileTimestamp(const char *path) {
 	struct stat attr;
 	stat(path, &attr);
 	return attr.st_mtime;
 }
 
-demos_f* reloadDemos(void)
+demos_f* reloadDemos(bool* success)
 {
 	static void* libDemoHandle = NULL;
 
@@ -50,7 +54,12 @@ demos_f* reloadDemos(void)
 	demos_f* dyDemos = NULL;
 
 	if (libDemoHandle) {
-		dyDemos = dlsym(libDemoHandle, "demos");
+		// NOTE: ignore warning "ISO C forbids conversion of object pointer to function pointer type"
+		// It doesn't make sense: https://stackoverflow.com/questions/14134245/iso-c-void-and-function-pointers
+#pragma GCC diagnostic ignored "-Wpedantic"
+#pragma GCC diagnostic push
+		dyDemos = (demos_f*)dlsym(libDemoHandle, "demos");
+#pragma GCC diagnostic pop
 		char* result = dlerror();
 		if (result) {
 			printf("Cannot find demos() in %s: %s\n", demoLibPath, result);
@@ -59,10 +68,16 @@ demos_f* reloadDemos(void)
 		printf("Cannot load %s: %s\n", demoLibPath, dlerror());
 	}
 
+	if (success) *success = !dyDemos;
+
 	if (!dyDemos) {
 		dyDemos = demos;
-		printf("Error: demo.so not aviable\n");
 	}
+
+	// char cwd[PATH_MAX];
+	// if (getcwd(cwd, sizeof(cwd)) != NULL) {
+	// 	printf("Current working dir: %s\n", cwd);
+	// }
 
 	return dyDemos;
 }
@@ -95,10 +110,10 @@ int main(int argc, char* argv[])
 
 
 	// NOTE: 0xF(=16) demos and every demo has 0xF(=16) control points
-	sglPoint controlPoints[0xFF] = { };
+	sglPoint controlPoints[0xFF] = {0};
 	int currentControlPoint = -1;
 
-	demos_f* dyDemos = reloadDemos();
+	demos_f* dyDemos = reloadDemos(NULL);
 	dyDemos(buffer, &m, keyboard, controlPoints, currentControlPoint, 0, true);
 	time_t demoLibCreationTime = 0;
 
@@ -116,7 +131,7 @@ int main(int argc, char* argv[])
 			case SDL_KEYDOWN:
 				if (event.key.keysym.sym == SDLK_r) {
 					SGL_DEBUG_PRINT("Reloading %s...\n", demoLibPath);
-					dyDemos = reloadDemos();
+					dyDemos = reloadDemos(NULL);
 					dyDemos(buffer, &m, keyboard, controlPoints, currentControlPoint, 0, true);
 				}
 				break;
@@ -134,7 +149,7 @@ int main(int argc, char* argv[])
 
 		// TODO: only check points of active demo
 		if (m.left) {
-			for (int i = 0; i < sizeof(controlPoints) / sizeof(controlPoints[0]) && currentControlPoint == -1; i++) {
+			for (size_t i = 0; i < sizeof(controlPoints) / sizeof(controlPoints[0]) && currentControlPoint == -1; i++) {
 				if (sglGetDistance(controlPoints[i].x, controlPoints[i].y, m.x, m.y) < 6) {
 					currentControlPoint = i;
 				}
@@ -147,11 +162,18 @@ int main(int argc, char* argv[])
 
 		uint32_t tic = SDL_GetTicks();
 
-		time_t now = getFileCreationTime(demoLibPath);
+		// NOTE: This is just a workaround because of race conditions: https://stackoverflow.com/questions/56334288/how-to-hot-reload-shared-library-on-linux
+		static bool loaded = false;
+		static int attempts = 0;
+		time_t now = getFileTimestamp(demoLibPath);
 		if (now > demoLibCreationTime) {
 			SGL_DEBUG_PRINT("Reloading %s...\n", demoLibPath);
-			dyDemos = reloadDemos();
-			demoLibCreationTime = now;
+			SDL_Delay(50);
+			dyDemos = reloadDemos(&loaded);
+			if (!loaded && attempts++ <= 10) {
+				demoLibCreationTime = now;
+				attempts = 0;
+			}
 		}
 
 
@@ -194,8 +216,9 @@ int main(int argc, char* argv[])
 
 	SDL_Quit();
 
-
 	return 0;
 }
 
 // nnoremap <leader>b <cmd>wa<cr><cmd>!pushd build/ && ./build.sh; popd<cr>
+// nnoremap <leader>b <cmd>wa<cr><cmd>!pushd build/ && make demo; popd<cr>
+// nnoremap <leader>b <cmd>wa<cr><cmd>make -C build<CR>
