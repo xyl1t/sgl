@@ -14,7 +14,7 @@ if (WIN32)
 	set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -static-libgcc -static")
 endif()
 
-set(INCLUDE_DIR "./include")
+set(INCLUDE_DIR "include")
 file(GLOB SRC "./src/*" ${INCLUDE_DIR}/*)
 
 if (WIN32)
@@ -35,7 +35,8 @@ endif()
 if (WIN32)
 	target_link_libraries(${PROJECT_NAME} PRIVATE SDL2main SDL2 hid setupapi imagehlp dinput8 dxguid dxerr8 user32 gdi32 winmm imm32 ole32 oleaut32 shell32 version uuid)
 else()
-	target_link_libraries(${PROJECT_NAME} m)
+	target_link_libraries(${PROJECT_NAME} m dl)
 	target_link_libraries(${PROJECT_NAME} ${SDL2_LIBRARIES})
 endif()
 
+add_library(demo SHARED "./src/demo.c" "./src/demo.h" "./src/sgl.c" "./src/sgl.h")
