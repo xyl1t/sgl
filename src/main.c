@@ -31,8 +31,8 @@ static mouse m;
 
 #ifdef __linux__
 const char* demoLibPath = "./libdemo.so";
-#else
-const char* demoLibPath = "libdemo.so";
+#elif defined(__APPLE__)
+const char* demoLibPath = "libdemo.dylib";
 #endif
 
 time_t getFileTimestamp(const char *path) {

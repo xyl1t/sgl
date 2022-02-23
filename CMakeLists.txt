@@ -39,4 +39,6 @@ else()
 	target_link_libraries(${PROJECT_NAME} ${SDL2_LIBRARIES})
 endif()
 
+
 add_library(demo SHARED "./src/demo.c" "./src/demo.h" "./src/sgl.c" "./src/sgl.h")
+target_include_directories(demo PRIVATE ${INCLUDE_DIR})
