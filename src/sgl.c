@@ -3,6 +3,11 @@
 #include <stdlib.h>
 #include <string.h>
 
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb/stb_image.h"
+#define STB_IMAGE_WRITE_IMPLEMENTATION
+#include "stb/stb_image_write.h"
+
 static int sgl_max(int a, int b) { return a > b ? a : b; }
 static int sgl_min(int a, int b) { return a < b ? a : b; }
 

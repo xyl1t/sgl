@@ -3,12 +3,20 @@
  * @brief Main header for sgl
  */
 
+#ifndef SGL_H
+#define SGL_H
+
+#include <stdbool.h>
+#include <stddef.h>
+#include <stdint.h>
+#include <math.h>
+
+#include "stb/stb_image.h"
+#include "stb/stb_image_write.h"
+
 #ifdef SGL_FAST_MATH
 #define SGL_FAST_MATH
 #endif
-
-#ifndef SGL_H
-#define SGL_H
 
 // Check bounds by default in sglSetPixel()
 #define SGL_CHECK_BUFFER_BOUNDS
@@ -24,11 +32,6 @@
 	do {                     \
 	} while (0)
 #endif
-
-#include <stdbool.h>
-#include <stddef.h>
-#include <stdint.h>
-#include <math.h>
 
 #define sgl_member_size(type, member) sizeof(((type*)0)->member)
 
@@ -192,6 +195,10 @@ bool sglSetClipRect(sglBuffer* buffer, const sglRect* rect);
  */
 void sglResetClipRect(sglBuffer* buffer);
 
+typedef struct sglBitmap{
+
+
+} sglBitmap;
 
 
 /*****************************************************************************
