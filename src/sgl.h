@@ -196,8 +196,9 @@ bool sglSetClipRect(sglBuffer* buffer, const sglRect* rect);
 void sglResetClipRect(sglBuffer* buffer);
 
 typedef struct sglBitmap{
-
-
+	void* data;
+	int width;
+	int height;
 } sglBitmap;
 
 
