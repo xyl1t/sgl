@@ -179,6 +179,51 @@ void sglResetClipRect(sglBuffer* buffer)
 }
 
 
+sglBitmap* sglLoadBitmap(const char* path, sglPixelFormatEnum format)
+{
+	sglBitmap* bmp = malloc(sizeof(sglBitmap));
+
+	bmp->pf = sglCreatePixelFormat(format);
+
+	int imgChannels;
+
+	uint8_t* data = stbi_load(path, &bmp->width, &bmp->height, &imgChannels, 0);
+
+	if (!data) {
+		free(bmp->pf);
+		free(bmp);
+		return NULL;
+	}
+
+	bmp->data = malloc(bmp->width * bmp->height * bmp->pf->bytesPerPixel);
+
+	for (int x = 0; x < bmp->width; x++) {
+		for (int y = 0; y < bmp->height; y++) {
+			uint8_t r = data[(x + y * bmp->width) * imgChannels + 0];
+			uint8_t g = data[(x + y * bmp->width) * imgChannels + 1];
+			uint8_t b = data[(x + y * bmp->width) * imgChannels + 2];
+			uint8_t a = imgChannels == 4 ? data[(x + y * bmp->width) * imgChannels + 3] : 0xff;
+
+			((uint32_t*)bmp->data)[x + y * bmp->width] = sglMapRGBA(r, g, b, a, bmp->pf);
+		}
+	}
+
+	stbi_image_free(data);
+
+	return bmp;
+}
+
+void sglDestroyBitmap(sglBitmap* bmp)
+{
+	free(bmp->pf);
+	free(bmp);
+}
+
+void sglSaveBitmap(sglBitmap* bmp, sglBitmapFormatEnum bitmapFormat)
+{
+
+}
+
 /*****************************************************************************
  * GRAPHICS FUNCTIONS                                                        *
  *****************************************************************************/

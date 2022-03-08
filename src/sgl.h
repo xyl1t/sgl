@@ -195,11 +195,24 @@ bool sglSetClipRect(sglBuffer* buffer, const sglRect* rect);
  */
 void sglResetClipRect(sglBuffer* buffer);
 
+typedef enum {
+	SGL_BITMAPFORMAT_PNG,
+	SGL_BITMAPFORMAT_BMP,
+	SGL_BITMAPFORMAT_JPG,
+	SGL_BITMAPFORMAT_TGA,
+} sglBitmapFormatEnum;
+
 typedef struct sglBitmap{
 	void* data;
+	sglPixelFormat* pf;
 	int width;
 	int height;
 } sglBitmap;
+
+sglBitmap* sglLoadBitmap(const char* path, sglPixelFormatEnum format);
+void sglFreeBitmap(sglBitmap* bitmap);
+void sglSaveBitmap(sglBitmap* bitmap, sglBitmapFormatEnum bitmapFormat);
+
 
 
 /*****************************************************************************

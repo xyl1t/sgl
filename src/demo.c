@@ -1,4 +1,5 @@
 #include "demo.h"
+#include "sgl.h"
 
 DEMOS(demos) {
 	// TODO: make adding demos more easy,
@@ -9,13 +10,14 @@ DEMOS(demos) {
 		demo3(buffer, m, k, cp + 0x30, ccp - 0x30, time, init);
 		demo4(buffer, m, k, cp + 0x40, ccp - 0x40, time, init);
 		demo5(buffer, m, k, cp + 0x50, ccp - 0x50, time, init);
-
+		demo6(buffer, m, k, cp + 0x50, ccp - 0x50, time, init);
 	}
 	// demo1(buffer, m, k, cp + 0x00, ccp - 0x00, time, init);
 	// demo2(buffer, m, k, cp + 0x20, ccp - 0x20, time, init);
 	// demo3(buffer, m, k, cp + 0x30, ccp - 0x30, time, init);
 	// demo4(buffer, m, k, cp + 0x40, ccp - 0x40, time, init);
-	demo5(buffer, m, k, cp + 0x50, ccp - 0x50, time, init);
+	// demo5(buffer, m, k, cp + 0x50, ccp - 0x50, time, init);
+	demo6(buffer, m, k, cp + 0x50, ccp - 0x50, time, init);
 }
 
 DEMOS(demo1)
@@ -173,3 +175,11 @@ DEMOS(demo5)
 	sglDrawCircle(buffer, 0xffffffff, cp[5].x, cp[5].y, 3);
 }
 
+DEMOS(demo6)
+{
+	static sglBitmap* bmp;
+	if (init) {
+		bmp = sglLoadBitmap("", SGL_PIXELFORMAT_ABGR32);
+		return;
+	}
+}
