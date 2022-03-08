@@ -219,9 +219,19 @@ void sglDestroyBitmap(sglBitmap* bmp)
 	free(bmp);
 }
 
-void sglSaveBitmap(sglBitmap* bmp, sglBitmapFormatEnum bitmapFormat)
+void sglSaveBitmap(const sglBitmap* bmp, sglBitmapFormatEnum bitmapFormat)
 {
 
+}
+
+void sglDrawBitmap(const sglBitmap *bitmap)
+{
+	for (int x = 0; x < bitmap->width; x++) {
+		for (int y = 0; y < bitmap->width; y++) {
+			uint8_t r, g, b, a;
+			sglGetRGBA(bitmap->data, bitmap->pf, r, g, b, a);
+		}
+	}
 }
 
 /*****************************************************************************
