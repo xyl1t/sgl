@@ -173,10 +173,10 @@ typedef struct sglBuffer {
 sglBuffer* sglCreateBuffer(
 	void* pixels, uint32_t width, uint32_t height, sglPixelFormatEnum format);
 /**
- * @brief Destroys an sgl buffer
+ * @brief Frees an sgl buffer
  * @param buffer The buffer to delete
  */
-void sglDestroyBuffer(sglBuffer* buffer);
+void sglFreeBuffer(sglBuffer* buffer);
 
 /**
  * @brief Sets the clipping rectangle of the buffer, meaning that you won't
@@ -211,7 +211,8 @@ typedef struct sglBitmap{
 
 sglBitmap* sglLoadBitmap(const char* path, sglPixelFormatEnum format);
 void sglFreeBitmap(sglBitmap* bitmap);
-void sglSaveBitmap(sglBitmap* bitmap, sglBitmapFormatEnum bitmapFormat);
+void sglSaveBitmap(const sglBitmap* bitmap, sglBitmapFormatEnum bitmapFormat);
+
 
 
 
