@@ -143,7 +143,7 @@ sglBuffer* sglCreateBuffer(
 	return b;
 }
 
-void sglDestroyBuffer(sglBuffer* buffer)
+void sglFreeBuffer(sglBuffer* buffer)
 {
 	// don't free the pixels for the caller!
 	// free(buffer->pixels);
@@ -213,25 +213,17 @@ sglBitmap* sglLoadBitmap(const char* path, sglPixelFormatEnum format)
 	return bmp;
 }
 
-void sglDestroyBitmap(sglBitmap* bmp)
+void sglFreeBitmap(sglBitmap* bmp)
 {
-	free(bmp->pf);
-	free(bmp);
+	if (bmp) {
+		free(bmp->pf);
+		free(bmp);
+	}
 }
 
 void sglSaveBitmap(const sglBitmap* bmp, sglBitmapFormatEnum bitmapFormat)
 {
 
-}
-
-void sglDrawBitmap(const sglBitmap *bitmap)
-{
-	for (int x = 0; x < bitmap->width; x++) {
-		for (int y = 0; y < bitmap->width; y++) {
-			uint8_t r, g, b, a;
-			sglGetRGBA(bitmap->data, bitmap->pf, r, g, b, a);
-		}
-	}
 }
 
 /*****************************************************************************
@@ -245,6 +237,13 @@ void sglDrawBitmap(const sglBitmap *bitmap)
 #define SET_PIXEL_FAST_1(x, y, color) SET_PIXEL_FAST(x, y, uint8_t, 1, color)
 #define SET_PIXEL_FAST_2(x, y, color) SET_PIXEL_FAST(x, y, uint16_t, 2, color)
 #define SET_PIXEL_FAST_4(x, y, color) SET_PIXEL_FAST(x, y, uint32_t, 4, color)
+
+#define GET_PIXEL_FAST(x, y, type, bpp)                             \
+	*(type*)((uint8_t*)buffer->pixels + (y)*buffer->pitch + (x)*bpp)
+	
+#define GET_PIXEL_FAST_1(x, y) GET_PIXEL_FAST(x, y, uint8_t, 1)
+#define GET_PIXEL_FAST_2(x, y) GET_PIXEL_FAST(x, y, uint16_t, 2)
+#define GET_PIXEL_FAST_4(x, y) GET_PIXEL_FAST(x, y, uint32_t, 4)
 
 /**
  * fast draw pixel
@@ -807,7 +806,16 @@ void sglDrawColorInterpolatedTriangle(sglBuffer* buffer, int x1, int y1, int x2,
 			sglDrawPixelRaw(buffer, color, x, y);
 		}
 	}
-	
+}
+
+void sglDrawBitmap(const sglBitmap *bitmap)
+{
+	for (int x = 0; x < bitmap->width; x++) {
+		for (int y = 0; y < bitmap->width; y++) {
+			uint8_t r, g, b, a;
+			sglGetRGBA(bitmap->data, bitmap->pf, r, g, b, a);
+		}
+	}
 }
 
 

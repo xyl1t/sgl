@@ -115,7 +115,8 @@ int main(int argc, char* argv[])
 
 	demos_f* dyDemos = reloadDemos(NULL);
 	dyDemos(buffer, &m, keyboard, controlPoints, currentControlPoint, 0, true);
-	time_t demoLibCreationTime = 0;
+	time_t demoLibCreationTime = getFileTimestamp(demoLibPath);
+	time_t now = demoLibCreationTime;
 
 	SDL_Event event;
 	bool alive = true;
@@ -165,7 +166,6 @@ int main(int argc, char* argv[])
 		// NOTE: This is just a workaround because of race conditions: https://stackoverflow.com/questions/56334288/how-to-hot-reload-shared-library-on-linux
 		static bool loaded = false;
 		static int attempts = 0;
-		time_t now = getFileTimestamp(demoLibPath);
 		if (now > demoLibCreationTime) {
 			SGL_DEBUG_PRINT("Reloading %s...\n", demoLibPath);
 			SDL_Delay(50);
@@ -208,7 +208,7 @@ int main(int argc, char* argv[])
 		}
 	}
 
-	sglDestroyBuffer(buffer);
+	sglFreeBuffer(buffer);
 
 	SDL_DestroyTexture(texture);
 	SDL_DestroyRenderer(renderer);

@@ -173,10 +173,10 @@ typedef struct sglBuffer {
 sglBuffer* sglCreateBuffer(
 	void* pixels, uint32_t width, uint32_t height, sglPixelFormatEnum format);
 /**
- * @brief Destroys an sgl buffer
+ * @brief Frees an sgl buffer
  * @param buffer The buffer to delete
  */
-void sglDestroyBuffer(sglBuffer* buffer);
+void sglFreeBuffer(sglBuffer* buffer);
 
 /**
  * @brief Sets the clipping rectangle of the buffer, meaning that you won't
@@ -215,37 +215,6 @@ void sglSaveBitmap(const sglBitmap* bitmap, sglBitmapFormatEnum bitmapFormat);
 void sglDrawBitmap(const sglBitmap* bitmap);
 uint32_t sglGetPixelBitmap(const sglBitmap* bitmap, int x, int y) {
 }
-
-
-// uint32_t sglGetPixelRaw(sglBuffer* buffer, int x, int y)
-// {
-// #ifdef SGL_CHECK_BUFFER_BOUNDS
-// 	if (x < 0 || y < 0 || x >= buffer->width || y >= buffer->height)
-// 		return 0;
-// #endif
-//
-// 	switch (buffer->pf->bytesPerPixel) {
-// 	case 1:
-// 		return *((uint8_t*)buffer->pixels + (y * buffer->width + x));
-// 		break;
-//
-// 	case 2:
-// 		return *((uint16_t*)buffer->pixels + (y * buffer->width + x));
-// 		break;
-//
-// 	case 3:
-// 		sglError(
-// 			"Unsupported pixel format (3 bytes per pixel are not supported)");
-// 		break;
-//
-// 	case 4:
-// 		return *((uint32_t*)buffer->pixels + (y * buffer->width + x));
-// 		break;
-// 	}
-//
-// 	return 0;
-// }
-
 
 /*****************************************************************************
  * GRAPHICS FUNCTIONS                                                        *

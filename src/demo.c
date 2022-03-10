@@ -4,14 +4,6 @@
 DEMOS(demos) {
 	// TODO: make adding demos more easy,
 	// maybe make an array of funciton pointers to the demos?
-	if (init) {
-		demo1(buffer, m, k, cp + 0x00, ccp - 0x00, time, init);
-		demo2(buffer, m, k, cp + 0x20, ccp - 0x20, time, init);
-		demo3(buffer, m, k, cp + 0x30, ccp - 0x30, time, init);
-		demo4(buffer, m, k, cp + 0x40, ccp - 0x40, time, init);
-		demo5(buffer, m, k, cp + 0x50, ccp - 0x50, time, init);
-		demo6(buffer, m, k, cp + 0x50, ccp - 0x50, time, init);
-	}
 	// demo1(buffer, m, k, cp + 0x00, ccp - 0x00, time, init);
 	// demo2(buffer, m, k, cp + 0x20, ccp - 0x20, time, init);
 	// demo3(buffer, m, k, cp + 0x30, ccp - 0x30, time, init);
@@ -177,9 +169,15 @@ DEMOS(demo5)
 
 DEMOS(demo6)
 {
-	static sglBitmap* bmp;
+	static sglBitmap* bmp = NULL;
 	if (init) {
-		bmp = sglLoadBitmap("", SGL_PIXELFORMAT_ABGR32);
+		sglFreeBitmap(bmp);
+		bmp = sglLoadBitmap("../res/cidr.png", SGL_PIXELFORMAT_ABGR32);
+		SGL_DEBUG_PRINT("init bmp: %p\n", bmp);
 		return;
 	}
+
+	// SGL_DEBUG_PRINT("loop bmp: %p\n", bmp);
+
+
 }
