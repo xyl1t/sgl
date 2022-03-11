@@ -207,14 +207,13 @@ typedef struct sglBitmap{
 	sglPixelFormat* pf;
 	int width;
 	int height;
+	int pitch;
 } sglBitmap;
 
 sglBitmap* sglLoadBitmap(const char* path, sglPixelFormatEnum format);
 void sglFreeBitmap(sglBitmap* bitmap);
 void sglSaveBitmap(const sglBitmap* bitmap, sglBitmapFormatEnum bitmapFormat);
-void sglDrawBitmap(const sglBitmap* bitmap);
-uint32_t sglGetPixelBitmap(const sglBitmap* bitmap, int x, int y) {
-}
+uint32_t sglGetPixelBitmap(const sglBitmap* bitmap, int x, int y);
 
 /*****************************************************************************
  * GRAPHICS FUNCTIONS                                                        *
@@ -405,6 +404,8 @@ void sglFillTriangle(sglBuffer* buffer, uint32_t color, int x1, int y1, int x2,
  */
 void sglDrawColorInterpolatedTriangle(sglBuffer* buffer, int x1, int y1, int x2,
 	int y2, int x3, int y3, uint32_t c1, uint32_t c2, uint32_t c3);
+
+void sglDrawBitmap(const sglBitmap* bitmap);
 
 
 

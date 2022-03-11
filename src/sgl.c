@@ -196,6 +196,7 @@ sglBitmap* sglLoadBitmap(const char* path, sglPixelFormatEnum format)
 	}
 
 	bmp->data = malloc(bmp->width * bmp->height * bmp->pf->bytesPerPixel);
+	bmp->pitch = bmp->width * bmp->pf->bytesPerPixel;
 
 	for (int x = 0; x < bmp->width; x++) {
 		for (int y = 0; y < bmp->height; y++) {
@@ -226,6 +227,30 @@ void sglSaveBitmap(const sglBitmap* bmp, sglBitmapFormatEnum bitmapFormat)
 
 }
 
+uint32_t sglGetPixelBitmap(const sglBitmap* bitmap, int x, int y)
+{
+	switch (bitmap->pf->bytesPerPixel) {
+	case 1:
+		return *((uint8_t*)bitmap->data + (y * bitmap->width + x));
+		break;
+
+	case 2:
+		return *((uint16_t*)bitmap->data + (y * bitmap->width + x));
+		break;
+
+	case 3:
+		sglError(
+			"Unsupported pixel format (3 bytes per pixel are not supported)");
+		break;
+
+	case 4:
+		return *((uint32_t*)bitmap->data + (y * bitmap->width + x));
+		break;
+	}
+	return 0;
+}
+
+
 /*****************************************************************************
  * GRAPHICS FUNCTIONS                                                        *
  *****************************************************************************/
@@ -238,12 +263,12 @@ void sglSaveBitmap(const sglBitmap* bmp, sglBitmapFormatEnum bitmapFormat)
 #define SET_PIXEL_FAST_2(x, y, color) SET_PIXEL_FAST(x, y, uint16_t, 2, color)
 #define SET_PIXEL_FAST_4(x, y, color) SET_PIXEL_FAST(x, y, uint32_t, 4, color)
 
-#define GET_PIXEL_FAST(x, y, type, bpp)                             \
-	*(type*)((uint8_t*)buffer->pixels + (y)*buffer->pitch + (x)*bpp)
+#define GET_PIXEL_FAST(data, pitch, x, y, type, bpp) \
+	*(type*)((uint8_t*)data + (y)*pitch + (x)*bpp)
 	
-#define GET_PIXEL_FAST_1(x, y) GET_PIXEL_FAST(x, y, uint8_t, 1)
-#define GET_PIXEL_FAST_2(x, y) GET_PIXEL_FAST(x, y, uint16_t, 2)
-#define GET_PIXEL_FAST_4(x, y) GET_PIXEL_FAST(x, y, uint32_t, 4)
+#define GET_PIXEL_FAST_1(data, pitch, x, y) GET_PIXEL_FAST(data, pitch, x, y, uint8_t, 1)
+#define GET_PIXEL_FAST_2(data, pitch, x, y) GET_PIXEL_FAST(data, pitch, x, y, uint16_t, 2)
+#define GET_PIXEL_FAST_4(data, pitch, x, y) GET_PIXEL_FAST(data, pitch, x, y, uint32_t, 4)
 
 /**
  * fast draw pixel
