@@ -32,7 +32,7 @@ static mouse m;
 #ifdef __linux__
 const char* demoLibPath = "./libdemo.so";
 #elif defined(__APPLE__)
-const char* demoLibPath = "libdemo.dylib";
+const char* demoLibPath = "./libdemo.dylib";
 #endif
 
 time_t getFileTimestamp(const char *path) {
@@ -68,7 +68,7 @@ demos_f* reloadDemos(bool* success)
 		printf("Cannot load %s: %s\n", demoLibPath, dlerror());
 	}
 
-	if (success) *success = !dyDemos;
+	if (success) *success = dyDemos;
 
 	if (!dyDemos) {
 		dyDemos = demos;
@@ -166,16 +166,17 @@ int main(int argc, char* argv[])
 		// NOTE: This is just a workaround because of race conditions: https://stackoverflow.com/questions/56334288/how-to-hot-reload-shared-library-on-linux
 		static bool loaded = false;
 		static int attempts = 0;
+		now = getFileTimestamp(demoLibPath);
 		if (now > demoLibCreationTime) {
 			SGL_DEBUG_PRINT("Reloading %s...\n", demoLibPath);
 			SDL_Delay(50);
 			dyDemos = reloadDemos(&loaded);
+			demoLibCreationTime = getFileTimestamp(demoLibPath);
 			if (!loaded && attempts++ <= 10) {
 				demoLibCreationTime = now;
 				attempts = 0;
 			}
 		}
-
 
 		//////////////////////////////////////////////////////////////////////
 
