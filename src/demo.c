@@ -9,8 +9,13 @@ DEMOS(demos) {
 	// demo3(buffer, m, k, cp + 0x30, ccp - 0x30, time, init);
 	// demo4(buffer, m, k, cp + 0x40, ccp - 0x40, time, init);
 	// demo5(buffer, m, k, cp + 0x50, ccp - 0x50, time, init);
-	demo6(buffer, m, k, cp + 0x50, ccp - 0x50, time, init);
+	demo6(buffer, m, k, cp + 0x60, ccp - 0x60, time, init);
+	// printf("hallo\n");
 }
+
+
+#define drawControlPoint(cp, color) \
+	sglDrawCircle(buffer, color, cp.x, cp.y, 3);
 
 DEMOS(demo1)
 {
@@ -56,8 +61,8 @@ DEMOS(demo2)
 			buffer, 0x00ff00ff, cp[1].x, cp[1].y, cp[2].x - cp[1].x, cp[2].y - cp[1].y);
 
 	sglResetClipRect(buffer);
-	sglDrawCircle(buffer, 0xffffffff, cp[1].x, cp[1].y, 3);
-	sglDrawCircle(buffer, 0xffffffff, cp[2].x, cp[2].y, 3);
+	drawControlPoint(cp[1], 0xffffffff);
+	drawControlPoint(cp[2], 0xffffffff);
 
 }
 
@@ -117,9 +122,9 @@ DEMOS(demo4)
 	sglDrawLine(buffer, 0x00ff00ff, cp[0].x, cp[0].y, cp[1].x, cp[1].y);
 	sglDrawLine(buffer, 0xff0000ff, cp[0].x, cp[0].y, cp[2].x, cp[2].y);
 
-	sglDrawCircle(buffer, 0x3377ffff, cp[0].x, cp[0].y, 3);
-	sglDrawCircle(buffer, 0x00ff00ff, cp[1].x, cp[1].y, 3);
-	sglDrawCircle(buffer, 0xff0000ff, cp[2].x, cp[2].y, 3);
+	drawControlPoint(cp[0], 0x3377ffff);
+	drawControlPoint(cp[1], 0x00ff00ff);
+	drawControlPoint(cp[2], 0xff0000ff);
 	sglFillCircle(buffer, 0xffff00ff, cp[3].x, cp[3].y, 3);
 
 	float angle = atan2f(m->y - cp[0].y, m->x - cp[0].x);
@@ -158,26 +163,68 @@ DEMOS(demo5)
 	sglDrawTriangle(buffer, 0x3366EEff,
 			cp[0].x, cp[0].y, cp[1].x, cp[1].y, cp[2].x, cp[2].y);
 
-	sglDrawCircle(buffer, 0xff0000ff, cp[0].x, cp[0].y, 3);
-	sglDrawCircle(buffer, 0x00ff00ff, cp[1].x, cp[1].y, 3);
-	sglDrawCircle(buffer, 0x0000ffff, cp[2].x, cp[2].y, 3);
+	drawControlPoint(cp[0], 0xff0000ff);
+	drawControlPoint(cp[1], 0x00ff00ff);
+	drawControlPoint(cp[2], 0x0000ffff);
 
-	sglDrawCircle(buffer, 0xffffffff, cp[3].x, cp[3].y, 3);
-	sglDrawCircle(buffer, 0xffffffff, cp[4].x, cp[4].y, 3);
-	sglDrawCircle(buffer, 0xffffffff, cp[5].x, cp[5].y, 3);
+	drawControlPoint(cp[3], 0xffffffff);
+	drawControlPoint(cp[4], 0xffffffff);
+	drawControlPoint(cp[5], 0xffffffff);
 }
 
 DEMOS(demo6)
 {
 	static sglBitmap* bmp = NULL;
-	if (init) {
+	static sglRect previewRect;
+
+	if (init || !bmp) {
 		sglFreeBitmap(bmp);
+		// bmp = sglLoadBitmap("../res/cidr.png", SGL_PIXELFORMAT_ABGR32);
 		bmp = sglLoadBitmap("../res/cidr.png", SGL_PIXELFORMAT_ABGR32);
 		SGL_DEBUG_PRINT("init bmp: %p\n", bmp);
+
+		previewRect.w = 48;
+		previewRect.h = bmp->height / (float)bmp->width * previewRect.w;
+		previewRect.x = buffer->width - previewRect.w - 8;
+		previewRect.y = 8;
+
+		// result
+		cp[0] = (sglPoint){ .x = 16, .y = 16 };
+		cp[1] = (sglPoint){ .x = bmp->width-16, .y = bmp->height-16 };
+
+		// preview
+		cp[2] = (sglPoint){ .x = previewRect.x, .y = previewRect.y };
+		cp[3] = (sglPoint){ .x = previewRect.x + previewRect.w, .y = previewRect.y + previewRect.h };
+
 		return;
 	}
 
-	// SGL_DEBUG_PRINT("loop bmp: %p\n", bmp);
+	sglRect src;
+	src.x = (cp[2].x - previewRect.x) / (float)previewRect.w * bmp->width;
+	src.y = (cp[2].y - previewRect.y) / (float)previewRect.h * bmp->height;
+	src.w = (cp[3].x - cp[2].x) / (float)previewRect.w * bmp->width;;
+	src.h = (cp[3].y - cp[2].y) / (float)previewRect.h * bmp->height;
 
+	sglRect dst = (sglRect) {
+		.x = cp[0].x,
+		.y = cp[0].y,
+		.w = cp[1].x - cp[0].x,
+		.h = cp[1].y - cp[0].y,
+	};
+
+	sglDrawBitmap(buffer, bmp, &src, &dst);
+
+	// draw little preview
+	sglDrawBitmap(buffer, bmp, NULL, &previewRect);
+
+	drawControlPoint(cp[0], 0xaf7fefff);
+	drawControlPoint(cp[1], 0xaf7fefff);
+	drawControlPoint(cp[2], 0xafff7fff);
+	drawControlPoint(cp[3], 0xafff7fff);
+
+	// TOOD: make rectangle translucent when alpha compositing is added
+	sglDrawRectangle(buffer, 0xafff7fff, cp[2].x, cp[2].y, cp[3].x - cp[2].x, cp[3].y - cp[2].y);
+	sglDrawRectangle(buffer, 0xaf7fefff, cp[0].x, cp[0].y, cp[1].x - cp[0].x, cp[1].y - cp[0].y);
 
 }
+
