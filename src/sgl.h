@@ -141,6 +141,27 @@ bool sglHasIntersection(const sglRect* A, const sglRect* B);
  * @return True if rectangle A and B intersect
  */
 bool sglIntersectRect(const sglRect* A, const sglRect* B, sglRect* result);
+/**
+ * 
+ */
+void sglInvertRectWidth(sglRect* rect);
+/**
+ * 
+ */
+void sglInvertRectHeight(sglRect* rect);
+/**
+ * @brief makes width and height negative...
+ */
+void sglInvertRect(sglRect* rect);
+/**
+ * @brief Fixes negative width and height, in the end the rectnagle's
+ * coordinates stay the same
+ * @param rect The rectangle to fix
+ * @return True if rectangle got fixed
+ */
+bool sglFixRect(sglRect* rect);
+bool sglIsPointInRect(const sglRect* rect, int x, int y);
+
 
 /**
  * @brief A simple rectangle struct
@@ -405,7 +426,8 @@ void sglFillTriangle(sglBuffer* buffer, uint32_t color, int x1, int y1, int x2,
 void sglDrawColorInterpolatedTriangle(sglBuffer* buffer, int x1, int y1, int x2,
 	int y2, int x3, int y3, uint32_t c1, uint32_t c2, uint32_t c3);
 
-void sglDrawBitmap(const sglBitmap* bitmap);
+void sglDrawBitmap(sglBuffer* buffer, const sglBitmap* bitmap,
+		const sglRect* srcRect, const sglRect* dstRect);
 
 
 

@@ -123,6 +123,55 @@ bool sglIntersectRect(const sglRect* A, const sglRect* B, sglRect* result)
 	return false;
 }
 
+void sglInvertRectWidth(sglRect* rect)
+{
+	int tmp = rect->x;
+	rect->x = rect->x + rect->w;
+	rect->w = tmp - rect->x;
+}
+void sglInvertRectHeight(sglRect* rect)
+{
+	int tmp = rect->y;
+	rect->y = rect->y + rect->h;
+	rect->h = tmp - rect->y;
+}
+void sglInvertRect(sglRect* rect)
+{
+	sglInvertRectWidth(rect);
+	sglInvertRectHeight(rect);
+}
+bool sglFixRect(sglRect* rect) {
+	if (!rect) return false;
+
+	bool fixed = false;
+
+	if (rect->w < 0) {
+		int tmp = rect->x;
+		rect->x = rect->x + rect->w;
+		rect->w = tmp - rect->x;
+		fixed = true;
+	}
+
+	if (rect->h < 0) {
+		int tmp = rect->y;
+		rect->y = rect->y + rect->h;
+		rect->h = tmp - rect->y;
+		fixed = true;
+	}
+
+	return fixed;
+}
+
+bool sglIsPointInRect(const sglRect* rect, int x, int y)
+{
+	if (!rect) return false;
+
+	sglRect fixed = *rect;
+	sglFixRect(&fixed);
+
+	return x >= fixed.x && y >= fixed.y && x < fixed.x + fixed.w && y < fixed.y + fixed.h;
+}
+
 sglBuffer* sglCreateBuffer(
 	void* pixels, uint32_t width, uint32_t height, sglPixelFormatEnum format)
 {
@@ -157,8 +206,7 @@ bool sglSetClipRect(sglBuffer* buffer, const sglRect* rect)
 	bool intersects = false;
 
 	if (buffer) {
-		intersects
-			= sglIntersectRect(&buffer->clipRect, rect, &buffer->clipRect);
+		intersects = sglIntersectRect(&buffer->clipRect, rect, &buffer->clipRect);
 		if (!intersects) {
 			sglError("`rect` is not intersecting the buffer\n");
 		}
@@ -833,12 +881,62 @@ void sglDrawColorInterpolatedTriangle(sglBuffer* buffer, int x1, int y1, int x2,
 	}
 }
 
-void sglDrawBitmap(const sglBitmap *bitmap)
+void sglDrawBitmap(sglBuffer* buffer, const sglBitmap* bitmap,
+		const sglRect* srcRect, const sglRect* dstRect)
 {
-	for (int x = 0; x < bitmap->width; x++) {
-		for (int y = 0; y < bitmap->width; y++) {
+	sglRect bmpClipRect = { 0, 0, buffer->width, buffer->height };
+	sglRect clippedSrcRect;
+	sglRect clippedDstRect;
+	sglRect bmpRect = { 0, 0, bitmap->width, bitmap->height };
+
+	if (dstRect) {
+		sglIntersectRect(&buffer->clipRect, dstRect, &clippedDstRect);
+	} else {
+		clippedDstRect = (sglRect){
+			.x = buffer->clipRect.x,
+				.y = buffer->clipRect.y,
+				.w = buffer->clipRect.w,
+				.h = buffer->clipRect.h
+		};
+	}
+
+	if (srcRect) {
+		// sglIntersectRect(&bmpClipRect, srcRect, &clippedSrcRect);
+		clippedSrcRect = *srcRect;
+	} else {
+		clippedSrcRect = (sglRect){
+			.x = 0,
+			.y = 0,
+			.w = bitmap->width,
+			.h = bitmap->height
+		};
+	}
+
+	if (clippedDstRect.w < 0) {
+		sglInvertRectWidth(&clippedDstRect);
+		sglInvertRectWidth(&clippedSrcRect);
+	}
+	if (clippedDstRect.h < 0) {
+		sglInvertRectHeight(&clippedDstRect);
+		sglInvertRectHeight(&clippedSrcRect);
+	}
+
+	for (int bufX = clippedDstRect.x; bufX < clippedDstRect.x + clippedDstRect.w; bufX++) {
+		for (int bufY = clippedDstRect.y; bufY < clippedDstRect.y + clippedDstRect.h; bufY++) {
+			int bmpX = (bufX - clippedDstRect.x) / (float)clippedDstRect.w * clippedSrcRect.w + clippedSrcRect.x;
+			int bmpY = (bufY - clippedDstRect.y) / (float)clippedDstRect.h * clippedSrcRect.h + clippedSrcRect.y;
+
+			if (!sglIsPointInRect(&bmpRect, bmpX, bmpY)) continue;
+
 			uint8_t r, g, b, a;
-			sglGetRGBA(bitmap->data, bitmap->pf, r, g, b, a);
+			sglGetRGBA(sglGetPixelBitmap(bitmap, bmpX, bmpY), bitmap->pf, &r, &g, &b, &a);
+
+			// SGL_DEBUG_PRINT("r: %d\n", r);
+			// SGL_DEBUG_PRINT("g: %d\n", g);
+			// SGL_DEBUG_PRINT("b: %d\n", b);
+			// SGL_DEBUG_PRINT("a: %d\n", a);
+
+			sglDrawPixel(buffer, r, g, b, a, bufX, bufY);
 		}
 	}
 }
