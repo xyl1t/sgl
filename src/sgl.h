@@ -142,15 +142,15 @@ bool sglHasIntersection(const sglRect* A, const sglRect* B);
  */
 bool sglIntersectRect(const sglRect* A, const sglRect* B, sglRect* result);
 /**
- * 
+ * @brief Swap start and end x cooridnate by inverting the width
  */
 void sglInvertRectWidth(sglRect* rect);
 /**
- * 
+ * @brief Swap start and end y cooridnate by inverting the height
  */
 void sglInvertRectHeight(sglRect* rect);
 /**
- * @brief makes width and height negative...
+ * @brief Swap start and end coordinates by inverting width and height
  */
 void sglInvertRect(sglRect* rect);
 /**
@@ -160,6 +160,13 @@ void sglInvertRect(sglRect* rect);
  * @return True if rectangle got fixed
  */
 bool sglFixRect(sglRect* rect);
+/**
+ * @brief Test if a point is inside a rectangle
+ * @param rect The rectangle to test the point against
+ * @param x The x cooridnate of the point
+ * @param y The y cooridnate of the point
+ * @return True if the point is inside the rectangle
+ */
 bool sglIsPointInRect(const sglRect* rect, int x, int y);
 
 
