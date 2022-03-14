@@ -64,7 +64,7 @@ Implement basic drawing functions
 * [x] live demo code update
 * [ ] add more pixel formats
 * [ ] make the library header only
-* [ ] optimize
+* [ ] *optimize*
 	* [ ] circle drawing
 	* [ ] arc drawing
 	* [ ] triangles
