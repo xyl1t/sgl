@@ -314,7 +314,7 @@ bool sglSaveBitmap(const sglBitmap* bmp, const char* filename, sglBitmapFormatEn
 	return false;
 }
 
-uint32_t sglGetPixelBitmap(const sglBitmap* bmp, int x, int y)
+uint32_t sglGetPixelBitmapRaw(const sglBitmap* bmp, int x, int y)
 {
 	switch (bmp->pf->bytesPerPixel) {
 	case 1:
@@ -968,7 +968,7 @@ void sglDrawBitmap(sglBuffer* buffer, const sglBitmap* bmp,
 			if (!sglIsPointInRect(&bmpRect, bmpX, bmpY)) continue;
 
 			uint8_t r, g, b, a;
-			sglGetRGBA(sglGetPixelBitmap(bmp, bmpX, bmpY), bmp->pf, &r, &g, &b, &a);
+			sglGetRGBA(sglGetPixelBitmapRaw(bmp, bmpX, bmpY), bmp->pf, &r, &g, &b, &a);
 
 			// SGL_DEBUG_PRINT("r: %d\n", r);
 			// SGL_DEBUG_PRINT("g: %d\n", g);

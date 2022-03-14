@@ -202,7 +202,7 @@ sglBuffer* sglCreateBuffer(
 	void* pixels, uint32_t width, uint32_t height, sglPixelFormatEnum format);
 /**
  * @brief Frees an sgl buffer
- * @param buffer The buffer to delete
+ * @param buffer The buffer to free
  */
 void sglFreeBuffer(sglBuffer* buffer);
 
@@ -223,6 +223,9 @@ bool sglSetClipRect(sglBuffer* buffer, const sglRect* rect);
  */
 void sglResetClipRect(sglBuffer* buffer);
 
+/**
+ * @brief Enum of image formats
+ */
 typedef enum {
 	SGL_BITMAPFORMAT_PNG,
 	SGL_BITMAPFORMAT_BMP,
@@ -230,6 +233,9 @@ typedef enum {
 	SGL_BITMAPFORMAT_TGA,
 } sglBitmapFormatEnum;
 
+/**
+ * @brief Struct that holds bitmap data
+ */
 typedef struct sglBitmap{
 	void* data;
 	sglPixelFormat* pf;
@@ -238,10 +244,53 @@ typedef struct sglBitmap{
 	int pitch;
 } sglBitmap;
 
+/**
+ * @brief Load a bitmap from an image file
+ * @param path Path to the image file
+ * @param format The pixel format of the bitmap
+ * @return Bitmap struct in the pixel format that was given
+ */
 sglBitmap* sglLoadBitmap(const char* path, sglPixelFormatEnum format);
+/**
+ * @brief Frees a bitmap
+ * @param bmp The bitmap to free
+ */
 void sglFreeBitmap(sglBitmap* bmp);
-bool sglSaveBitmap(const sglBitmap* bmp, const char* filename, sglBitmapFormatEnum bitmapFormat);
-uint32_t sglGetPixelBitmap(const sglBitmap* bmp, int x, int y);
+/**
+ * @brief Save a bitmap as an image file
+ * @param bmp The bitmap to save
+ * @param filename The name and path to the image file
+ * @param bitmapFormat The image format to save the file in (png, bmp, jpg, tga)
+ * @return True if successful
+ */
+bool sglSaveBitmap(const sglBitmap* bmp, const char* filename,
+	sglBitmapFormatEnum bitmapFormat);
+/**
+ * @brief Get pixel from bitmap
+ * @param bmp The bitmap to get the pixel from
+ * @param x The x coordinate of the pixel
+ * @param y The y coordinate of the pixel
+ * @return The color of the pixel
+ */
+uint32_t sglGetPixelBitmapRaw(const sglBitmap* bmp, int x, int y);
+/**
+ * @brief Get pixel from bitmap
+ * @param bmp The bitmap to get the pixel from
+ * @param[out] r The red channel of the pixel color
+ * @param[out] g The green channel of the pixel color
+ * @param[out] b The blue channel of the pixel color
+ * @param[out] a The alpha channel of the pixel color
+ * @param x The x coordinate of the pixel
+ * @param y The y coordinate of the pixel
+ */
+void sglGetPixelBitmap(const sglBitmap* bmp,
+	uint8_t* r, uint8_t* g, uint8_t* b, uint8_t* a,
+	int x, int y);
+/**
+ * @brief Copy the content of one bitmap to another
+ * @param dstBmp The bitmap to copy to
+ * @param srcBmp The bitmap to copy from
+ */
 void sglCopyBitmapData(sglBitmap* dstBmp, const sglBitmap* srcBmp);
 extern int sgl_jpg_quality;
 
