@@ -240,8 +240,10 @@ typedef struct sglBitmap{
 
 sglBitmap* sglLoadBitmap(const char* path, sglPixelFormatEnum format);
 void sglFreeBitmap(sglBitmap* bitmap);
-void sglSaveBitmap(const sglBitmap* bitmap, sglBitmapFormatEnum bitmapFormat);
+bool sglSaveBitmap(const sglBitmap* bitmap, const char* filename, sglBitmapFormatEnum bitmapFormat);
 uint32_t sglGetPixelBitmap(const sglBitmap* bitmap, int x, int y);
+void sglCopyBitmapData(sglBitmap* dstBmp, const sglBitmap* srcBmp);
+extern int sgl_jpg_quality;
 
 /*****************************************************************************
  * GRAPHICS FUNCTIONS                                                        *
@@ -552,6 +554,12 @@ uint32_t sglGetChannelOrder(sglPixelFormatEnum format);
  * @brief Get the channel layout from the an sglPixelFormatEnum
  */
 uint32_t sglGetChannelLayout(sglPixelFormatEnum format);
+
+/**
+ * @brief Looks if the pixel format has an alpha channel
+ * @return True if alpha channel is present
+ */
+uint32_t sglHasAlphaChannel(sglPixelFormatEnum format);
 
 /**
  * @brief Get last error that occurred when calling an sgl function

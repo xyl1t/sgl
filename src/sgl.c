@@ -27,6 +27,7 @@ static void sglError(const char* error) { _sglError = error; }
 #define SGL_FLOAT int
 #endif
 
+int sgl_jpg_quality = 100;
 
 /*****************************************************************************
  * DATA STRUCTURES                                                           *
@@ -270,9 +271,47 @@ void sglFreeBitmap(sglBitmap* bmp)
 	}
 }
 
-void sglSaveBitmap(const sglBitmap* bmp, sglBitmapFormatEnum bitmapFormat)
+bool sglSaveBitmap(const sglBitmap* bmp, const char* filename, sglBitmapFormatEnum bitmapFormat)
 {
+	uint32_t* data = malloc(bmp->width * bmp->height * sizeof(uint32_t));
+	sglBuffer* dataBuffer = sglCreateBuffer(data, bmp->width, bmp->height, SGL_PIXELFORMAT_RGBA32);
+	sglDrawBitmap(dataBuffer, bmp, NULL, NULL);
+	sglFreeBuffer(dataBuffer);
 
+	switch (bitmapFormat) {
+		case SGL_BITMAPFORMAT_PNG:
+			return stbi_write_png(filename,
+				bmp->width,
+				bmp->height,
+				4,
+				data,
+				bmp->pitch);
+			break;
+		case SGL_BITMAPFORMAT_BMP:
+			return stbi_write_bmp(filename,
+				bmp->width,
+				bmp->height,
+				4,
+				data);
+			break;
+		case SGL_BITMAPFORMAT_JPG:
+			return stbi_write_jpg(filename,
+				bmp->width,
+				bmp->height,
+				4,
+				data,
+				sgl_jpg_quality);
+			break;
+		case SGL_BITMAPFORMAT_TGA:
+			return stbi_write_tga(filename,
+				bmp->width,
+				bmp->height,
+				4,
+				data);
+			break;
+	}
+
+	return false;
 }
 
 uint32_t sglGetPixelBitmap(const sglBitmap* bitmap, int x, int y)
@@ -1086,6 +1125,14 @@ uint32_t sglGetChannelOrder(sglPixelFormatEnum format)
 	return (format >> 5) & 0x7;
 }
 
-uint32_t sglGetChannelLayout(sglPixelFormatEnum format) { return format & 0x3; }
+uint32_t sglGetChannelLayout(sglPixelFormatEnum format)
+{
+	return format & 0x3;
+}
+
+uint32_t sglHasAlphaChannel(sglPixelFormatEnum format)
+{
+	return sglGetChannelLayout(format) < 3;
+}
 
 const char* sglGetError(void) { return _sglError; }

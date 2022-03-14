@@ -226,5 +226,10 @@ DEMOS(demo6)
 	sglDrawRectangle(buffer, 0xafff7fff, cp[2].x, cp[2].y, cp[3].x - cp[2].x, cp[3].y - cp[2].y);
 	sglDrawRectangle(buffer, 0xaf7fefff, cp[0].x, cp[0].y, cp[1].x - cp[0].x, cp[1].y - cp[0].y);
 
+	if (k[SDL_SCANCODE_S]) {
+		printf("saving bitmap...\n");
+		sglSaveBitmap(bmp, "bitmap.png", SGL_BITMAPFORMAT_PNG);
+	}
+
 }
 
