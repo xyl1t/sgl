@@ -314,15 +314,15 @@ bool sglSaveBitmap(const sglBitmap* bmp, const char* filename, sglBitmapFormatEn
 	return false;
 }
 
-uint32_t sglGetPixelBitmap(const sglBitmap* bitmap, int x, int y)
+uint32_t sglGetPixelBitmap(const sglBitmap* bmp, int x, int y)
 {
-	switch (bitmap->pf->bytesPerPixel) {
+	switch (bmp->pf->bytesPerPixel) {
 	case 1:
-		return *((uint8_t*)bitmap->data + (y * bitmap->width + x));
+		return *((uint8_t*)bmp->data + (y * bmp->width + x));
 		break;
 
 	case 2:
-		return *((uint16_t*)bitmap->data + (y * bitmap->width + x));
+		return *((uint16_t*)bmp->data + (y * bmp->width + x));
 		break;
 
 	case 3:
@@ -331,7 +331,7 @@ uint32_t sglGetPixelBitmap(const sglBitmap* bitmap, int x, int y)
 		break;
 
 	case 4:
-		return *((uint32_t*)bitmap->data + (y * bitmap->width + x));
+		return *((uint32_t*)bmp->data + (y * bmp->width + x));
 		break;
 	}
 	return 0;
@@ -920,13 +920,13 @@ void sglDrawColorInterpolatedTriangle(sglBuffer* buffer, int x1, int y1, int x2,
 	}
 }
 
-void sglDrawBitmap(sglBuffer* buffer, const sglBitmap* bitmap,
+void sglDrawBitmap(sglBuffer* buffer, const sglBitmap* bmp,
 		const sglRect* srcRect, const sglRect* dstRect)
 {
 	sglRect bmpClipRect = { 0, 0, buffer->width, buffer->height };
 	sglRect clippedSrcRect;
 	sglRect clippedDstRect;
-	sglRect bmpRect = { 0, 0, bitmap->width, bitmap->height };
+	sglRect bmpRect = { 0, 0, bmp->width, bmp->height };
 
 	if (dstRect) {
 		sglIntersectRect(&buffer->clipRect, dstRect, &clippedDstRect);
@@ -946,8 +946,8 @@ void sglDrawBitmap(sglBuffer* buffer, const sglBitmap* bitmap,
 		clippedSrcRect = (sglRect){
 			.x = 0,
 			.y = 0,
-			.w = bitmap->width,
-			.h = bitmap->height
+			.w = bmp->width,
+			.h = bmp->height
 		};
 	}
 
@@ -968,7 +968,7 @@ void sglDrawBitmap(sglBuffer* buffer, const sglBitmap* bitmap,
 			if (!sglIsPointInRect(&bmpRect, bmpX, bmpY)) continue;
 
 			uint8_t r, g, b, a;
-			sglGetRGBA(sglGetPixelBitmap(bitmap, bmpX, bmpY), bitmap->pf, &r, &g, &b, &a);
+			sglGetRGBA(sglGetPixelBitmap(bmp, bmpX, bmpY), bmp->pf, &r, &g, &b, &a);
 
 			// SGL_DEBUG_PRINT("r: %d\n", r);
 			// SGL_DEBUG_PRINT("g: %d\n", g);

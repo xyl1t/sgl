@@ -239,9 +239,9 @@ typedef struct sglBitmap{
 } sglBitmap;
 
 sglBitmap* sglLoadBitmap(const char* path, sglPixelFormatEnum format);
-void sglFreeBitmap(sglBitmap* bitmap);
-bool sglSaveBitmap(const sglBitmap* bitmap, const char* filename, sglBitmapFormatEnum bitmapFormat);
-uint32_t sglGetPixelBitmap(const sglBitmap* bitmap, int x, int y);
+void sglFreeBitmap(sglBitmap* bmp);
+bool sglSaveBitmap(const sglBitmap* bmp, const char* filename, sglBitmapFormatEnum bitmapFormat);
+uint32_t sglGetPixelBitmap(const sglBitmap* bmp, int x, int y);
 void sglCopyBitmapData(sglBitmap* dstBmp, const sglBitmap* srcBmp);
 extern int sgl_jpg_quality;
 
