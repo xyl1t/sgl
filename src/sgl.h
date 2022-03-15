@@ -294,6 +294,19 @@ void sglGetPixelBitmap(const sglBitmap* bmp,
 void sglCopyBitmapData(sglBitmap* dstBmp, const sglBitmap* srcBmp);
 extern int sgl_jpg_quality;
 
+typedef struct sglFont {
+	const sglBitmap* fontSheet;
+	int fontWidth;
+	int fontHeight;
+} sglFont;
+
+sglFont* sglCreateFont(const sglBitmap* fontSheet, int fontWidth, int fontHeight,
+	bool useKerning);
+void sglFreeFont(const sglFont* font);
+// TODO:
+// sglDrawText(string, font, size)
+// getLetter()?
+
 /*****************************************************************************
  * GRAPHICS FUNCTIONS                                                        *
  *****************************************************************************/
