@@ -42,12 +42,12 @@ Implement basic drawing functions
 	* [x] Fill
 	* [x] Color interpolation
 	* [ ] Textured triangles
-* [ ] Images (using stb_image.h) ⌨️
+* [ ] Images (using stb_image.h)
 	* [x] Nearest neighbor sampling
 	* [x] Saving
 	* [ ] Linear sampling
 	* [ ] Wrapping options
-* [ ] Text
+* [ ] Text ⌨️
 * [ ] Shaders
 
 ### Utility
