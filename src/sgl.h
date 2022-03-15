@@ -248,7 +248,8 @@ typedef struct sglBitmap{
  * @brief Load a bitmap from an image file
  * @param path Path to the image file
  * @param format The pixel format of the bitmap
- * @return Bitmap struct in the pixel format that was given
+ * @return Bitmap struct in the pixel format that was given or NULL if the
+ * file is not found
  */
 sglBitmap* sglLoadBitmap(const char* path, sglPixelFormatEnum format);
 /**
@@ -286,12 +287,6 @@ uint32_t sglGetPixelBitmapRaw(const sglBitmap* bmp, int x, int y);
 void sglGetPixelBitmap(const sglBitmap* bmp,
 	uint8_t* r, uint8_t* g, uint8_t* b, uint8_t* a,
 	int x, int y);
-/**
- * @brief Copy the content of one bitmap to another
- * @param dstBmp The bitmap to copy to
- * @param srcBmp The bitmap to copy from
- */
-void sglCopyBitmapData(sglBitmap* dstBmp, const sglBitmap* srcBmp);
 extern int sgl_jpg_quality;
 
 typedef struct sglFont {
@@ -300,9 +295,9 @@ typedef struct sglFont {
 	int fontHeight;
 } sglFont;
 
-sglFont* sglCreateFont(const sglBitmap* fontSheet, int fontWidth, int fontHeight,
+sglFont* sglCreateFont(const char* pathToFontBitmap, int fontWidth, int fontHeight,
 	bool useKerning);
-void sglFreeFont(const sglFont* font);
+void sglFreeFont(sglFont* font);
 // TODO:
 // sglDrawText(string, font, size)
 // getLetter()?
@@ -500,6 +495,7 @@ void sglDrawColorInterpolatedTriangle(sglBuffer* buffer, int x1, int y1, int x2,
 void sglDrawBitmap(sglBuffer* buffer, const sglBitmap* bitmap,
 		const sglRect* srcRect, const sglRect* dstRect);
 
+void sglDrawText(const char* text, int x, int y);
 
 
 /*****************************************************************************

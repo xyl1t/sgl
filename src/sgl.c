@@ -232,18 +232,15 @@ sglBitmap* sglLoadBitmap(const char* path, sglPixelFormatEnum format)
 {
 	sglBitmap* bmp = malloc(sizeof(sglBitmap));
 
-	bmp->pf = sglCreatePixelFormat(format);
-
 	int imgChannels;
-
 	uint8_t* data = stbi_load(path, &bmp->width, &bmp->height, &imgChannels, 0);
 
 	if (!data) {
-		free(bmp->pf);
 		free(bmp);
 		return NULL;
 	}
 
+	bmp->pf = sglCreatePixelFormat(format);
 	bmp->data = malloc(bmp->width * bmp->height * bmp->pf->bytesPerPixel);
 	bmp->pitch = bmp->width * bmp->pf->bytesPerPixel;
 
@@ -337,6 +334,29 @@ uint32_t sglGetPixelBitmapRaw(const sglBitmap* bmp, int x, int y)
 	return 0;
 }
 
+
+sglFont* sglCreateFont(const char* pathToFontBitmap, int fontWidth, int fontHeight,
+	bool useKerning)
+{
+	sglBitmap* fontSheet = sglLoadBitmap(pathToFontBitmap, SGL_PIXELFORMAT_ABGR32);
+	if (!fontSheet) return NULL;
+
+	sglFont* font = malloc(sizeof(sglFont));
+
+	font->fontSheet = fontSheet;
+	font->fontWidth = fontWidth;
+	font->fontHeight = fontHeight;
+
+	return font;
+}
+
+void sglFreeFont(sglFont* font)
+{
+	if(!font) return;
+
+	free((sglBitmap*)font->fontSheet);
+	free(font);
+}
 
 /*****************************************************************************
  * GRAPHICS FUNCTIONS                                                        *
@@ -978,6 +998,11 @@ void sglDrawBitmap(sglBuffer* buffer, const sglBitmap* bmp,
 			sglDrawPixel(buffer, r, g, b, a, bufX, bufY);
 		}
 	}
+}
+
+void sglDrawText(const char* text, int x, int y)
+{
+
 }
 
 
