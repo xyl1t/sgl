@@ -1000,9 +1000,16 @@ void sglDrawBitmap(sglBuffer* buffer, const sglBitmap* bmp,
 	}
 }
 
-void sglDrawText(const char* text, int x, int y)
+void sglDrawText(const char* text, int textLen, int x, int y, const sglFont* font)
 {
+	if (!font) return;
 
+	for (int charIdx = 0; charIdx < textLen; charIdx++) {
+		for (int letterX = 0; letterX < font->fontWidth; letterX++) {
+			for (int letterY = 0; letterY < font->fontHeight; letterY++) {
+			}
+		}
+	}
 }
 
 

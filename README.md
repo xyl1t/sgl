@@ -64,6 +64,7 @@ Implement basic drawing functions
 * [x] live demo code update
 * [ ] add more pixel formats
 * [ ] make the library header only
+* [ ] generalize `sglBuffer`'s and `sglBitmap`'s `getPixel()` function to one
 * [ ] *optimize*
 	* [ ] circle drawing
 	* [ ] arc drawing

@@ -495,7 +495,7 @@ void sglDrawColorInterpolatedTriangle(sglBuffer* buffer, int x1, int y1, int x2,
 void sglDrawBitmap(sglBuffer* buffer, const sglBitmap* bitmap,
 		const sglRect* srcRect, const sglRect* dstRect);
 
-void sglDrawText(const char* text, int x, int y);
+void sglDrawText(const char* text, int textLen, int x, int y, const sglFont* font);
 
 
 /*****************************************************************************
