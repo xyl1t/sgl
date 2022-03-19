@@ -4,6 +4,7 @@
 DEMOS(demos) {
 	// TODO: make adding demos more easy,
 	// maybe make an array of funciton pointers to the demos?
+	// FIXME: call init for all demos
 	
 	// demo1(buffer, m, k, cp + 0x00, ccp - 0x00, time, init);
 	// demo2(buffer, m, k, cp + 0x20, ccp - 0x20, time, init);
@@ -175,11 +176,11 @@ DEMOS(demo5)
 
 DEMOS(demo6)
 {
-	static sglBitmap* bmp = NULL;
+	static sglBuffer* bmp = NULL;
 	static sglRect previewRect;
 
 	if (init || !bmp) {
-		sglFreeBitmap(bmp);
+		sglFreeBuffer(bmp);
 		// bmp = sglLoadBitmap("../res/cidr.png", SGL_PIXELFORMAT_ABGR32);
 		bmp = sglLoadBitmap("../res/cidr.png", SGL_PIXELFORMAT_ABGR32);
 		SGL_DEBUG_PRINT("init bmp: %p\n", bmp);
@@ -213,10 +214,10 @@ DEMOS(demo6)
 		.h = cp[1].y - cp[0].y,
 	};
 
-	sglDrawBitmap(buffer, bmp, &src, &dst);
+	sglDrawBuffer(buffer, bmp, &src, &dst);
 
 	// draw little preview
-	sglDrawBitmap(buffer, bmp, NULL, &previewRect);
+	sglDrawBuffer(buffer, bmp, NULL, &previewRect);
 
 	drawControlPoint(cp[0], 0xaf7fefff);
 	drawControlPoint(cp[1], 0xaf7fefff);
@@ -229,7 +230,7 @@ DEMOS(demo6)
 
 	if (k[SDL_SCANCODE_S]) {
 		printf("saving bitmap...\n");
-		sglSaveBitmap(bmp, "bitmap.png", SGL_BITMAPFORMAT_PNG);
+		sglSaveBufferToFile(bmp, "bitmap.png", SGL_BITMAPFORMAT_PNG);
 	}
 
 }

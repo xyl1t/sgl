@@ -198,8 +198,8 @@ typedef struct sglBuffer {
  * @param height Height of the buffer
  * @param format Pixel format of the pixel buffer
  */
-sglBuffer* sglCreateBuffer(
-	void* pixels, uint32_t width, uint32_t height, sglPixelFormatEnum format);
+sglBuffer* sglCreateBuffer(void* pixels,
+		uint32_t width, uint32_t height, sglPixelFormatEnum format);
 /**
  * @brief Frees an sgl buffer
  * @param buffer The buffer to free
@@ -234,63 +234,26 @@ typedef enum {
 } sglBitmapFormatEnum;
 
 /**
- * @brief Struct that holds bitmap data
- */
-typedef struct sglBitmap{
-	void* data;
-	sglPixelFormat* pf;
-	int width;
-	int height;
-	int pitch;
-} sglBitmap;
-
-/**
  * @brief Load a bitmap from an image file
  * @param path Path to the image file
  * @param format The pixel format of the bitmap
  * @return Bitmap struct in the pixel format that was given or NULL if the
  * file is not found
  */
-sglBitmap* sglLoadBitmap(const char* path, sglPixelFormatEnum format);
-/**
- * @brief Frees a bitmap
- * @param bmp The bitmap to free
- */
-void sglFreeBitmap(sglBitmap* bmp);
+sglBuffer* sglLoadBitmap(const char* path, sglPixelFormatEnum format);
 /**
  * @brief Save a bitmap as an image file
- * @param bmp The bitmap to save
+ * @param buffer The buffer to save
  * @param filename The name and path to the image file
  * @param bitmapFormat The image format to save the file in (png, bmp, jpg, tga)
  * @return True if successful
  */
-bool sglSaveBitmap(const sglBitmap* bmp, const char* filename,
+bool sglSaveBufferToFile(const sglBuffer* buffer, const char* filename,
 	sglBitmapFormatEnum bitmapFormat);
-/**
- * @brief Get pixel from bitmap
- * @param bmp The bitmap to get the pixel from
- * @param x The x coordinate of the pixel
- * @param y The y coordinate of the pixel
- * @return The color of the pixel
- */
-uint32_t sglGetPixelBitmapRaw(const sglBitmap* bmp, int x, int y);
-/**
- * @brief Get pixel from bitmap
- * @param bmp The bitmap to get the pixel from
- * @param[out] r The red channel of the pixel color
- * @param[out] g The green channel of the pixel color
- * @param[out] b The blue channel of the pixel color
- * @param[out] a The alpha channel of the pixel color
- * @param x The x coordinate of the pixel
- * @param y The y coordinate of the pixel
- */
-void sglGetPixelBitmap(const sglBitmap* bmp,
-	uint8_t* r, uint8_t* g, uint8_t* b, uint8_t* a,
-	int x, int y);
 extern int sgl_jpg_quality;
 
 typedef struct sglFont {
-	const sglBitmap* fontSheet;
+	const sglBuffer* fontSheet;
 	int fontWidth;
 	int fontHeight;
 } sglFont;
@@ -353,7 +316,7 @@ void sglDrawPixel(sglBuffer* buffer, uint8_t r, uint8_t g, uint8_t b, uint8_t a,
  * @param x x coordinate of pixel
  * @param y y coordinate of pixel
  */
-uint32_t sglGetPixelRaw(sglBuffer* buffer, int x, int y);
+uint32_t sglGetPixelRaw(const sglBuffer* buffer, int x, int y);
 
 /**
  * @brief get pixel in buffer
@@ -492,7 +455,7 @@ void sglFillTriangle(sglBuffer* buffer, uint32_t color, int x1, int y1, int x2,
 void sglDrawColorInterpolatedTriangle(sglBuffer* buffer, int x1, int y1, int x2,
 	int y2, int x3, int y3, uint32_t c1, uint32_t c2, uint32_t c3);
 
-void sglDrawBitmap(sglBuffer* buffer, const sglBitmap* bitmap,
+void sglDrawBuffer(sglBuffer* buffer, const sglBuffer* bitmap,
 		const sglRect* srcRect, const sglRect* dstRect);
 
 void sglDrawText(const char* text, int textLen, int x, int y, const sglFont* font);

@@ -195,6 +195,7 @@ sglBuffer* sglCreateBuffer(
 
 void sglFreeBuffer(sglBuffer* buffer)
 {
+	if (!buffer) return;
 	// don't free the pixels for the caller!
 	// free(buffer->pixels);
 	free(buffer->pf);
@@ -228,9 +229,9 @@ void sglResetClipRect(sglBuffer* buffer)
 }
 
 
-sglBitmap* sglLoadBitmap(const char* path, sglPixelFormatEnum format)
+sglBuffer* sglLoadBitmap(const char* path, sglPixelFormatEnum format)
 {
-	sglBitmap* bmp = malloc(sizeof(sglBitmap));
+	sglBuffer* bmp = malloc(sizeof(sglBuffer));
 
 	int imgChannels;
 	uint8_t* data = stbi_load(path, &bmp->width, &bmp->height, &imgChannels, 0);
@@ -241,7 +242,7 @@ sglBitmap* sglLoadBitmap(const char* path, sglPixelFormatEnum format)
 	}
 
 	bmp->pf = sglCreatePixelFormat(format);
-	bmp->data = malloc(bmp->width * bmp->height * bmp->pf->bytesPerPixel);
+	bmp->pixels = malloc(bmp->width * bmp->height * bmp->pf->bytesPerPixel);
 	bmp->pitch = bmp->width * bmp->pf->bytesPerPixel;
 
 	for (int x = 0; x < bmp->width; x++) {
@@ -251,7 +252,7 @@ sglBitmap* sglLoadBitmap(const char* path, sglPixelFormatEnum format)
 			uint8_t b = data[(x + y * bmp->width) * imgChannels + 2];
 			uint8_t a = imgChannels == 4 ? data[(x + y * bmp->width) * imgChannels + 3] : 0xff;
 
-			((uint32_t*)bmp->data)[x + y * bmp->width] = sglMapRGBA(r, g, b, a, bmp->pf);
+			((uint32_t*)bmp->pixels)[x + y * bmp->width] = sglMapRGBA(r, g, b, a, bmp->pf);
 		}
 	}
 
@@ -260,19 +261,11 @@ sglBitmap* sglLoadBitmap(const char* path, sglPixelFormatEnum format)
 	return bmp;
 }
 
-void sglFreeBitmap(sglBitmap* bmp)
-{
-	if (bmp) {
-		free(bmp->pf);
-		free(bmp);
-	}
-}
-
-bool sglSaveBitmap(const sglBitmap* bmp, const char* filename, sglBitmapFormatEnum bitmapFormat)
+bool sglSaveBufferToFile(const sglBuffer* bmp, const char* filename, sglBitmapFormatEnum bitmapFormat)
 {
 	uint32_t* data = malloc(bmp->width * bmp->height * sizeof(uint32_t));
 	sglBuffer* dataBuffer = sglCreateBuffer(data, bmp->width, bmp->height, SGL_PIXELFORMAT_RGBA32);
-	sglDrawBitmap(dataBuffer, bmp, NULL, NULL);
+	sglDrawBuffer(dataBuffer, bmp, NULL, NULL);
 	sglFreeBuffer(dataBuffer);
 
 	switch (bitmapFormat) {
@@ -311,34 +304,10 @@ bool sglSaveBitmap(const sglBitmap* bmp, const char* filename, sglBitmapFormatEn
 	return false;
 }
 
-uint32_t sglGetPixelBitmapRaw(const sglBitmap* bmp, int x, int y)
-{
-	switch (bmp->pf->bytesPerPixel) {
-	case 1:
-		return *((uint8_t*)bmp->data + (y * bmp->width + x));
-		break;
-
-	case 2:
-		return *((uint16_t*)bmp->data + (y * bmp->width + x));
-		break;
-
-	case 3:
-		sglError(
-			"Unsupported pixel format (3 bytes per pixel are not supported)");
-		break;
-
-	case 4:
-		return *((uint32_t*)bmp->data + (y * bmp->width + x));
-		break;
-	}
-	return 0;
-}
-
-
 sglFont* sglCreateFont(const char* pathToFontBitmap, int fontWidth, int fontHeight,
 	bool useKerning)
 {
-	sglBitmap* fontSheet = sglLoadBitmap(pathToFontBitmap, SGL_PIXELFORMAT_ABGR32);
+	sglBuffer* fontSheet = sglLoadBitmap(pathToFontBitmap, SGL_PIXELFORMAT_ABGR32);
 	if (!fontSheet) return NULL;
 
 	sglFont* font = malloc(sizeof(sglFont));
@@ -354,7 +323,7 @@ void sglFreeFont(sglFont* font)
 {
 	if(!font) return;
 
-	free((sglBitmap*)font->fontSheet);
+	sglFreeBuffer((sglBuffer*)font->fontSheet);
 	free(font);
 }
 
@@ -445,7 +414,7 @@ void sglDrawPixel(
 	sglDrawPixelRaw(buffer, sglMapRGBA(r, g, b, a, buffer->pf), x, y);
 }
 
-uint32_t sglGetPixelRaw(sglBuffer* buffer, int x, int y)
+uint32_t sglGetPixelRaw(const sglBuffer* buffer, int x, int y)
 {
 #ifdef SGL_CHECK_BUFFER_BOUNDS
 	if (x < 0 || y < 0 || x >= buffer->width || y >= buffer->height)
@@ -940,7 +909,7 @@ void sglDrawColorInterpolatedTriangle(sglBuffer* buffer, int x1, int y1, int x2,
 	}
 }
 
-void sglDrawBitmap(sglBuffer* buffer, const sglBitmap* bmp,
+void sglDrawBuffer(sglBuffer* buffer, const sglBuffer* bmp,
 		const sglRect* srcRect, const sglRect* dstRect)
 {
 	sglRect bmpClipRect = { 0, 0, buffer->width, buffer->height };
@@ -988,7 +957,7 @@ void sglDrawBitmap(sglBuffer* buffer, const sglBitmap* bmp,
 			if (!sglIsPointInRect(&bmpRect, bmpX, bmpY)) continue;
 
 			uint8_t r, g, b, a;
-			sglGetRGBA(sglGetPixelBitmapRaw(bmp, bmpX, bmpY), bmp->pf, &r, &g, &b, &a);
+			sglGetRGBA(sglGetPixelRaw(bmp, bmpX, bmpY), bmp->pf, &r, &g, &b, &a);
 
 			// SGL_DEBUG_PRINT("r: %d\n", r);
 			// SGL_DEBUG_PRINT("g: %d\n", g);
