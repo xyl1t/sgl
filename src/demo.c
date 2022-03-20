@@ -2,16 +2,17 @@
 #include "sgl.h"
 
 DEMOS(demos) {
-	// TODO: make adding demos more easy,
-	// maybe make an array of funciton pointers to the demos?
+	// TODO: make adding demos more easy, maybe make an array of
+	// funciton pointers to the demos?
+	// TODO: switching between demos (using numbers?)
 	// FIXME: call init for all demos
 	
 	// demo1(buffer, m, k, cp + 0x00, ccp - 0x00, time, init);
 	// demo2(buffer, m, k, cp + 0x20, ccp - 0x20, time, init);
 	// demo3(buffer, m, k, cp + 0x30, ccp - 0x30, time, init);
 	// demo4(buffer, m, k, cp + 0x40, ccp - 0x40, time, init);
-	// demo5(buffer, m, k, cp + 0x50, ccp - 0x50, time, init);
-	demo6(buffer, m, k, cp + 0x60, ccp - 0x60, time, init);
+	demo5(buffer, m, k, cp + 0x50, ccp - 0x50, time, init);
+	// demo6(buffer, m, k, cp + 0x60, ccp - 0x60, time, init);
 	// printf("hallo\n");
 }
 
@@ -193,7 +194,7 @@ DEMOS(demo6)
 		previewRect.y = 8;
 
 		// result
-		cp[0] = (sglPoint){ .x = 16, .y = 16 };
+		cp[0] = (sglPoint){ .x = 32, .y = 32 };
 		cp[1] = (sglPoint){ .x = bmp->width-16, .y = bmp->height-16 };
 
 		// preview
@@ -221,7 +222,7 @@ DEMOS(demo6)
 	// draw little preview
 	sglDrawBuffer(buffer, bmp, NULL, &previewRect);
 
-	sglDrawText(buffer, "This is a little test", 8, 8, font);
+	sglDrawText(buffer, "123456789\ntest\ta little test", 8, 8, font);
 
 	drawControlPoint(cp[0], 0xaf7fefff);
 	drawControlPoint(cp[1], 0xaf7fefff);

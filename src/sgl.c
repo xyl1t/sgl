@@ -977,9 +977,27 @@ void sglDrawText(sglBuffer* buffer, const char* text, int x, int y,
 	int charRows = font->fontSheet->width / font->fontWidth;
 	int charCols = font->fontSheet->height / font->fontHeight;
 
+	int cursorRow = 0;
+	int cursorCol = 0;
+
 	for (int charIdx = 0; text[charIdx] != '\0'; charIdx++) {
-		int letterBmpX = text[charIdx] % charCols;
-		int letterBmpY = text[charIdx] / charRows;
+		char currentChar = text[charIdx];
+		int letterBmpX = currentChar % charCols;
+		int letterBmpY = currentChar / charRows;
+
+		if (currentChar == '\n') {
+			cursorCol = 0;
+			cursorRow++;
+			continue;
+		}
+
+		if (currentChar == '\t') {
+			// NOTE: the 4 is the tab size
+			cursorCol += 4 - (cursorCol) % 4;
+			continue;
+		}
+
+		cursorCol++;
 
 		for (int fontPixelX = 0; fontPixelX < font->fontWidth; fontPixelX++) {
 			for (int fontPixelY = 0; fontPixelY < font->fontHeight; fontPixelY++) {
@@ -989,9 +1007,9 @@ void sglDrawText(sglBuffer* buffer, const char* text, int x, int y,
 					letterBmpY * font->fontHeight + fontPixelY);
 
 				if (r != 0) {
-					sglDrawPixel(buffer,
-						r, g, b, a,
-						x + fontPixelX + charIdx * font->fontWidth, y + fontPixelY);
+					sglDrawPixel(buffer, r, g, b, a,
+						x + fontPixelX + cursorCol * font->fontWidth,
+						y + fontPixelY + cursorRow * font->fontHeight);
 				}
 			}
 		}
