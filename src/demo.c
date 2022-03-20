@@ -176,14 +176,16 @@ DEMOS(demo5)
 
 DEMOS(demo6)
 {
+	static sglFont* font;
 	static sglBuffer* bmp = NULL;
 	static sglRect previewRect;
 
 	if (init || !bmp) {
+		sglFreeFont(font);
 		sglFreeBuffer(bmp);
-		// bmp = sglLoadBitmap("../res/cidr.png", SGL_PIXELFORMAT_ABGR32);
 		bmp = sglLoadBitmap("../res/cidr.png", SGL_PIXELFORMAT_ABGR32);
-		SGL_DEBUG_PRINT("init bmp: %p\n", bmp);
+
+		font = sglCreateFont("../res/xterm7x14.png", 7, 14, true);
 
 		previewRect.w = 48;
 		previewRect.h = bmp->height / (float)bmp->width * previewRect.w;
@@ -218,6 +220,8 @@ DEMOS(demo6)
 
 	// draw little preview
 	sglDrawBuffer(buffer, bmp, NULL, &previewRect);
+
+	sglDrawText(buffer, "This is a little test", 8, 8, font);
 
 	drawControlPoint(cp[0], 0xaf7fefff);
 	drawControlPoint(cp[1], 0xaf7fefff);

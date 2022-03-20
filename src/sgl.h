@@ -328,7 +328,7 @@ uint32_t sglGetPixelRaw(const sglBuffer* buffer, int x, int y);
  * @param[out] b Pointer to blue component
  * @param[out] a Pointer to alpha component
  */
-void sglGetPixel(sglBuffer* buffer, uint8_t* r, uint8_t* g, uint8_t* b,
+void sglGetPixel(const sglBuffer* buffer, uint8_t* r, uint8_t* g, uint8_t* b,
 	uint8_t* a, int x, int y);
 
 /**
@@ -458,7 +458,8 @@ void sglDrawColorInterpolatedTriangle(sglBuffer* buffer, int x1, int y1, int x2,
 void sglDrawBuffer(sglBuffer* buffer, const sglBuffer* bitmap,
 		const sglRect* srcRect, const sglRect* dstRect);
 
-void sglDrawText(const char* text, int textLen, int x, int y, const sglFont* font);
+void sglDrawText(sglBuffer* buffer, const char* text, int x, int y,
+		const sglFont* font);
 
 
 /*****************************************************************************

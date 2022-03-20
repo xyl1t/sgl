@@ -443,7 +443,7 @@ uint32_t sglGetPixelRaw(const sglBuffer* buffer, int x, int y)
 	return 0;
 }
 
-void sglGetPixel(sglBuffer* buffer, uint8_t* r, uint8_t* g, uint8_t* b,
+void sglGetPixel(const sglBuffer* buffer, uint8_t* r, uint8_t* g, uint8_t* b,
 	uint8_t* a, int x, int y)
 {
 
@@ -969,13 +969,30 @@ void sglDrawBuffer(sglBuffer* buffer, const sglBuffer* bmp,
 	}
 }
 
-void sglDrawText(const char* text, int textLen, int x, int y, const sglFont* font)
+void sglDrawText(sglBuffer* buffer, const char* text, int x, int y,
+		const sglFont* font)
 {
 	if (!font) return;
 
-	for (int charIdx = 0; charIdx < textLen; charIdx++) {
-		for (int letterX = 0; letterX < font->fontWidth; letterX++) {
-			for (int letterY = 0; letterY < font->fontHeight; letterY++) {
+	int charRows = font->fontSheet->width / font->fontWidth;
+	int charCols = font->fontSheet->height / font->fontHeight;
+
+	for (int charIdx = 0; text[charIdx] != '\0'; charIdx++) {
+		int letterBmpX = text[charIdx] % charCols;
+		int letterBmpY = text[charIdx] / charRows;
+
+		for (int fontPixelX = 0; fontPixelX < font->fontWidth; fontPixelX++) {
+			for (int fontPixelY = 0; fontPixelY < font->fontHeight; fontPixelY++) {
+				uint8_t r, g, b, a;
+				sglGetPixel(font->fontSheet, &r, &g, &b, &a,
+					letterBmpX * font->fontWidth + fontPixelX,
+					letterBmpY * font->fontHeight + fontPixelY);
+
+				if (r != 0) {
+					sglDrawPixel(buffer,
+						r, g, b, a,
+						x + fontPixelX + charIdx * font->fontWidth, y + fontPixelY);
+				}
 			}
 		}
 	}
