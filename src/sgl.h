@@ -254,6 +254,7 @@ extern int sgl_jpg_quality;
 
 typedef struct sglFont {
 	const sglBuffer* fontSheet;
+	int kern[255];
 	int fontWidth;
 	int fontHeight;
 } sglFont;
