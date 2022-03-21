@@ -997,8 +997,6 @@ void sglDrawText(sglBuffer* buffer, const char* text, int x, int y,
 			continue;
 		}
 
-		cursorCol++;
-
 		for (int fontPixelX = 0; fontPixelX < font->fontWidth; fontPixelX++) {
 			for (int fontPixelY = 0; fontPixelY < font->fontHeight; fontPixelY++) {
 				uint8_t r, g, b, a;
@@ -1006,13 +1004,15 @@ void sglDrawText(sglBuffer* buffer, const char* text, int x, int y,
 					letterBmpX * font->fontWidth + fontPixelX,
 					letterBmpY * font->fontHeight + fontPixelY);
 
-				if (r != 0) {
+					if (r != 0) {
 					sglDrawPixel(buffer, r, g, b, a,
 						x + fontPixelX + cursorCol * font->fontWidth,
 						y + fontPixelY + cursorRow * font->fontHeight);
 				}
 			}
 		}
+
+		cursorCol++;
 	}
 }
 
@@ -1124,6 +1124,75 @@ bool sglClipLine(const sglRect* clipRect, int startX, int startY, int endX,
 	} else {
 		*cstartX = *cstartY = *cendX = *cendY = 0;
 		return 0;
+	}
+}
+
+sglRect sglCalculateTextBoundingBox(const char* text, const sglFont* font) {
+	int cursorRow = 0;
+	int cursorCol = 0;
+	int maxCursorCol = 0;
+
+	for (int charIdx = 0; text[charIdx] != '\0'; charIdx++) {
+		char currentChar = text[charIdx];
+
+		if (currentChar == '\n') {
+			cursorCol = 0;
+			cursorRow++;
+		} else if (currentChar == '\t') {
+			// NOTE: the 4 is the tab size
+			cursorCol += 4 - (cursorCol) % 4;
+		} else {
+			cursorCol++;
+		}
+
+		if (maxCursorCol < cursorCol) {
+			maxCursorCol = cursorCol;
+		}
+	}
+
+	return (sglRect){
+		.x = 0,
+		.y = 0,
+		.w = maxCursorCol * font->fontWidth,
+		.h = (cursorRow+1) * font->fontHeight
+	};
+}
+
+int sglOffsetTextH(const char* text, sglTextAlignment alignment, const sglFont* font)
+{
+	if (!text) return 0;
+
+	switch (alignment) {
+		case SGL_TEXT_ALIGNMENT_LEFT:
+			return 0;
+			break;
+		case SGL_TEXT_ALIGNMENT_CENTER:
+			return -sglCalculateTextBoundingBox(text, font).w/2;
+			break;
+		case SGL_TEXT_ALIGNMENT_RIGHT:
+			return -sglCalculateTextBoundingBox(text, font).w;
+			break;
+		default:
+			return 0;
+	}
+}
+
+int sglOffsetTextV(const char* text, sglTextAlignment alignment, const sglFont* font)
+{
+	if (!text || !font) return 0;
+
+	switch (alignment) {
+		case SGL_TEXT_ALIGNMENT_TOP:
+			return 0;
+			break;
+		case SGL_TEXT_ALIGNMENT_CENTER:
+			return -sglCalculateTextBoundingBox(text, font).h/2;
+			break;
+		case SGL_TEXT_ALIGNMENT_BOTTOM:
+			return -sglCalculateTextBoundingBox(text, font).h;
+			break;
+		default:
+			return 0;
 	}
 }
 

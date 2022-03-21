@@ -457,10 +457,10 @@ void sglDrawColorInterpolatedTriangle(sglBuffer* buffer, int x1, int y1, int x2,
 	int y2, int x3, int y3, uint32_t c1, uint32_t c2, uint32_t c3);
 
 void sglDrawBuffer(sglBuffer* buffer, const sglBuffer* bitmap,
-		const sglRect* srcRect, const sglRect* dstRect);
+	const sglRect* srcRect, const sglRect* dstRect);
 
 void sglDrawText(sglBuffer* buffer, const char* text, int x, int y,
-		const sglFont* font);
+	const sglFont* font);
 
 
 /*****************************************************************************
@@ -539,6 +539,25 @@ float sglGetDistance(float a_x, float a_y, float b_x, float b_y);
  */
 bool sglClipLine(const sglRect* clipRect, int startX, int startY, int endX,
 	int endY, int* cstartX, int* cstartY, int* cendX, int* cendY);
+
+typedef enum {
+	SGL_TEXT_ALIGNMENT_LEFT   = 0,
+	SGL_TEXT_ALIGNMENT_TOP    = 0,
+	SGL_TEXT_ALIGNMENT_CENTER = 1,
+	SGL_TEXT_ALIGNMENT_RIGHT  = 2,
+	SGL_TEXT_ALIGNMENT_BOTTOM = 2,
+} sglTextAlignment;
+
+/**
+ * @brief Calculates horizontal offset for given text
+ */
+int sglOffsetTextH(const char* text, sglTextAlignment alignment, const sglFont* font);
+
+/**
+ * @brief Calculates vertical offset for given text
+ */
+int sglOffsetTextV(const char* text, sglTextAlignment alignment, const sglFont* font);
+
 
 /**
  * @brief Map single rgba values to a 32 bit uint32_t using a pixel format

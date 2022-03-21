@@ -1,7 +1,7 @@
 #include "demo.h"
 #include "sgl.h"
 
-static sglFont* font;
+// static sglFont* font;
 
 DEMOS(demos) {
 	// TODO: make adding demos more easy, maybe make an array of
@@ -9,10 +9,10 @@ DEMOS(demos) {
 	// TODO: switching between demos (using numbers?)
 	// FIXME: call init for all demos
 	
-	if (init) {
-		sglFreeFont(font);
-		font = sglCreateFont("../res/xterm7x14.png", 7, 14, true);
-	}
+	// if (init) {
+	// 	sglFreeFont(font);
+	// 	font = sglCreateFont("../res/xterm7x14.png", 7, 14, true);
+	// }
 
 	// demo1(buffer, m, k, cp + 0x00, ccp - 0x00, time, init);
 	// demo2(buffer, m, k, cp + 0x20, ccp - 0x20, time, init);
@@ -186,10 +186,14 @@ DEMOS(demo6)
 {
 	static sglBuffer* bmp = NULL;
 	static sglRect previewRect;
+	static sglFont* font;
 
 	if (init || !bmp) {
 		sglFreeBuffer(bmp);
 		bmp = sglLoadBitmap("../res/cidr.png", SGL_PIXELFORMAT_ABGR32);
+
+		sglFreeFont(font);
+		font = sglCreateFont("../res/xterm7x14.png", 7, 14, true);
 
 		previewRect.w = 48;
 		previewRect.h = bmp->height / (float)bmp->width * previewRect.w;
@@ -197,7 +201,7 @@ DEMOS(demo6)
 		previewRect.y = 8;
 
 		// result
-		cp[0] = (sglPoint){ .x = 32, .y = 32 };
+		cp[0] = (sglPoint){ .x = 8, .y = 8 };
 		cp[1] = (sglPoint){ .x = bmp->width-16, .y = bmp->height-16 };
 
 		// preview
@@ -225,7 +229,11 @@ DEMOS(demo6)
 	// draw little preview
 	sglDrawBuffer(buffer, bmp, NULL, &previewRect);
 
-	sglDrawText(buffer, "123456789\ntest\ta little test", 8, 8, font);
+	const char* text = "Preview";
+	sglDrawText(buffer, text,
+		previewRect.x + previewRect.w / 2 + sglOffsetTextH(text, SGL_TEXT_ALIGNMENT_CENTER, font),
+		previewRect.y + previewRect.h + 2,
+		font);
 
 	drawControlPoint(cp[0], 0xaf7fefff);
 	drawControlPoint(cp[1], 0xaf7fefff);
