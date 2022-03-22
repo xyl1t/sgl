@@ -3,16 +3,33 @@
 
 // static sglFont* font;
 
+DEMOS(demo1);
+DEMOS(demo2);
+DEMOS(demo3);
+DEMOS(demo4);
+DEMOS(demo5);
+DEMOS(demo6);
+
 DEMOS(demos) {
 	// TODO: make adding demos more easy, maybe make an array of
 	// funciton pointers to the demos?
 	// TODO: switching between demos (using numbers?)
 	// FIXME: call init for all demos
 	
-	// if (init) {
-	// 	sglFreeFont(font);
-	// 	font = sglCreateFont("../res/xterm7x14.png", 7, 14, true);
-	// }
+	if (init) {
+		// sglFreeFont(font);
+		// font = sglCreateFont("../res/xterm7x14.png", 7, 14, true);
+
+#define initDemoArr(demoNum) \
+	demoArr[demoNum] = demo##demoNum;
+
+		// demoArr[5] = demo6;
+		for (int i = 0; i < DEMOS_COUNT; i++) {
+			// initDemoArr(i);
+		}
+
+#undef initDemoArr
+	}
 
 	// demo1(buffer, m, k, cp + 0x00, ccp - 0x00, time, init);
 	// demo2(buffer, m, k, cp + 0x20, ccp - 0x20, time, init);
