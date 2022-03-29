@@ -112,9 +112,10 @@ int main(int argc, char* argv[])
 	// NOTE: 0xF(=16) demos and every demo has 0xF(=16) control points
 	sglPoint controlPoints[0xFF] = {0};
 	int currentControlPoint = -1;
+	int currDemo = 1;
 
 	demos_f* dyDemos = reloadDemos(NULL);
-	dyDemos(buffer, &m, keyboard, controlPoints, currentControlPoint, 0, true);
+	dyDemos(0, buffer, &m, keyboard, controlPoints, currentControlPoint, 0, true);
 	time_t demoLibCreationTime = getFileTimestamp(demoLibPath);
 	time_t now = demoLibCreationTime;
 
@@ -133,7 +134,10 @@ int main(int argc, char* argv[])
 				if (event.key.keysym.sym == SDLK_r) {
 					SGL_DEBUG_PRINT("Reloading %s...\n", demoLibPath);
 					dyDemos = reloadDemos(NULL);
-					dyDemos(buffer, &m, keyboard, controlPoints, currentControlPoint, 0, true);
+					dyDemos(0, buffer, &m, keyboard, controlPoints, currentControlPoint, 0, true);
+				}
+				if (event.key.keysym.sym >= SDLK_1 && event.key.keysym.sym <= SDLK_9) {
+					currDemo = event.key.keysym.sym - SDLK_1 + 1;
 				}
 				break;
 			case SDL_KEYUP:
@@ -184,7 +188,7 @@ int main(int argc, char* argv[])
 		sglClear(buffer);
 		sglResetClipRect(buffer);
 
-		dyDemos(buffer, &m, keyboard, controlPoints, currentControlPoint, tic, false);
+		dyDemos(currDemo, buffer, &m, keyboard, controlPoints, currentControlPoint, tic, false);
 
 		//////////////////////////////////////////////////////////////////////
 

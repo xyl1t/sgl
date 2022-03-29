@@ -9,6 +9,7 @@ DEMOS(demo3);
 DEMOS(demo4);
 DEMOS(demo5);
 DEMOS(demo6);
+DEMOS(demo7);
 
 DEMOS(demos) {
 	// TODO: make adding demos more easy, maybe make an array of
@@ -21,22 +22,29 @@ DEMOS(demos) {
 		// font = sglCreateFont("../res/xterm7x14.png", 7, 14, true);
 
 #define initDemoArr(demoNum) \
-	demoArr[demoNum] = demo##demoNum;
+	demoArr[demoNum-1] = demo##demoNum; \
+	demoArr[demoNum-1](0, buffer, m, k, cp + 0x10 * (demoNum - 1), ccp - 0x10 * (demoNum - 1), time, init);
 
-		// demoArr[5] = demo6;
-		for (int i = 0; i < DEMOS_COUNT; i++) {
-			// initDemoArr(i);
-		}
+		initDemoArr(1);
+		initDemoArr(2);
+		initDemoArr(3);
+		initDemoArr(4);
+		initDemoArr(5);
+		initDemoArr(6);
+		initDemoArr(7);
 
 #undef initDemoArr
+		return;
 	}
 
-	// demo1(buffer, m, k, cp + 0x00, ccp - 0x00, time, init);
-	// demo2(buffer, m, k, cp + 0x20, ccp - 0x20, time, init);
-	// demo3(buffer, m, k, cp + 0x30, ccp - 0x30, time, init);
-	// demo4(buffer, m, k, cp + 0x40, ccp - 0x40, time, init);
-	// demo5(buffer, m, k, cp + 0x50, ccp - 0x50, time, init);
-	demo6(buffer, m, k, cp + 0x60, ccp - 0x60, time, init);
+	// SGL_DEBUG_PRINT("currDemo: %d\n", currDemo);
+	demoArr[currDemo-1](currDemo, buffer, m, k, cp + 0x10 * (currDemo - 1), ccp - 0x10 * (currDemo - 1), time, init);
+	// demo1(currDemo, buffer, m, k, cp + 0x00, ccp - 0x00, time, init);
+	// demo2(currDemo, buffer, m, k, cp + 0x10, ccp - 0x10, time, init);
+	// demo3(currDemo, buffer, m, k, cp + 0x20, ccp - 0x20, time, init);
+	// demo4(currDemo, buffer, m, k, cp + 0x30, ccp - 0x30, time, init);
+	// demo5(currDemo, buffer, m, k, cp + 0x40, ccp - 0x40, time, init);
+	// demo6(currDemo, buffer, m, k, cp + 0x50, ccp - 0x50, time, init);
 	// printf("hallo\n");
 }
 
@@ -265,6 +273,20 @@ DEMOS(demo6)
 		printf("saving bitmap...\n");
 		sglSaveBufferToFile(bmp, "bitmap.png", SGL_BITMAPFORMAT_PNG);
 	}
+
+}
+
+DEMOS(demo7)
+{
+	static sglFont* font = NULL;
+
+	if (init) {
+		sglFreeFont(font);
+		font = sglCreateFont("../res/xterm7x14.png", 7, 14, true);
+
+		return;
+	}
+
 
 }
 
