@@ -316,6 +316,49 @@ sglFont* sglCreateFont(const char* pathToFontBitmap, int fontWidth, int fontHeig
 	font->fontWidth = fontWidth;
 	font->fontHeight = fontHeight;
 
+	if (useKerning) {
+		int cols = fontSheet->width / fontWidth;
+		int rows = fontSheet->height / fontHeight;
+
+#define getKern(_char_x, _char_y, side) \
+	font->kern[_char_x * 2 + _char_y * cols * 2 + side]
+#define leftSide 0
+#define rightSide 1
+
+		for (int col = 0; col < cols; col++) {
+			for (int row = 0; row < rows; row++) {
+
+				for (int y = 0; y < fontHeight; y++) {
+					for (int xl = 0, xr = fontWidth-1; xl < fontWidth; xl++, xr--) {
+
+						uint8_t leftVal;
+						sglGetPixel(fontSheet,
+								&leftVal, NULL, NULL, NULL,
+								col * fontWidth + xl,
+								row * fontHeight + y);
+
+						uint8_t rightVal;
+						sglGetPixel(fontSheet,
+								&rightVal, NULL, NULL, NULL,
+								col * fontWidth + xr,
+								row * fontHeight + y);
+
+						// int* currentKern = &font->kern[col + row * cols];
+
+						if (leftVal && !getKern(col, row, leftSide)) {
+							getKern(col, row, leftSide) = xl;
+						}
+						
+						if (rightVal && !getKern(col, row, rightSide)) {
+							getKern(col, row, rightSide) = xr;
+						}
+
+					}
+				}
+			}
+		}
+	}
+
 	return font;
 }
 
