@@ -229,6 +229,7 @@ void sglResetClipRect(sglBuffer* buffer)
 }
 
 
+// NOTE: maybe the clip rect should be set to the size of the buffer
 sglBuffer* sglLoadBitmap(const char* path, sglPixelFormatEnum format)
 {
 	sglBuffer* bmp = malloc(sizeof(sglBuffer));
@@ -242,8 +243,13 @@ sglBuffer* sglLoadBitmap(const char* path, sglPixelFormatEnum format)
 	}
 
 	bmp->pf = sglCreatePixelFormat(format);
+	// FIXME: mallocing pixel data but not freeing!!
 	bmp->pixels = malloc(bmp->width * bmp->height * bmp->pf->bytesPerPixel);
 	bmp->pitch = bmp->width * bmp->pf->bytesPerPixel;
+	bmp->clipRect = (sglRect){
+		.x = 0, .y = 0,
+		.w = bmp->width, .h = bmp->height
+	};
 
 	for (int x = 0; x < bmp->width; x++) {
 		for (int y = 0; y < bmp->height; y++) {
@@ -320,16 +326,14 @@ sglFont* sglCreateFont(const char* pathToFontBitmap, int fontWidth, int fontHeig
 		int cols = fontSheet->width / fontWidth;
 		int rows = fontSheet->height / fontHeight;
 
-#define getKern(_char_x, _char_y, side) \
-	font->kern[_char_x * 2 + _char_y * cols * 2 + side]
-#define leftSide 0
-#define rightSide 1
-
 		for (int col = 0; col < cols; col++) {
 			for (int row = 0; row < rows; row++) {
 
-				for (int y = 0; y < fontHeight; y++) {
-					for (int xl = 0, xr = fontWidth-1; xl < fontWidth; xl++, xr--) {
+				for (int xl = 0, xr = fontWidth-1; xl < fontWidth; xl++, xr--) {
+					for (int y = 0; y < fontHeight; y++) {
+
+						int minLeftVal = fontWidth;
+						int maxRightVal = 0;
 
 						uint8_t leftVal;
 						sglGetPixel(fontSheet,
@@ -345,13 +349,28 @@ sglFont* sglCreateFont(const char* pathToFontBitmap, int fontWidth, int fontHeig
 
 						// int* currentKern = &font->kern[col + row * cols];
 
-						if (leftVal && !getKern(col, row, leftSide)) {
-							getKern(col, row, leftSide) = xl;
+						// FIXME: this is not working..
+						// NOTE: also the drawing is not effecitve... put it in the demo
+						// LEFT KERN
+						if (leftVal < minLeftVal) {
+							minLeftVal = leftVal;
+							// sglGetKern(font, col, row, sglLeftKern) = xl;
+							sglDrawPixel(font->fontSheet,
+									0xff, 0, 0, 0xff,
+									col * fontWidth + xl,
+									row * fontHeight + y);
 						}
 						
-						if (rightVal && !getKern(col, row, rightSide)) {
-							getKern(col, row, rightSide) = xr;
+						// RIGHT KERN
+						if (rightVal > maxRightVal) {
+							maxRightVal = rightVal;
+							// sglGetKern(font, col, row, sglRightKern) = xr;
+							sglDrawPixel(font->fontSheet,
+									0, 0xff, 0, 0xff,
+									col * fontWidth + xr,
+									row * fontHeight + y);
 						}
+
 
 					}
 				}

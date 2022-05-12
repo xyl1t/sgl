@@ -35,6 +35,11 @@
 
 #define sgl_member_size(type, member) sizeof(((type*)0)->member)
 
+#define sglGetKern(font, _char_x, _char_y, side) \
+	font->kern[_char_x * 2 + _char_y * (font->fontSheet->width / font->fontWidth) * 2 + side]
+#define sglLeftKern 0
+#define sglRightKern 1
+
 /*****************************************************************************
  * STATE VARIABLES                                                           *
  *****************************************************************************/
@@ -253,7 +258,7 @@ bool sglSaveBufferToFile(const sglBuffer* buffer, const char* filename,
 extern int sgl_jpg_quality;
 
 typedef struct sglFont {
-	const sglBuffer* fontSheet;
+	/* const */ sglBuffer* fontSheet;
 	int kern[255*2];
 	int fontWidth;
 	int fontHeight;

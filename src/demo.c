@@ -287,6 +287,18 @@ DEMOS(demo7)
 		return;
 	}
 
+	sglRect r = {
+		8, 8,
+		font->fontSheet->width,
+		font->fontSheet->height,
+	};
+
+	// SGL_DEBUG_PRINT("x: %d\n", r.x);
+	// SGL_DEBUG_PRINT("y: %d\n", r.y);
+	// SGL_DEBUG_PRINT("w: %d\n", r.w);
+	// SGL_DEBUG_PRINT("h: %d\n\n", r.h);
+
+	sglDrawBuffer(buffer, font->fontSheet, NULL, &r);
 
 }
 
