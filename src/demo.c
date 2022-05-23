@@ -298,6 +298,8 @@ DEMOS(demo7)
 	// SGL_DEBUG_PRINT("w: %d\n", r.w);
 	// SGL_DEBUG_PRINT("h: %d\n\n", r.h);
 
+	// TODO: draw font sheet and draw kerning lines on top
+
 	sglDrawBuffer(buffer, font->fontSheet, NULL, &r);
 
 }
