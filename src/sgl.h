@@ -471,6 +471,14 @@ void sglDrawColorInterpolatedTriangle(sglBuffer* buffer, int x1, int y1, int x2,
 void sglDrawBuffer(sglBuffer* buffer, const sglBuffer* src,
 	const sglRect* srcRect, const sglRect* dstRect);
 
+/**
+ * @brief Draw text on a buffer using a font
+ * @param buffer the buffer to draw on
+ * @param text text to draw
+ * @param x x location of text
+ * @param y y location of text
+ * @param font the font to use
+ */
 void sglDrawText(sglBuffer* buffer, const char* text, int x, int y,
 	const sglFont* font);
 
@@ -562,11 +570,13 @@ typedef enum {
 
 /**
  * @brief Calculates horizontal offset for given text
+ * @return offset value for alignment
  */
 int sglOffsetTextH(const char* text, sglTextAlignment alignment, const sglFont* font);
 
 /**
  * @brief Calculates vertical offset for given text
+ * @return offset value for alignment
  */
 int sglOffsetTextV(const char* text, sglTextAlignment alignment, const sglFont* font);
 
