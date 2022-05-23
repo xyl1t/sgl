@@ -323,52 +323,53 @@ sglFont* sglCreateFont(const char* pathToFontBitmap, int fontWidth, int fontHeig
 	font->fontHeight = fontHeight;
 
 	if (useKerning) {
-		int cols = fontSheet->width / fontWidth;
-		int rows = fontSheet->height / fontHeight;
+		int characterCols = fontSheet->width / fontWidth;
+		int characterRows = fontSheet->height / fontHeight;
 
-		for (int col = 0; col < cols; col++) {
-			for (int row = 0; row < rows; row++) {
+		for (int letterX = 0; letterX < characterCols; letterX++) {
+			for (int letterY = 0; letterY < characterRows; letterY++) {
 
-				for (int xl = 0, xr = fontWidth-1; xl < fontWidth; xl++, xr--) {
-					for (int y = 0; y < fontHeight; y++) {
+				bool wasLeft = false, wasRight = false;
+				for (int subXLeft = 0, subXRight = fontWidth - 1;
+						subXLeft < fontWidth;
+						subXLeft++, subXRight--) {
+					for (int subY = 0; subY < fontHeight; subY++) {
 
+						// initialize
 						int minLeftVal = fontWidth;
 						int maxRightVal = 0;
 
-						uint8_t leftVal;
+						uint8_t isLetterHitLeft;
 						sglGetPixel(fontSheet,
-								&leftVal, NULL, NULL, NULL,
-								col * fontWidth + xl,
-								row * fontHeight + y);
+								&isLetterHitLeft, NULL, NULL, NULL,
+								letterX * fontWidth + subXLeft,
+								letterY * fontHeight + subY);
 
-						uint8_t rightVal;
+						uint8_t isLetterHitRight;
 						sglGetPixel(fontSheet,
-								&rightVal, NULL, NULL, NULL,
-								col * fontWidth + xr,
-								row * fontHeight + y);
+								&isLetterHitRight, NULL, NULL, NULL,
+								letterX * fontWidth + subXRight,
+								letterY * fontHeight + subY);
 
-						// int* currentKern = &font->kern[col + row * cols];
-
-						// FIXME: this is not working..
 						// NOTE: also the drawing is not effecitve... put it in the demo
 						// LEFT KERN
-						if (leftVal < minLeftVal) {
-							minLeftVal = leftVal;
-							// sglGetKern(font, col, row, sglLeftKern) = xl;
+						if (isLetterHitLeft && !wasLeft) {
+							wasLeft = true;
+							sglGetKern(font, letterX, letterY, sglLeftKern) = subXLeft;
 							sglDrawPixel(font->fontSheet,
 									0xff, 0, 0, 0xff,
-									col * fontWidth + xl,
-									row * fontHeight + y);
+									letterX * fontWidth + subXLeft,
+									letterY * fontHeight + subY);
 						}
-						
+
 						// RIGHT KERN
-						if (rightVal > maxRightVal) {
-							maxRightVal = rightVal;
-							// sglGetKern(font, col, row, sglRightKern) = xr;
+						if (isLetterHitRight && !wasRight) {
+							wasRight = true;
+							sglGetKern(font, letterX, letterY, sglRightKern) = subXRight;
 							sglDrawPixel(font->fontSheet,
 									0, 0xff, 0, 0xff,
-									col * fontWidth + xr,
-									row * fontHeight + y);
+									letterX * fontWidth + subXRight,
+									letterY * fontHeight + subY);
 						}
 
 
@@ -1020,11 +1021,6 @@ void sglDrawBuffer(sglBuffer* buffer, const sglBuffer* bmp,
 
 			uint8_t r, g, b, a;
 			sglGetRGBA(sglGetPixelRaw(bmp, bmpX, bmpY), bmp->pf, &r, &g, &b, &a);
-
-			// SGL_DEBUG_PRINT("r: %d\n", r);
-			// SGL_DEBUG_PRINT("g: %d\n", g);
-			// SGL_DEBUG_PRINT("b: %d\n", b);
-			// SGL_DEBUG_PRINT("a: %d\n", a);
 
 			sglDrawPixel(buffer, r, g, b, a, bufX, bufY);
 		}
