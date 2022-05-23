@@ -1014,8 +1014,8 @@ void sglDrawBuffer(sglBuffer* buffer, const sglBuffer* bmp,
 
 	for (int bufX = clippedDstRect.x; bufX < clippedDstRect.x + clippedDstRect.w; bufX++) {
 		for (int bufY = clippedDstRect.y; bufY < clippedDstRect.y + clippedDstRect.h; bufY++) {
-			int bmpX = (bufX - clippedDstRect.x) / (float)clippedDstRect.w * clippedSrcRect.w + clippedSrcRect.x;
-			int bmpY = (bufY - clippedDstRect.y) / (float)clippedDstRect.h * clippedSrcRect.h + clippedSrcRect.y;
+			int bmpX = (bufX - clippedDstRect.x) * clippedSrcRect.w / clippedDstRect.w + clippedSrcRect.x;
+			int bmpY = (bufY - clippedDstRect.y) * clippedSrcRect.h / clippedDstRect.h + clippedSrcRect.y;
 
 			if (!sglIsPointInRect(&bmpRect, bmpX, bmpY)) continue;
 
