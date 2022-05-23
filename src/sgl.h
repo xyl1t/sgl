@@ -461,7 +461,14 @@ void sglFillTriangle(sglBuffer* buffer, uint32_t color, int x1, int y1, int x2,
 void sglDrawColorInterpolatedTriangle(sglBuffer* buffer, int x1, int y1, int x2,
 	int y2, int x3, int y3, uint32_t c1, uint32_t c2, uint32_t c3);
 
-void sglDrawBuffer(sglBuffer* buffer, const sglBuffer* bitmap,
+/**
+ * @brief Draw one buffer on another buffer
+ * @param buffer destination buffer - the buffer that will be drawn on
+ * @param src source buffer - the buffer that will be used to draw on the other
+ * @param srcRect source rectangle
+ * @param dstRect destination rectangle
+ */
+void sglDrawBuffer(sglBuffer* buffer, const sglBuffer* src,
 	const sglRect* srcRect, const sglRect* dstRect);
 
 void sglDrawText(sglBuffer* buffer, const char* text, int x, int y,
