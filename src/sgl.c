@@ -1215,7 +1215,6 @@ bool sglClipLine(const sglRect* clipRect, int startX, int startY, int endX,
 	}
 }
 
-// TODO: consider kerning too!!!
 sglRect sglCalculateTextBoundingBox(const char* text, const sglFont* font) {
 	int cursorRow = 0;
 	int cursorCol = 0;
