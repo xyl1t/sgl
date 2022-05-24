@@ -354,20 +354,20 @@ sglFont* sglCreateFont(const char* pathToFontBitmap, int fontWidth, int fontHeig
 						if (isLetterHitLeft && !wasLeft) {
 							wasLeft = true;
 							sglGetKern(font, letterX, letterY, sglLeftKern) = subXLeft;
-							// sglDrawPixel(font->fontSheet,
-							// 		0xff, 0, 0, 0xff,
-							// 		letterX * fontWidth + subXLeft,
-							// 		letterY * fontHeight + subY);
+							sglDrawPixel(font->fontSheet,
+									0xff, 0, 0, 0xff,
+									letterX * fontWidth + subXLeft,
+									letterY * fontHeight + subY);
 						}
 
 						// RIGHT KERN
 						if (isLetterHitRight && !wasRight) {
 							wasRight = true;
 							sglGetKern(font, letterX, letterY, sglRightKern) = subXRight;
-							// sglDrawPixel(font->fontSheet,
-							// 		0, 0xff, 0, 0xff,
-							// 		letterX * fontWidth + subXRight,
-							// 		letterY * fontHeight + subY);
+							sglDrawPixel(font->fontSheet,
+									0, 0xff, 0, 0xff,
+									letterX * fontWidth + subXRight,
+									letterY * fontHeight + subY);
 						}
 
 						if (wasLeft && wasRight) continue;

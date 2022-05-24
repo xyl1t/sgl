@@ -17,7 +17,7 @@ DEMOS(demos) {
 	// TODO: switching between demos (using numbers?) - already done
 	
 	if (init) {
-		SGL_DEBUG_PRINT("###in init\n");
+		// SGL_DEBUG_PRINT("###in init\n");
 		// sglFreeFont(font);
 		// font = sglCreateFont("../res/xterm7x14.png", 7, 14, true);
 
@@ -302,6 +302,23 @@ DEMOS(demo7)
 	// TODO: draw font sheet and draw kerning lines on top
 
 	sglDrawBuffer(buffer, font->fontSheet, NULL, &r);
+
+	for (int x = 0; x < font->cols; x++) {
+		for (int y = 0; y < font->rows; y++) {
+			int leftKern = sglGetKern(font, x, y, sglLeftKern);
+			int rightKern = sglGetKern(font, x, y, sglRightKern);
+			// SGL_DEBUG_PRINT("rightKern: %d %d - %d\n", x, y, rightKern);
+
+			sglDrawLine(buffer,
+					0xff0000ff,
+					x * font->fontWidth + r.x + leftKern, y * font->fontHeight + r.y,
+					x * font->fontWidth + r.x + leftKern, y * font->fontHeight + r.y + font->fontHeight);
+			sglDrawLine(buffer,
+					0x00ff00ff,
+					x * font->fontWidth + r.x + rightKern, y * font->fontHeight + r.y,
+					x * font->fontWidth + r.x + rightKern, y * font->fontHeight + r.y + font->fontHeight);
+		}
+	}
 
 }
 
