@@ -394,14 +394,14 @@ sglFont* sglCreateFont(const char* pathToFontBitmap, int fontWidth, int fontHeig
 		}
 	}
 
-	for (int letterY = 0; letterY < font->rows; letterY++) {
-		for (int letterX = 0; letterX < font->cols; letterX++) {
-			SGL_DEBUG_PRINT("[%c | %d | %d] ", letterX + letterY * 16,
-				sglGetKern(font, letterX, letterY, sglLeftKern),
-				sglGetKern(font, letterX, letterY, sglRightKern));
-		}
-		SGL_DEBUG_PRINT("\n");
-	}
+	// for (int letterY = 0; letterY < font->rows; letterY++) {
+	// 	for (int letterX = 0; letterX < font->cols; letterX++) {
+	// 		SGL_DEBUG_PRINT("[%c | %d | %d] ", letterX + letterY * 16,
+	// 			sglGetKern(font, letterX, letterY, sglLeftKern),
+	// 			sglGetKern(font, letterX, letterY, sglRightKern));
+	// 	}
+	// 	SGL_DEBUG_PRINT("\n");
+	// }
 
 	return font;
 }
@@ -1216,6 +1216,7 @@ bool sglClipLine(const sglRect* clipRect, int startX, int startY, int endX,
 	}
 }
 
+// TODO: consider kerning too!!!
 sglRect sglCalculateTextBoundingBox(const char* text, const sglFont* font) {
 	int cursorRow = 0;
 	int cursorCol = 0;
