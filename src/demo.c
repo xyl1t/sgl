@@ -15,9 +15,9 @@ DEMOS(demos) {
 	// TODO: make adding demos more easy, maybe make an array of
 	// funciton pointers to the demos?
 	// TODO: switching between demos (using numbers?)
-	// FIXME: call init for all demos
 	
 	if (init) {
+		SGL_DEBUG_PRINT("###in init\n");
 		// sglFreeFont(font);
 		// font = sglCreateFont("../res/xterm7x14.png", 7, 14, true);
 
@@ -39,6 +39,7 @@ DEMOS(demos) {
 
 	// SGL_DEBUG_PRINT("currDemo: %d\n", currDemo);
 	demoArr[currDemo-1](currDemo, buffer, m, k, cp + 0x10 * (currDemo - 1), ccp - 0x10 * (currDemo - 1), time, init);
+
 	// demo1(currDemo, buffer, m, k, cp + 0x00, ccp - 0x00, time, init);
 	// demo2(currDemo, buffer, m, k, cp + 0x10, ccp - 0x10, time, init);
 	// demo3(currDemo, buffer, m, k, cp + 0x20, ccp - 0x20, time, init);

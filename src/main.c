@@ -179,6 +179,8 @@ int main(int argc, char* argv[])
 			if (!loaded && attempts++ <= 10) {
 				demoLibCreationTime = now;
 				attempts = 0;
+			} else if (loaded) {
+				dyDemos(0, buffer, &m, keyboard, controlPoints, currentControlPoint, 0, true);
 			}
 		}
 
