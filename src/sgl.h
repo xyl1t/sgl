@@ -39,6 +39,8 @@
 	font->kern[_char_x * 2 + _char_y * font->cols*2 + side]
 #define sglLeftKern 0
 #define sglRightKern 1
+// TODO: extract this to font level
+#define sglTextSpacing 1
 
 /*****************************************************************************
  * STATE VARIABLES                                                           *

@@ -1058,7 +1058,6 @@ void sglDrawText(sglBuffer* buffer, const char* text, int x, int y,
 		const sglFont* font)
 {
 	if (!font) return;
-	const int spacing = 1; // TODO: extract this to font level
 
 	int charRows = font->fontSheet->width / font->fontWidth;
 	int charCols = font->fontSheet->height / font->fontHeight;
@@ -1101,7 +1100,7 @@ void sglDrawText(sglBuffer* buffer, const char* text, int x, int y,
 			}
 		}
 
-		cursorCol += rightKern - leftKern + spacing;
+		cursorCol += rightKern - leftKern + sglTextSpacing;
 	}
 }
 
@@ -1230,9 +1229,13 @@ sglRect sglCalculateTextBoundingBox(const char* text, const sglFont* font) {
 			cursorRow++;
 		} else if (currentChar == '\t') {
 			// NOTE: the 4 is the tab size
-			cursorCol += 4 - (cursorCol) % 4;
+			cursorCol += 4 * font->fontWidth - (cursorCol) % (4 * font->fontWidth);
 		} else {
-			cursorCol++;
+			int letterBmpX = currentChar % font->cols;
+			int letterBmpY = currentChar / font->cols;
+			int leftKern = sglGetKern(font, letterBmpX, letterBmpY, sglLeftKern);
+			int rightKern = sglGetKern(font, letterBmpX, letterBmpY, sglRightKern);
+			cursorCol += rightKern - leftKern + sglTextSpacing;
 		}
 
 		if (maxCursorCol < cursorCol) {
@@ -1243,7 +1246,7 @@ sglRect sglCalculateTextBoundingBox(const char* text, const sglFont* font) {
 	return (sglRect){
 		.x = 0,
 		.y = 0,
-		.w = maxCursorCol * font->fontWidth,
+		.w = maxCursorCol,
 		.h = (cursorRow+1) * font->fontHeight
 	};
 }
