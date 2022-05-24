@@ -13,8 +13,8 @@ DEMOS(demo7);
 
 DEMOS(demos) {
 	// TODO: make adding demos more easy, maybe make an array of
-	// funciton pointers to the demos?
-	// TODO: switching between demos (using numbers?)
+	// funciton pointers to the demos? - partially done
+	// TODO: switching between demos (using numbers?) - already done
 	
 	if (init) {
 		SGL_DEBUG_PRINT("###in init\n");
