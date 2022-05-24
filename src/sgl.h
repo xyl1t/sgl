@@ -262,6 +262,8 @@ typedef struct sglFont {
 	int kern[255*2];
 	int fontWidth;
 	int fontHeight;
+	int8_t cols;
+	int8_t rows;
 } sglFont;
 
 sglFont* sglCreateFont(const char* pathToFontBitmap, int fontWidth, int fontHeight,

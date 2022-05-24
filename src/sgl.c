@@ -321,6 +321,8 @@ sglFont* sglCreateFont(const char* pathToFontBitmap, int fontWidth, int fontHeig
 	font->fontSheet = fontSheet;
 	font->fontWidth = fontWidth;
 	font->fontHeight = fontHeight;
+	font->cols = fontSheet->width / fontWidth;
+	font->rows = fontSheet->height / fontHeight;
 
 	if (useKerning) {
 		int characterCols = fontSheet->width / fontWidth;
