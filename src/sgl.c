@@ -335,10 +335,6 @@ sglFont* sglCreateFont(const char* pathToFontBitmap, int fontWidth, int fontHeig
 						subXLeft++, subXRight--) {
 					for (int subY = 0; subY < fontHeight; subY++) {
 
-						// initialize
-						int minLeftVal = fontWidth;
-						int maxRightVal = 0;
-
 						uint8_t isLetterHitLeft;
 						sglGetPixel(fontSheet,
 								&isLetterHitLeft, NULL, NULL, NULL,
@@ -356,23 +352,23 @@ sglFont* sglCreateFont(const char* pathToFontBitmap, int fontWidth, int fontHeig
 						if (isLetterHitLeft && !wasLeft) {
 							wasLeft = true;
 							sglGetKern(font, letterX, letterY, sglLeftKern) = subXLeft;
-							sglDrawPixel(font->fontSheet,
-									0xff, 0, 0, 0xff,
-									letterX * fontWidth + subXLeft,
-									letterY * fontHeight + subY);
+							// sglDrawPixel(font->fontSheet,
+							// 		0xff, 0, 0, 0xff,
+							// 		letterX * fontWidth + subXLeft,
+							// 		letterY * fontHeight + subY);
 						}
 
 						// RIGHT KERN
 						if (isLetterHitRight && !wasRight) {
 							wasRight = true;
 							sglGetKern(font, letterX, letterY, sglRightKern) = subXRight;
-							sglDrawPixel(font->fontSheet,
-									0, 0xff, 0, 0xff,
-									letterX * fontWidth + subXRight,
-									letterY * fontHeight + subY);
+							// sglDrawPixel(font->fontSheet,
+							// 		0, 0xff, 0, 0xff,
+							// 		letterX * fontWidth + subXRight,
+							// 		letterY * fontHeight + subY);
 						}
 
-
+						if (wasLeft && wasRight) continue;
 					}
 				}
 			}
