@@ -309,16 +309,20 @@ DEMOS(demo7)
 			int rightKern = sglGetKern(font, x, y, sglRightKern);
 			// SGL_DEBUG_PRINT("rightKern: %d %d - %d\n", x, y, rightKern);
 
-			sglDrawLine(buffer,
-					0xff0000ff,
-					x * font->fontWidth + r.x + leftKern, y * font->fontHeight + r.y,
-					x * font->fontWidth + r.x + leftKern, y * font->fontHeight + r.y + font->fontHeight);
-			sglDrawLine(buffer,
-					0x00ff00ff,
-					x * font->fontWidth + r.x + rightKern, y * font->fontHeight + r.y,
-					x * font->fontWidth + r.x + rightKern, y * font->fontHeight + r.y + font->fontHeight);
+			// sglDrawLine(buffer,
+			// 		0xff0000ff,
+			// 		x * font->fontWidth + r.x + leftKern, y * font->fontHeight + r.y,
+			// 		x * font->fontWidth + r.x + leftKern, y * font->fontHeight + r.y + font->fontHeight);
+			// sglDrawLine(buffer,
+			// 		0x00ff00ff,
+			// 		x * font->fontWidth + r.x + rightKern, y * font->fontHeight + r.y,
+			// 		x * font->fontWidth + r.x + rightKern, y * font->fontHeight + r.y + font->fontHeight);
 		}
 	}
 
+	sglDrawText(buffer, "WAVTel", 140, 8, font);
+	sglDrawText(buffer, "EFH", 140, 20, font);
+	sglDrawText(buffer, ".iiii", 140, 32, font);
+	sglDrawLine(buffer, 0x0000ffff, 140, 8, 140, 50);
 }
 

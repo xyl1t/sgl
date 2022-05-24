@@ -112,7 +112,7 @@ int main(int argc, char* argv[])
 	// NOTE: 0xF(=16) demos and every demo has 0xF(=16) control points
 	sglPoint controlPoints[0xFF] = {0};
 	int currentControlPoint = -1;
-	int currDemo = 1;
+	int currDemo = 7; // TODO: put back to 1
 
 	demos_f* dyDemos = reloadDemos(NULL);
 	dyDemos(0, buffer, &m, keyboard, controlPoints, currentControlPoint, 0, true);

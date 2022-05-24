@@ -324,6 +324,7 @@ sglFont* sglCreateFont(const char* pathToFontBitmap, int fontWidth, int fontHeig
 	font->cols = fontSheet->width / fontWidth;
 	font->rows = fontSheet->height / fontHeight;
 
+	// TODO: if no kerning just use full width of character
 	if (useKerning) {
 		int characterCols = fontSheet->width / fontWidth;
 		int characterRows = fontSheet->height / fontHeight;
@@ -354,20 +355,24 @@ sglFont* sglCreateFont(const char* pathToFontBitmap, int fontWidth, int fontHeig
 						if (isLetterHitLeft && !wasLeft) {
 							wasLeft = true;
 							sglGetKern(font, letterX, letterY, sglLeftKern) = subXLeft;
-							sglDrawPixel(font->fontSheet,
-									0xff, 0, 0, 0xff,
-									letterX * fontWidth + subXLeft,
-									letterY * fontHeight + subY);
+
+							// sglDrawPixel(font->fontSheet,
+							// 		0xff, 0, 0, 0xff,
+							// 		letterX * fontWidth + subXLeft,
+							// 		letterY * fontHeight + subY);
+
 						}
 
 						// RIGHT KERN
 						if (isLetterHitRight && !wasRight) {
 							wasRight = true;
-							sglGetKern(font, letterX, letterY, sglRightKern) = subXRight;
-							sglDrawPixel(font->fontSheet,
-									0, 0xff, 0, 0xff,
-									letterX * fontWidth + subXRight,
-									letterY * fontHeight + subY);
+							sglGetKern(font, letterX, letterY, sglRightKern) = subXRight + 1;
+
+							// sglDrawPixel(font->fontSheet,
+							// 		0, 0xff, 0, 0xff,
+							// 		letterX * fontWidth + subXRight + 1,
+							// 		letterY * fontHeight + subY);
+
 						}
 
 						if (wasLeft && wasRight) continue;
@@ -1037,7 +1042,9 @@ void sglDrawText(sglBuffer* buffer, const char* text, int x, int y,
 	int charCols = font->fontSheet->height / font->fontHeight;
 
 	int cursorRow = 0;
-	int cursorCol = 0;
+	int cursorCol = -sglGetKern(font, text[0] % charCols, text[0] / charCols, sglLeftKern);
+	SGL_DEBUG_PRINT("cursorCol: %c %d\n", text[0], cursorCol);
+	cursorCol = 0;
 
 	for (int charIdx = 0; text[charIdx] != '\0'; charIdx++) {
 		char currentChar = text[charIdx];
@@ -1052,7 +1059,7 @@ void sglDrawText(sglBuffer* buffer, const char* text, int x, int y,
 
 		if (currentChar == '\t') {
 			// NOTE: the 4 is the tab size
-			cursorCol += 4 - (cursorCol) % 4;
+			cursorCol += (4 - (cursorCol) % 4) * font->fontWidth;
 			continue;
 		}
 
@@ -1063,15 +1070,17 @@ void sglDrawText(sglBuffer* buffer, const char* text, int x, int y,
 					letterBmpX * font->fontWidth + fontPixelX,
 					letterBmpY * font->fontHeight + fontPixelY);
 
-					if (r != 0) {
+					if (r != 0 || g != 0) {
 					sglDrawPixel(buffer, r, g, b, a,
-						x + fontPixelX + cursorCol * font->fontWidth,
+						x + fontPixelX + cursorCol,
 						y + fontPixelY + cursorRow * font->fontHeight);
 				}
 			}
 		}
 
-		cursorCol++;
+		cursorCol +=
+			sglGetKern(font, letterBmpX, letterBmpY, sglRightKern) -
+			sglGetKern(font, letterBmpX, letterBmpY, sglLeftKern) + 1;
 	}
 }
 
