@@ -259,7 +259,7 @@ extern int sgl_jpg_quality;
 
 typedef struct sglFont {
 	/* const */ sglBuffer* fontSheet;
-	int kern[255*2]; // TODO: you don't need this many, maybe only 16*2*16
+	int kern[16*2*16]; // TODO: you don't need this many, maybe only 16*2*16
 	int fontWidth;
 	int fontHeight;
 	int8_t cols;
