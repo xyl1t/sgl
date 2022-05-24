@@ -324,19 +324,20 @@ sglFont* sglCreateFont(const char* pathToFontBitmap, int fontWidth, int fontHeig
 	font->cols = fontSheet->width / fontWidth;
 	font->rows = fontSheet->height / fontHeight;
 
+	bool flag = false;
 	// TODO: if no kerning just use full width of character
 	if (useKerning) {
 		int characterCols = fontSheet->width / fontWidth;
 		int characterRows = fontSheet->height / fontHeight;
 
-		for (int letterX = 0; letterX < characterCols; letterX++) {
-			for (int letterY = 0; letterY < characterRows; letterY++) {
+		for (int letterY = 0; letterY < characterRows; letterY++) {
+			for (int letterX = 0; letterX < characterCols; letterX++) {
 
 				bool wasLeft = false, wasRight = false;
 				for (int subXLeft = 0, subXRight = fontWidth - 1;
 						subXLeft < fontWidth;
 						subXLeft++, subXRight--) {
-					for (int subY = 0; subY < fontHeight; subY++) {
+					for (int subY = 0; subY <= fontHeight; subY++) {
 
 						uint8_t isLetterHitLeft;
 						sglGetPixel(fontSheet,
@@ -378,8 +379,28 @@ sglFont* sglCreateFont(const char* pathToFontBitmap, int fontWidth, int fontHeig
 						if (wasLeft && wasRight) continue;
 					}
 				}
+
+				if (!(wasLeft && wasRight)) {
+                    sglGetKern(font, letterX, letterY, sglLeftKern) = 0;
+                    sglGetKern(font, letterX, letterY, sglRightKern) = fontWidth;
+				}
 			}
 		}
+	} else {
+		// initialize to not use kerning
+		for (int i = 0; i < 256; i++) {
+			font->kern[i * 2    ] = 0;
+			font->kern[i * 2 + 1] = font->fontWidth;
+		}
+	}
+
+	for (int letterY = 0; letterY < font->rows; letterY++) {
+		for (int letterX = 0; letterX < font->cols; letterX++) {
+			SGL_DEBUG_PRINT("[%c | %d | %d] ", letterX + letterY * 16,
+				sglGetKern(font, letterX, letterY, sglLeftKern),
+				sglGetKern(font, letterX, letterY, sglRightKern));
+		}
+		SGL_DEBUG_PRINT("\n");
 	}
 
 	return font;
@@ -1037,14 +1058,13 @@ void sglDrawText(sglBuffer* buffer, const char* text, int x, int y,
 		const sglFont* font)
 {
 	if (!font) return;
+	const int spacing = 1; // TODO: extract this to font level
 
 	int charRows = font->fontSheet->width / font->fontWidth;
 	int charCols = font->fontSheet->height / font->fontHeight;
 
 	int cursorRow = 0;
-	int cursorCol = -sglGetKern(font, text[0] % charCols, text[0] / charCols, sglLeftKern);
-	SGL_DEBUG_PRINT("cursorCol: %c %d\n", text[0], cursorCol);
-	cursorCol = 0;
+	int cursorCol = 0;
 
 	for (int charIdx = 0; text[charIdx] != '\0'; charIdx++) {
 		char currentChar = text[charIdx];
@@ -1063,7 +1083,10 @@ void sglDrawText(sglBuffer* buffer, const char* text, int x, int y,
 			continue;
 		}
 
-		for (int fontPixelX = 0; fontPixelX < font->fontWidth; fontPixelX++) {
+		int leftKern = sglGetKern(font, letterBmpX, letterBmpY, sglLeftKern);
+		int rightKern = sglGetKern(font, letterBmpX, letterBmpY, sglRightKern);
+
+		for (int fontPixelX = leftKern; fontPixelX < rightKern; fontPixelX++) {
 			for (int fontPixelY = 0; fontPixelY < font->fontHeight; fontPixelY++) {
 				uint8_t r, g, b, a;
 				sglGetPixel(font->fontSheet, &r, &g, &b, &a,
@@ -1072,15 +1095,13 @@ void sglDrawText(sglBuffer* buffer, const char* text, int x, int y,
 
 					if (r != 0 || g != 0) {
 					sglDrawPixel(buffer, r, g, b, a,
-						x + fontPixelX + cursorCol,
+						x + fontPixelX - leftKern + cursorCol,
 						y + fontPixelY + cursorRow * font->fontHeight);
 				}
 			}
 		}
 
-		cursorCol +=
-			sglGetKern(font, letterBmpX, letterBmpY, sglRightKern) -
-			sglGetKern(font, letterBmpX, letterBmpY, sglLeftKern) + 1;
+		cursorCol += rightKern - leftKern + spacing;
 	}
 }
 

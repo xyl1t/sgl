@@ -36,7 +36,7 @@
 #define sgl_member_size(type, member) sizeof(((type*)0)->member)
 
 #define sglGetKern(font, _char_x, _char_y, side) \
-	font->kern[_char_x * 2 + _char_y * font->cols + side]
+	font->kern[_char_x * 2 + _char_y * font->cols*2 + side]
 #define sglLeftKern 0
 #define sglRightKern 1
 
@@ -259,7 +259,7 @@ extern int sgl_jpg_quality;
 
 typedef struct sglFont {
 	/* const */ sglBuffer* fontSheet;
-	int kern[16*2*16]; // TODO: you don't need this many, maybe only 16*2*16
+	int kern[512]; // TODO: you don't need this many, maybe only 16*2*16
 	int fontWidth;
 	int fontHeight;
 	int8_t cols;
