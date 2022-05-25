@@ -1066,9 +1066,12 @@ void sglDrawText(sglBuffer* buffer, const char* text, int x, int y,
 	int cursorCol = 0;
 
 	for (int charIdx = 0; text[charIdx] != '\0'; charIdx++) {
-		char currentChar = text[charIdx];
+		unsigned char currentChar = text[charIdx];
+		if (currentChar > 128) currentChar -= 16*3;
 		int letterBmpX = currentChar % charCols;
 		int letterBmpY = currentChar / charRows;
+
+		SGL_DEBUG_PRINT(".. %d\n", currentChar);
 
 		if (currentChar == '\n') {
 			cursorCol = 0;

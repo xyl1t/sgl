@@ -280,10 +280,13 @@ DEMOS(demo6)
 DEMOS(demo7)
 {
 	static sglFont* font = NULL;
+	static char *myText;
 
 	if (init) {
 		sglFreeFont(font);
 		font = sglCreateFont("../res/xterm7x14.png", 7, 14, true);
+		free(myText);
+		myText = (char*)malloc(64 * sizeof(char));
 
 		return;
 	}
@@ -302,17 +305,34 @@ DEMOS(demo7)
 			int rightKern = sglGetKern(font, x, y, sglRightKern);
 			// SGL_DEBUG_PRINT("rightKern: %d %d - %d\n", x, y, rightKern);
 
-			sglDrawLine(buffer,
-					0xff0000ff,
-					x * font->fontWidth + r.x + leftKern, y * font->fontHeight + r.y,
-					x * font->fontWidth + r.x + leftKern, y * font->fontHeight + r.y + font->fontHeight);
-			sglDrawLine(buffer,
-					0x00ff00ff,
-					x * font->fontWidth + r.x + rightKern, y * font->fontHeight + r.y,
-					x * font->fontWidth + r.x + rightKern, y * font->fontHeight + r.y + font->fontHeight);
+			// sglDrawLine(buffer,
+			// 		0xff0000ff,
+			// 		x * font->fontWidth + r.x + leftKern, y * font->fontHeight + r.y,
+			// 		x * font->fontWidth + r.x + leftKern, y * font->fontHeight + r.y + font->fontHeight);
+			// sglDrawLine(buffer,
+			// 		0x00ff00ff,
+			// 		x * font->fontWidth + r.x + rightKern, y * font->fontHeight + r.y,
+			// 		x * font->fontWidth + r.x + rightKern, y * font->fontHeight + r.y + font->fontHeight);
 		}
 	}
 
-	sglDrawText(buffer, "Hello, my name is\nMarat Isaw\nand I code in C \2", 130, 8, font);
+	sprintf(myText, "Test %c", 200);
+
+const char* test = "┌─┬┐  ╔═╦╗  ╓─╥╖  ╒═╤╕\n"
+				   "│ ││  ║ ║║  ║ ║║  │ ││\n"
+				   "├─┼┤  ╠═╬╣  ╟─╫╢  ╞═╪╡\n"
+				   "└─┴┘  ╚═╩╝  ╙─╨╜  ╘═╧╛\n"
+				   "┌───────────────────┐ \n"
+				   "│  ╔═══╗ Some Text  │▒\n"
+				   "│  ╚═╦═╝ in the box │▒\n"
+				   "╞═╤══╩══╤═══════════╡▒\n"
+				   "│ ├──┬──┤           │▒\n"
+				   "│ └──┴──┘           │▒\n"
+				   "└───────────────────┘▒\n"
+				   " ▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒\n";
+
+
+	sglDrawText(buffer, "\u2500\u2501\n", 130, 8, font);
+
 }
 
