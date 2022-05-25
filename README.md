@@ -69,7 +69,8 @@ Implement basic drawing functions
 * [x] live demo code update
 * [ ] add more pixel formats
 * [ ] make the library header only
-* [ ] generalize `sglBuffer`'s and `sglBitmap`'s `getPixel()` function to one
+* [x] generalize `sglBuffer`'s and `sglBitmap`'s `getPixel()` function to one
+* [ ] allow drawing extended characters
 * [ ] *optimize*
 	* [ ] circle drawing
 	* [ ] arc drawing
