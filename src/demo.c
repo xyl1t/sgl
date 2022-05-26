@@ -1,7 +1,7 @@
 #include "demo.h"
 #include "sgl.h"
 
-// static sglFont* font;
+static sglFont* font;
 
 DEMOS(demo0);
 DEMOS(demo1);
@@ -17,9 +17,9 @@ DEMOS(demos) {
 	// TODO: switching between demos (using numbers?) - already done
 	
 	if (init) {
-		// SGL_DEBUG_PRINT("###in init\n");
-		// sglFreeFont(font);
-		// font = sglCreateFont("../res/xterm7x14.png", 7, 14, true);
+		SGL_DEBUG_PRINT("###in init\n");
+		sglFreeFont(font);
+		font = sglCreateFont("../res/xterm7x14.png", 7, 14, true);
 
 #define initDemoArr(demoNum) \
 	demoArr[demoNum] = demo##demoNum; \
@@ -51,13 +51,13 @@ DEMOS(demos) {
 DEMOS(demo0)
 {
 
-	static sglFont* font = NULL;
+	// static sglFont* font = NULL;
 	static float text_x = 0;
 	static float text_y = 0;
 
 	if (init) {
-		sglFreeFont(font);
-		font = sglCreateFont("../res/xterm7x14.png", 7, 14, true);
+		// sglFreeFont(font);
+		// font = sglCreateFont("../res/xterm7x14.png", 7, 14, true);
 		return;
 	}
 	
@@ -219,43 +219,67 @@ DEMOS(demo4)
 		cp[0] = (sglPoint){ .x = 128, .y = 32 };
 		cp[1] = (sglPoint){ .x = 200, .y = 64 };
 		cp[2] = (sglPoint){ .x = 100, .y = 96 };
-		cp[3] = (sglPoint){ .x =  64, .y = 32 };
-		cp[4] = (sglPoint){ .x = 100, .y = 64 };
-		cp[5] = (sglPoint){ .x =  16, .y = 98 };
+
+		for(int i = 1; i < 5; i++) {
+			cp[0 + i*3] = (sglPoint){ .x =  64 + rand()%3-1, .y = 32 + rand()%3-1};
+			cp[1 + i*3] = (sglPoint){ .x = 100 + rand()%3-1, .y = 64 + rand()%3-1};
+			cp[2 + i*3] = (sglPoint){ .x =  16 + rand()%3-1, .y = 98 + rand()%3-1};
+		}
+
 		return;
 	}
+
+	sglDrawColorInterpolatedTriangle(buffer,
+			cp[0].x, cp[0].y, cp[1].x, cp[1].y, cp[2].x, cp[2].y,
+			0xff0000ff, 0x00ff00ff, 0x0000ffff);
+
 
 	sglFillTriangle(buffer, 0xffffffff,
 			cp[3].x, cp[3].y, cp[4].x, cp[4].y, cp[5].x, cp[5].y);
 	sglDrawTriangle(buffer, 0x3366EEff,
 			cp[3].x, cp[3].y, cp[4].x, cp[4].y, cp[5].x, cp[5].y);
+
 	sglDrawColorInterpolatedTriangle(buffer,
-			cp[0].x, cp[0].y, cp[1].x, cp[1].y, cp[2].x, cp[2].y,
-			0xff0000ff, 0x00ff0032, 0x0000ffff);
-	sglDrawTriangle(buffer, 0x3366EEff,
-			cp[0].x, cp[0].y, cp[1].x, cp[1].y, cp[2].x, cp[2].y);
+			cp[6].x, cp[6].y, cp[7].x, cp[7].y, cp[8].x, cp[8].y,
+			0, 0, 0x0000ffff);
+	sglDrawColorInterpolatedTriangle(buffer,
+			cp[9].x, cp[9].y, cp[10].x, cp[10].y, cp[11].x, cp[11].y,
+			0xff0000ff, 0, 0);
+	sglDrawColorInterpolatedTriangle(buffer,
+			cp[12].x, cp[12].y, cp[13].x, cp[13].y, cp[14].x, cp[14].y,
+			0, 0x00ff00ff, 0);
 
-	drawControlPoint(cp[0], 0xff0000ff);
-	drawControlPoint(cp[1], 0x00ff00ff);
-	drawControlPoint(cp[2], 0x0000ffff);
+	for (int i = 0; i < 5; i++) {
+		sglDrawTriangle(buffer, 0x3366EEff,
+			cp[0 + i*3].x, cp[0 + i*3].y, cp[1 + i*3].x, cp[1 + i*3].y, cp[2 + i*3].x, cp[2 + i*3].y);
+	}
 
-	drawControlPoint(cp[3], 0xffffffff);
-	drawControlPoint(cp[4], 0xffffffff);
-	drawControlPoint(cp[5], 0xffffffff);
+	for(int i = 0; i < 5; i++) {
+		if (i != 1) {
+			drawControlPoint(cp[0 + i * 3], 0xff0000ff);
+			drawControlPoint(cp[1 + i * 3], 0x00ff00ff);
+			drawControlPoint(cp[2 + i * 3], 0x0000ffff);
+		} else {
+			drawControlPoint(cp[3], 0xffffffff);
+			drawControlPoint(cp[4], 0xffffffff);
+			drawControlPoint(cp[5], 0xffffffff);
+		}
+	}
+
 }
 
 DEMOS(demo5)
 {
 	static sglBuffer* bmp = NULL;
 	static sglRect previewRect;
-	static sglFont* font;
+	// static sglFont* font;
 
 	if (init || !bmp) {
 		sglFreeBuffer(bmp);
 		bmp = sglLoadBitmap("../res/cidr.png", SGL_PIXELFORMAT_ABGR32);
 
-		sglFreeFont(font);
-		font = sglCreateFont("../res/xterm7x14.png", 7, 14, true);
+		// sglFreeFont(font);
+		// font = sglCreateFont("../res/xterm7x14.png", 7, 14, true);
 
 		previewRect.w = 48;
 		previewRect.h = bmp->height / (float)bmp->width * previewRect.w;
@@ -315,12 +339,12 @@ DEMOS(demo5)
 
 DEMOS(demo6)
 {
-	static sglFont* font = NULL;
+	// static sglFont* font = NULL;
 	static sglBuffer* bmp = NULL;
 
 	if (init) {
-		sglFreeFont(font);
-		font = sglCreateFont("../res/xterm7x14.png", 7, 14, true);
+		// sglFreeFont(font);
+		// font = sglCreateFont("../res/xterm7x14.png", 7, 14, true);
 		sglFreeBuffer(bmp);
 		bmp = sglLoadBitmap("../res/gradient.png", SGL_PIXELFORMAT_ABGR32);
 
