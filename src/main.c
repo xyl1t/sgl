@@ -115,7 +115,7 @@ int main(int argc, char* argv[])
 	const int numDemos = 0xF;
 	sglPoint controlPoints[numControlPoints * numDemos] = {0};
 	int currentControlPoint = -1;
-	int currDemo = 1; // TODO: put back to 1
+	int currDemo = 0;
 
 	demos_f* dyDemos = reloadDemos(NULL);
 	dyDemos(0, buffer, &m, keyboard, controlPoints, currentControlPoint, 0, true);
@@ -140,7 +140,7 @@ int main(int argc, char* argv[])
 					dyDemos(0, buffer, &m, keyboard, controlPoints, currentControlPoint, 0, true);
 				}
 				if (event.key.keysym.sym >= SDLK_1 && event.key.keysym.sym <= SDLK_9) {
-					currDemo = event.key.keysym.sym - SDLK_1 + 1;
+					currDemo = event.key.keysym.sym - SDLK_1;
 				}
 				break;
 			case SDL_KEYUP:
@@ -159,7 +159,7 @@ int main(int argc, char* argv[])
 		// points of another demo from the top left corner
 		if (m.left) {
 			// for (size_t i = 0; i < sizeof(controlPoints) / sizeof(controlPoints[0]) && currentControlPoint == -1; i++) {
-			size_t start = (currDemo - 1) * numControlPoints;
+			size_t start = currDemo * numControlPoints;
 			for (size_t i = start; i < start + numControlPoints && i < sizeof(controlPoints) / sizeof(controlPoints[0]) && currentControlPoint == -1; i++) {
 				if (sglGetDistance(controlPoints[i].x, controlPoints[i].y, m.x, m.y) < 6) {
 					currentControlPoint = i;

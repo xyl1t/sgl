@@ -3,13 +3,13 @@
 
 // static sglFont* font;
 
+DEMOS(demo0);
 DEMOS(demo1);
 DEMOS(demo2);
 DEMOS(demo3);
 DEMOS(demo4);
 DEMOS(demo5);
 DEMOS(demo6);
-DEMOS(demo7);
 
 DEMOS(demos) {
 	// TODO: make adding demos more easy, maybe make an array of
@@ -22,31 +22,22 @@ DEMOS(demos) {
 		// font = sglCreateFont("../res/xterm7x14.png", 7, 14, true);
 
 #define initDemoArr(demoNum) \
-	demoArr[demoNum-1] = demo##demoNum; \
-	demoArr[demoNum-1](0, buffer, m, k, cp + 0x10 * (demoNum - 1), ccp - 0x10 * (demoNum - 1), time, init);
+	demoArr[demoNum] = demo##demoNum; \
+	demoArr[demoNum](0, buffer, m, k, cp + 0x10 * demoNum, ccp - 0x10 * demoNum, time, init);
 
+		initDemoArr(0);
 		initDemoArr(1);
 		initDemoArr(2);
 		initDemoArr(3);
 		initDemoArr(4);
 		initDemoArr(5);
 		initDemoArr(6);
-		initDemoArr(7);
 
 #undef initDemoArr
 		return;
 	}
 
-	// SGL_DEBUG_PRINT("currDemo: %d\n", currDemo);
-	demoArr[currDemo-1](currDemo, buffer, m, k, cp + 0x10 * (currDemo - 1), ccp - 0x10 * (currDemo - 1), time, init);
-
-	// demo1(currDemo, buffer, m, k, cp + 0x00, ccp - 0x00, time, init);
-	// demo2(currDemo, buffer, m, k, cp + 0x10, ccp - 0x10, time, init);
-	// demo3(currDemo, buffer, m, k, cp + 0x20, ccp - 0x20, time, init);
-	// demo4(currDemo, buffer, m, k, cp + 0x30, ccp - 0x30, time, init);
-	// demo5(currDemo, buffer, m, k, cp + 0x40, ccp - 0x40, time, init);
-	// demo6(currDemo, buffer, m, k, cp + 0x50, ccp - 0x50, time, init);
-	// printf("hallo\n");
+	demoArr[currDemo](currDemo, buffer, m, k, cp + 0x10 * currDemo, ccp - 0x10 * currDemo, time, init);
 }
 
 
@@ -57,7 +48,7 @@ DEMOS(demos) {
 #define sin_n(_angle) ((1+sin(_angle))/2.f)
 #define cos_n(_angle) ((1+cos(_angle))/2.f)
 
-DEMOS(demo1)
+DEMOS(demo0)
 {
 
 	static sglFont* font = NULL;
@@ -114,7 +105,7 @@ DEMOS(demo1)
 	}
 }
 
-DEMOS(demo2)
+DEMOS(demo1)
 {
 	if (init) {
 		cp[1].x = 10;
@@ -147,7 +138,7 @@ DEMOS(demo2)
 
 }
 
-DEMOS(demo3)
+DEMOS(demo2)
 {
 	if (init) { return; }
 
@@ -169,7 +160,7 @@ DEMOS(demo3)
 	}
 }
 
-DEMOS(demo4)
+DEMOS(demo3)
 {
 	if (init) {
 		cp[0].x = 128;
@@ -222,7 +213,7 @@ DEMOS(demo4)
 
 }
 
-DEMOS(demo5)
+DEMOS(demo4)
 {
 	if (init) {
 		cp[0] = (sglPoint){ .x = 128, .y = 32 };
@@ -253,7 +244,7 @@ DEMOS(demo5)
 	drawControlPoint(cp[5], 0xffffffff);
 }
 
-DEMOS(demo6)
+DEMOS(demo5)
 {
 	static sglBuffer* bmp = NULL;
 	static sglRect previewRect;
@@ -322,7 +313,7 @@ DEMOS(demo6)
 
 }
 
-DEMOS(demo7)
+DEMOS(demo6)
 {
 	static sglFont* font = NULL;
 	static sglBuffer* bmp = NULL;
