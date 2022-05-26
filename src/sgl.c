@@ -173,8 +173,8 @@ bool sglIsPointInRect(const sglRect* rect, int x, int y)
 	return x >= fixed.x && y >= fixed.y && x < fixed.x + fixed.w && y < fixed.y + fixed.h;
 }
 
-sglBuffer* sglCreateBuffer(
-	void* pixels, uint32_t width, uint32_t height, sglPixelFormatEnum format)
+sglBuffer* sglCreateBuffer(void* pixels, uint32_t width, uint32_t height,
+	sglPixelFormatEnum format)
 {
 	sglBuffer* b = malloc(sizeof(sglBuffer));
 	b->pixels = pixels;
@@ -188,6 +188,7 @@ sglBuffer* sglCreateBuffer(
 		.w = width,
 		.h = height,
 	};
+	b->alphaBlendingEnabled = false;
 
 	SGL_DEBUG_PRINT("sgl buffer initialized\n");
 	return b;
@@ -201,6 +202,13 @@ void sglFreeBuffer(sglBuffer* buffer)
 	free(buffer->pf);
 	free(buffer);
 	SGL_DEBUG_PRINT("sgl buffer destroyed\n");
+}
+
+void sglEnableAlphaBlending(sglBuffer* buffer) {
+	buffer->alphaBlendingEnabled = true;
+}
+void sglDisableAlphaBlending(sglBuffer* buffer) {
+	buffer->alphaBlendingEnabled = false;
 }
 
 bool sglSetClipRect(sglBuffer* buffer, const sglRect* rect)
@@ -438,6 +446,9 @@ void sglFreeFont(sglFont* font)
  */
 static void setPixel(sglBuffer* buffer, uint32_t color, int x, int y)
 {
+	if (buffer->alphaBlendingEnabled) {
+		color = sglAlphaBlendColor(color, sglGetPixelRaw(buffer, x, y), buffer->pf);
+	}
 	switch (buffer->pf->bytesPerPixel) {
 	case 1:
 		*((uint8_t*)buffer->pixels + (y * buffer->width + x)) = color;
@@ -448,8 +459,7 @@ static void setPixel(sglBuffer* buffer, uint32_t color, int x, int y)
 		break;
 
 	case 3:
-		sglError(
-			"Unsupported pixel format (3 bytes per pixel are not supported)");
+		sglError("Unsupported pixel format (3 bytes per pixel are not supported)");
 		break;
 
 	case 4:
@@ -571,9 +581,12 @@ void sglDrawLine(sglBuffer* buffer, uint32_t color, int startX, int startY,
 	float stepX = dx / (float)largest;
 	float stepY = dy / (float)largest;
 
+	// NOTE: same as rounding
 	float x = startX + 0.5f;
 	float y = startY + 0.5f;
 	for (int i = 0; i <= largest; i++) {
+		// uint32_t blendedColor = sglAlphaBlendColor(color, sglGetPixelRaw(buffer, x, y), buffer->pf);
+		// setPixel(buffer, blendedColor, x, y);
 		setPixel(buffer, color, x, y);
 		x += stepX;
 		y += stepY;
@@ -997,7 +1010,7 @@ void sglDrawColorInterpolatedTriangle(sglBuffer* buffer, int x1, int y1, int x2,
 }
 
 void sglDrawBuffer(sglBuffer* buffer, const sglBuffer* bmp,
-		const sglRect* srcRect, const sglRect* dstRect)
+		const sglRect* dstRect, const sglRect* srcRect)
 {
 	sglRect bmpClipRect = { 0, 0, buffer->width, buffer->height };
 	sglRect clippedSrcRect;
@@ -1333,5 +1346,55 @@ uint32_t sglHasAlphaChannel(sglPixelFormatEnum format)
 {
 	return sglGetChannelLayout(format) < 3;
 }
+
+void sglAlphaBlendRGBAlpha(float alpha,
+		uint8_t r_a, uint8_t g_a, uint8_t b_a,
+		uint8_t r_b, uint8_t g_b, uint8_t b_b,
+		uint8_t* r, uint8_t* g, uint8_t* b) {
+	*r = r_a * (alpha / 255.f) + r_b * (1 - alpha / 255.f);
+	*g = g_a * (alpha / 255.f) + g_b * (1 - alpha / 255.f);
+	*b = b_a * (alpha / 255.f) + b_b * (1 - alpha / 255.f);
+}
+
+// assuming that a is over b
+uint32_t sglAlphaBlendColor(uint32_t a, uint32_t b,
+		const sglPixelFormat* pf) {
+
+	uint8_t r_a, g_a, b_a, a_a;
+	sglGetRGBA(a, pf, &r_a, &g_a, &b_a, &a_a);
+	uint8_t r_b, g_b, b_b, a_b;
+	sglGetRGBA(b, pf, &r_b, &g_b, &b_b, &a_b);
+
+	uint8_t result_r, result_g, result_b;
+
+	sglAlphaBlendRGBAlpha(a_a, 
+		r_a, g_a, b_a,
+		r_b, g_b, b_b,
+		&result_r, &result_g, &result_b);
+
+	return sglMapRGBA(result_r, result_g, result_b, 255, pf);
+}
+
+// uint32_t sglAlphaBlendColor(const sglPixelFormat* pf,
+// 		uint32_t a, uint32_t b) {
+// 
+// 	uint8_t r_a, g_a, b_a, a_a;
+// 	sglGetRGBA(a, pf, &r_a, &g_a, &b_a, &a_a);
+// 	uint8_t r_b, g_b, b_b, a_b;
+// 	sglGetRGBA(b, pf, &r_b, &g_b, &b_b, &a_b);
+// 
+// 	float alpha_a = a_a / 255.f;
+// 	float alpha_b = a_b / 255.f;
+// 
+// 	// float newAlpha = a1 + a2 - a1 * a2 / 256;
+// 	float newAlpha = alpha_a + alpha_b * (1 - alpha_a);
+// 
+// 	uint8_t result_r = (r_a * alpha_a + r_b * alpha_b * (1 - a_a)) / newAlpha;
+// 	uint8_t result_g = (g_a * alpha_a + g_b * alpha_b * (1 - a_a)) / newAlpha;
+// 	uint8_t result_b = (b_a * alpha_a + b_b * alpha_b * (1 - a_a)) / newAlpha;
+// 
+// 	// NOTE: maybe instead of 255, newAlpha should be passed?
+// 	return sglMapRGBA(result_r, result_g, result_b, 255, pf);
+// }
 
 const char* sglGetError(void) { return _sglError; }

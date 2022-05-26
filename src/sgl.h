@@ -42,6 +42,8 @@
 // TODO: extract this to font level
 #define sglTextSpacing 1
 
+// #define _sglAlphaBlendColor(a, b, pf) buffer->alphaBlendingEnabled ? 
+
 /*****************************************************************************
  * STATE VARIABLES                                                           *
  *****************************************************************************/
@@ -196,6 +198,7 @@ typedef struct sglBuffer {
 	int height;
 	int pitch;
 	sglRect clipRect;
+	bool alphaBlendingEnabled;
 } sglBuffer;
 
 /**
@@ -205,13 +208,16 @@ typedef struct sglBuffer {
  * @param height Height of the buffer
  * @param format Pixel format of the pixel buffer
  */
-sglBuffer* sglCreateBuffer(void* pixels,
-		uint32_t width, uint32_t height, sglPixelFormatEnum format);
+sglBuffer* sglCreateBuffer(void* pixels, uint32_t width, uint32_t height,
+	sglPixelFormatEnum format);
 /**
  * @brief Frees an sgl buffer
  * @param buffer The buffer to free
  */
 void sglFreeBuffer(sglBuffer* buffer);
+
+void sglEnableAlphaBlending(sglBuffer* buffer);
+void sglDisableAlphaBlending(sglBuffer* buffer);
 
 /**
  * @brief Sets the clipping rectangle of the buffer, meaning that you won't
@@ -473,7 +479,7 @@ void sglDrawColorInterpolatedTriangle(sglBuffer* buffer, int x1, int y1, int x2,
  * @param dstRect destination rectangle
  */
 void sglDrawBuffer(sglBuffer* buffer, const sglBuffer* src,
-	const sglRect* srcRect, const sglRect* dstRect);
+	const sglRect* dstRect, const sglRect* srcRect);
 
 /**
  * @brief Draw text on a buffer using a font
@@ -628,6 +634,19 @@ uint32_t sglGetChannelLayout(sglPixelFormatEnum format);
  * @return True if alpha channel is present
  */
 uint32_t sglHasAlphaChannel(sglPixelFormatEnum format);
+
+void sglAlphaBlendRGBAlpha(float alpha,
+		uint8_t r_a, uint8_t g_a, uint8_t b_a,
+		uint8_t r_b, uint8_t g_b, uint8_t b_b,
+		uint8_t* r, uint8_t* g, uint8_t* b);
+
+void sglAlphaBlendRGBA(
+		uint8_t r_a, uint8_t g_a, uint8_t b_a, uint8_t a_a,
+		uint8_t r_b, uint8_t g_b, uint8_t b_b, uint8_t a_b,
+		uint8_t* r, uint8_t* g, uint8_t* b, uint8_t* a);
+
+uint32_t sglAlphaBlendColor(uint32_t a, uint32_t b,
+		const sglPixelFormat* pf);
 
 /**
  * @brief Get last error that occurred when calling an sgl function
