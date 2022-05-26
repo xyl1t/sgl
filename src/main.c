@@ -111,7 +111,9 @@ int main(int argc, char* argv[])
 
 
 	// NOTE: 0xF(=16) demos and every demo has 0xF(=16) control points
-	sglPoint controlPoints[0xFF] = {0};
+	const int numControlPoints = 0x10;
+	const int numDemos = 0xF;
+	sglPoint controlPoints[numControlPoints * numDemos] = {0};
 	int currentControlPoint = -1;
 	int currDemo = 1; // TODO: put back to 1
 
@@ -153,9 +155,12 @@ int main(int argc, char* argv[])
 			keyboard = SDL_GetKeyboardState(NULL);
 		}
 
-		// TODO: only check points of active demo
+		// TODO: only check points of active demo, otherwise you can pick (invisible)
+		// points of another demo from the top left corner
 		if (m.left) {
-			for (size_t i = 0; i < sizeof(controlPoints) / sizeof(controlPoints[0]) && currentControlPoint == -1; i++) {
+			// for (size_t i = 0; i < sizeof(controlPoints) / sizeof(controlPoints[0]) && currentControlPoint == -1; i++) {
+			size_t start = (currDemo - 1) * numControlPoints;
+			for (size_t i = start; i < start + numControlPoints && i < sizeof(controlPoints) / sizeof(controlPoints[0]) && currentControlPoint == -1; i++) {
 				if (sglGetDistance(controlPoints[i].x, controlPoints[i].y, m.x, m.y) < 6) {
 					currentControlPoint = i;
 				}
