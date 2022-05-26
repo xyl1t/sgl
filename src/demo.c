@@ -239,6 +239,7 @@ DEMOS(demo4)
 	sglDrawTriangle(buffer, 0x3366EEff,
 			cp[3].x, cp[3].y, cp[4].x, cp[4].y, cp[5].x, cp[5].y);
 
+	// TODO: maybe add another set of triangles that have other colors but without alpha
 	sglDrawColorInterpolatedTriangle(buffer,
 			cp[6].x, cp[6].y, cp[7].x, cp[7].y, cp[8].x, cp[8].y,
 			0, 0, 0x0000ffff);
