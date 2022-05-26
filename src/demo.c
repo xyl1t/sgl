@@ -53,18 +53,63 @@ DEMOS(demos) {
 #define drawControlPoint(cp, color) \
 	sglDrawCircle(buffer, color, cp.x, cp.y, 3);
 
+// normlized versions
+#define sin_n(_angle) ((1+sin(_angle))/2.f)
+#define cos_n(_angle) ((1+cos(_angle))/2.f)
+
 DEMOS(demo1)
 {
-	if (init) { return; }
 
-	for (int x = 0; x < buffer->width; x++) {
-		for (int y = 0; y < buffer->height; y++) {
+	static sglFont* font = NULL;
+	static float text_x = 0;
+	static float text_y = 0;
+
+	if (init) {
+		sglFreeFont(font);
+		font = sglCreateFont("../res/xterm7x14.png", 7, 14, true);
+		return;
+	}
+	
+	const char* text = "sgl alpha demo";
+	sglDrawText(buffer, text, text_x, text_y, font);
+	
+	float offset = sglOffsetTextH(text, SGL_TEXT_ALIGNMENT_CENTER, font);
+	
+	float radius = 150;
+
+	text_x = sin_n(time/829.f+18.29)*radius + offset + (256-radius)/2.f;
+	text_y = cos_n(time/989.f)*radius + (256-radius)/2.f;
+
+
+	for (int i = 0; i < buffer->width; i++) {
+		for (int j = 0; j < buffer->height; j++) {
 			// if ((x + y) % 2) continue;
 
-			int i = x << (y % 256 / 32) % 256;
-			int j = y << (x % 256 / 32) % 256;
+			uint8_t x = i % 256;
+			uint8_t y = j % 256;
 
-			sglDrawPixel(buffer, j, i, 255 - (i/2 + j/2), 255, x, y);
+			// int r = x << (y % 256 / 32) % 256;
+			// int g = y << (x % 256 / 32) % 256;
+			// int b = 255 - (r/2 + g/2);
+
+			// // int r = (y & (x^~y)) >> (~x&~y) | ((y & (x^~y)));
+			// // int g = (x & (x^y) ) >> (~x& y) | ((x & (x^y) ));
+			// // int b = (y & (x^y) ) >> ( x&~y) | ((y & (x^y) ));
+
+			uint8_t baseR = y & (x^y);
+			uint8_t baseG = x & (x^y);
+			uint8_t baseB = y & (~x^y);
+
+			uint8_t r = (baseR >> (~x& y)) | baseR;//(256) >> (~x&y) & (x&y);
+			uint8_t g = (baseG >> ( x&~y)) | baseG;//(256) >> (x&~y) & (x&y);
+			uint8_t b = (baseB >> ( x& y)) | baseB;//(256) >> (x&y ) & (x&y);
+			uint8_t a = x|y;//(256) >> (x&y ) & (x&y);
+
+			// uint8_t b = y & (x^~y);
+			// uint8_t g = ~x & (x^y) ;
+			// uint8_t r = ~y & (x^y) ;
+
+			sglDrawPixel(buffer, r, g, b, a, i, j);
 		}
 	}
 }
@@ -195,7 +240,7 @@ DEMOS(demo5)
 			cp[3].x, cp[3].y, cp[4].x, cp[4].y, cp[5].x, cp[5].y);
 	sglDrawColorInterpolatedTriangle(buffer,
 			cp[0].x, cp[0].y, cp[1].x, cp[1].y, cp[2].x, cp[2].y,
-			0xff0000ff, 0x00ff00ff, 0x0000ffff);
+			0xff0000ff, 0x00ff0032, 0x0000ffff);
 	sglDrawTriangle(buffer, 0x3366EEff,
 			cp[0].x, cp[0].y, cp[1].x, cp[1].y, cp[2].x, cp[2].y);
 
@@ -250,10 +295,10 @@ DEMOS(demo6)
 		.h = cp[1].y - cp[0].y,
 	};
 
-	sglDrawBuffer(buffer, bmp, &src, &dst);
+	sglDrawBuffer(buffer, bmp, &dst, &src);
 
 	// draw little preview
-	sglDrawBuffer(buffer, bmp, NULL, &previewRect);
+	sglDrawBuffer(buffer, bmp, &previewRect, NULL);
 
 	const char* text = "Preview";
 	sglDrawText(buffer, text,
@@ -280,10 +325,13 @@ DEMOS(demo6)
 DEMOS(demo7)
 {
 	static sglFont* font = NULL;
+	static sglBuffer* bmp = NULL;
 
 	if (init) {
 		sglFreeFont(font);
 		font = sglCreateFont("../res/xterm7x14.png", 7, 14, true);
+		sglFreeBuffer(bmp);
+		bmp = sglLoadBitmap("../res/gradient.png", SGL_PIXELFORMAT_ABGR32);
 
 		return;
 	}
@@ -294,7 +342,7 @@ DEMOS(demo7)
 		font->fontSheet->height,
 	};
 
-	sglDrawBuffer(buffer, font->fontSheet, NULL, &r);
+	sglDrawBuffer(buffer, font->fontSheet, &r, NULL);
 
 	for (int x = 0; x < font->cols; x++) {
 		for (int y = 0; y < font->rows; y++) {
@@ -304,13 +352,13 @@ DEMOS(demo7)
 
 			// TODO: use blending to draw just a line overlay
 			sglDrawLine(buffer,
-					0xff0000ff,
+					0xff000032,
 					x * font->fontWidth + r.x + leftKern, y * font->fontHeight + r.y,
-					x * font->fontWidth + r.x + leftKern, y * font->fontHeight + r.y + font->fontHeight);
+					x * font->fontWidth + r.x + leftKern, y * font->fontHeight + r.y + font->fontHeight - 1);
 			sglDrawLine(buffer,
-					0x00ff00ff,
+					0x00ff0032,
 					x * font->fontWidth + r.x + rightKern, y * font->fontHeight + r.y,
-					x * font->fontWidth + r.x + rightKern, y * font->fontHeight + r.y + font->fontHeight);
+					x * font->fontWidth + r.x + rightKern, y * font->fontHeight + r.y + font->fontHeight - 1);
 		}
 	}
 
@@ -320,6 +368,14 @@ DEMOS(demo7)
 			"of sgl. Sgl stands\n"
 			"for Simple Graphcs\n"
 			"Library\n", 130, 8, font);
+			
+	r = (sglRect){
+		m->x - bmp->width/2, m->y,
+		bmp->width,
+		bmp->height,
+	};
+
+	sglDrawBuffer(buffer, bmp, &r, NULL);
+
 
 }
-
