@@ -160,7 +160,7 @@ int main(int argc, char* argv[])
 		if (m.left) {
 			// for (size_t i = 0; i < sizeof(controlPoints) / sizeof(controlPoints[0]) && currentControlPoint == -1; i++) {
 			size_t start = currDemo * numControlPoints;
-			for (size_t i = start; i < start + numControlPoints && i < sizeof(controlPoints) / sizeof(controlPoints[0]) && currentControlPoint == -1; i++) {
+			for (size_t i = start + numControlPoints ; i >= start && currentControlPoint == -1; i--) {
 				if (sglGetDistance(controlPoints[i].x, controlPoints[i].y, m.x, m.y) < 6) {
 					currentControlPoint = i;
 				}
