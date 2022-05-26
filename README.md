@@ -67,10 +67,11 @@ Implement basic drawing functions
 
 * [x] implement `sglGetError()` <https://wiki.libsdl.org/SDL\_GetError>
 * [x] live demo code update
-* [ ] add more pixel formats
-* [ ] make the library header only
 * [x] generalize `sglBuffer`'s and `sglBitmap`'s `getPixel()` function to one
+* [ ] add more pixel formats
 * [ ] allow drawing extended characters
+* [ ] text shadows
+* [ ] make the library header only
 * [ ] *optimize*
 	* [ ] circle drawing
 	* [ ] arc drawing
