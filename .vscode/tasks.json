@@ -6,7 +6,8 @@
 		{
 			"label": "build",
 			"type": "shell",
-			"command": "cd build && cmake -DCMAKE_BUILD_TYPE=DEBUG -DCMAKE_EXPORT_COMPILE_COMMANDS=1 .. && make"
+			//"command": "cd build && cmake -DCMAKE_BUILD_TYPE=DEBUG -DCMAKE_EXPORT_COMPILE_COMMANDS=1 .. && make"
+			"command": "cd build && make"
 		},
 		{
 			"label": "build demo",

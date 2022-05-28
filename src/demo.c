@@ -17,7 +17,7 @@ DEMOS(demos) {
 	// TODO: switching between demos (using numbers?) - already done
 	
 	if (init) {
-		SGL_DEBUG_PRINT("###in init\n");
+		SGL_DEBUG_PRINT("Initializing demos\n");
 		sglFreeFont(font);
 		font = sglCreateFont("../res/xterm7x14.png", 7, 14, true);
 
@@ -342,15 +342,43 @@ DEMOS(demo6)
 {
 	// static sglFont* font = NULL;
 	static sglBuffer* bmp = NULL;
+	static sglPoint prev[4];
+	static sglFont* fontWithoutKern;
 
 	if (init) {
 		// sglFreeFont(font);
 		// font = sglCreateFont("../res/xterm7x14.png", 7, 14, true);
 		sglFreeBuffer(bmp);
 		bmp = sglLoadBitmap("../res/gradient.png", SGL_PIXELFORMAT_ABGR32);
+		sglFreeFont(fontWithoutKern);
+		fontWithoutKern = sglCreateFont("../res/xterm7x14.png", 7, 14, false);
+
+		prev[0].x = cp[0].x = 0;
+		prev[0].y = cp[0].y = 0;
+		prev[1].x = cp[1].x = bmp->width;
+		prev[1].y = cp[1].y = 0;
+		prev[2].x = cp[2].x = bmp->width;
+		prev[2].y = cp[2].y = bmp->height;
+		prev[3].x = cp[3].x = 0;
+		prev[3].y = cp[3].y = bmp->height;
 
 		return;
 	}
+	
+	if (ccp >= 0)
+	for (int i = 0; i < 4; i++) {
+		
+		if (i == ccp) continue;
+
+		prev[i].x = cp[i].x;
+		prev[i].y = cp[i].y;
+
+		cp[i].x += cp[ccp].x - prev[ccp].x;
+		cp[i].y += cp[ccp].y - prev[ccp].y;
+	}
+
+	prev[ccp].x = cp[ccp].x;
+	prev[ccp].y = cp[ccp].y;
 
 	sglRect r = {
 		8, 8,
@@ -383,15 +411,20 @@ DEMOS(demo6)
 			"Hello, this is a demo\n"
 			"of sgl. Sgl stands\n"
 			"for Simple Graphcs\n"
-			"Library\n", 130, 8, font);
+			"Library\n", 128, 8, font);
+
+	sglDrawText(buffer, "kerning enabled", 128, 120, font);
+	sglDrawText(buffer, "kerning disabled", 128, 140, fontWithoutKern);
 			
 	r = (sglRect){
-		m->x - bmp->width/2, m->y,
+		cp[0].x, cp[0].y,
 		bmp->width,
 		bmp->height,
 	};
 
 	sglDrawBuffer(buffer, bmp, &r, NULL);
-
-
+	
+	for (int i = 0; i < 4; i++)  {
+		drawControlPoint(cp[i], 0x00ff00ff);
+	}
 }
