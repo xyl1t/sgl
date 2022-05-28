@@ -49,8 +49,8 @@ Implement basic drawing functions
 	* [ ] Wrapping options
 * [x] Text ⌨️
 	* [x] Simple text rendering
-	* [ ] Kerning
-	* [ ] Alignment
+	* [x] Kerning
+	* [x] Alignment
 	* [ ] Size
 	* [ ] Shadow
 * [ ] Shaders
@@ -76,4 +76,3 @@ Implement basic drawing functions
 	* [ ] circle drawing
 	* [ ] arc drawing
 	* [ ] triangles
-
