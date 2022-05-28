@@ -173,8 +173,8 @@ bool sglIsPointInRect(const sglRect* rect, int x, int y)
 	return x >= fixed.x && y >= fixed.y && x < fixed.x + fixed.w && y < fixed.y + fixed.h;
 }
 
-sglBuffer* sglCreateBuffer(
-	void* pixels, uint32_t width, uint32_t height, sglPixelFormatEnum format)
+sglBuffer* sglCreateBuffer(void* pixels, uint32_t width, uint32_t height,
+	sglPixelFormatEnum format)
 {
 	sglBuffer* b = malloc(sizeof(sglBuffer));
 	b->pixels = pixels;
@@ -188,6 +188,7 @@ sglBuffer* sglCreateBuffer(
 		.w = width,
 		.h = height,
 	};
+	b->alphaBlendingEnabled = false;
 
 	SGL_DEBUG_PRINT("sgl buffer initialized\n");
 	return b;
@@ -195,11 +196,19 @@ sglBuffer* sglCreateBuffer(
 
 void sglFreeBuffer(sglBuffer* buffer)
 {
+	if (!buffer) return;
 	// don't free the pixels for the caller!
 	// free(buffer->pixels);
 	free(buffer->pf);
 	free(buffer);
 	SGL_DEBUG_PRINT("sgl buffer destroyed\n");
+}
+
+void sglEnableAlphaBlending(sglBuffer* buffer) {
+	buffer->alphaBlendingEnabled = true;
+}
+void sglDisableAlphaBlending(sglBuffer* buffer) {
+	buffer->alphaBlendingEnabled = false;
 }
 
 bool sglSetClipRect(sglBuffer* buffer, const sglRect* rect)
@@ -228,24 +237,27 @@ void sglResetClipRect(sglBuffer* buffer)
 }
 
 
-sglBitmap* sglLoadBitmap(const char* path, sglPixelFormatEnum format)
+// NOTE: maybe the clip rect should be set to the size of the buffer
+sglBuffer* sglLoadBitmap(const char* path, sglPixelFormatEnum format)
 {
-	sglBitmap* bmp = malloc(sizeof(sglBitmap));
-
-	bmp->pf = sglCreatePixelFormat(format);
+	sglBuffer* bmp = malloc(sizeof(sglBuffer));
 
 	int imgChannels;
-
 	uint8_t* data = stbi_load(path, &bmp->width, &bmp->height, &imgChannels, 0);
 
 	if (!data) {
-		free(bmp->pf);
 		free(bmp);
 		return NULL;
 	}
 
-	bmp->data = malloc(bmp->width * bmp->height * bmp->pf->bytesPerPixel);
+	bmp->pf = sglCreatePixelFormat(format);
+	// FIXME: mallocing pixel data but not freeing!!
+	bmp->pixels = malloc(bmp->width * bmp->height * bmp->pf->bytesPerPixel);
 	bmp->pitch = bmp->width * bmp->pf->bytesPerPixel;
+	bmp->clipRect = (sglRect){
+		.x = 0, .y = 0,
+		.w = bmp->width, .h = bmp->height
+	};
 
 	for (int x = 0; x < bmp->width; x++) {
 		for (int y = 0; y < bmp->height; y++) {
@@ -254,7 +266,7 @@ sglBitmap* sglLoadBitmap(const char* path, sglPixelFormatEnum format)
 			uint8_t b = data[(x + y * bmp->width) * imgChannels + 2];
 			uint8_t a = imgChannels == 4 ? data[(x + y * bmp->width) * imgChannels + 3] : 0xff;
 
-			((uint32_t*)bmp->data)[x + y * bmp->width] = sglMapRGBA(r, g, b, a, bmp->pf);
+			((uint32_t*)bmp->pixels)[x + y * bmp->width] = sglMapRGBA(r, g, b, a, bmp->pf);
 		}
 	}
 
@@ -263,19 +275,11 @@ sglBitmap* sglLoadBitmap(const char* path, sglPixelFormatEnum format)
 	return bmp;
 }
 
-void sglFreeBitmap(sglBitmap* bmp)
-{
-	if (bmp) {
-		free(bmp->pf);
-		free(bmp);
-	}
-}
-
-bool sglSaveBitmap(const sglBitmap* bmp, const char* filename, sglBitmapFormatEnum bitmapFormat)
+bool sglSaveBufferToFile(const sglBuffer* bmp, const char* filename, sglBitmapFormatEnum bitmapFormat)
 {
 	uint32_t* data = malloc(bmp->width * bmp->height * sizeof(uint32_t));
 	sglBuffer* dataBuffer = sglCreateBuffer(data, bmp->width, bmp->height, SGL_PIXELFORMAT_RGBA32);
-	sglDrawBitmap(dataBuffer, bmp, NULL, NULL);
+	sglDrawBuffer(dataBuffer, bmp, NULL, NULL);
 	sglFreeBuffer(dataBuffer);
 
 	switch (bitmapFormat) {
@@ -314,29 +318,109 @@ bool sglSaveBitmap(const sglBitmap* bmp, const char* filename, sglBitmapFormatEn
 	return false;
 }
 
-uint32_t sglGetPixelBitmapRaw(const sglBitmap* bmp, int x, int y)
+sglFont* sglCreateFont(const char* pathToFontBitmap, int fontWidth, int fontHeight,
+	bool useKerning)
 {
-	switch (bmp->pf->bytesPerPixel) {
-	case 1:
-		return *((uint8_t*)bmp->data + (y * bmp->width + x));
-		break;
+	sglBuffer* fontSheet = sglLoadBitmap(pathToFontBitmap, SGL_PIXELFORMAT_ABGR32);
+	if (!fontSheet) return NULL;
 
-	case 2:
-		return *((uint16_t*)bmp->data + (y * bmp->width + x));
-		break;
+	sglFont* font = malloc(sizeof(sglFont));
 
-	case 3:
-		sglError(
-			"Unsupported pixel format (3 bytes per pixel are not supported)");
-		break;
+	font->fontSheet = fontSheet;
+	font->fontWidth = fontWidth;
+	font->fontHeight = fontHeight;
+	font->cols = fontSheet->width / fontWidth;
+	font->rows = fontSheet->height / fontHeight;
 
-	case 4:
-		return *((uint32_t*)bmp->data + (y * bmp->width + x));
-		break;
+	bool flag = false;
+	// TODO: if no kerning just use full width of character
+	if (useKerning) {
+		int characterCols = fontSheet->width / fontWidth;
+		int characterRows = fontSheet->height / fontHeight;
+
+		for (int letterY = 0; letterY < characterRows; letterY++) {
+			for (int letterX = 0; letterX < characterCols; letterX++) {
+
+				bool wasLeft = false, wasRight = false;
+				for (int subXLeft = 0, subXRight = fontWidth - 1;
+						subXLeft < fontWidth;
+						subXLeft++, subXRight--) {
+					for (int subY = 0; subY <= fontHeight; subY++) {
+
+						uint8_t isLetterHitLeft;
+						sglGetPixel(fontSheet,
+								&isLetterHitLeft, NULL, NULL, NULL,
+								letterX * fontWidth + subXLeft,
+								letterY * fontHeight + subY);
+
+						uint8_t isLetterHitRight;
+						sglGetPixel(fontSheet,
+								&isLetterHitRight, NULL, NULL, NULL,
+								letterX * fontWidth + subXRight,
+								letterY * fontHeight + subY);
+
+						// NOTE: also the drawing is not effecitve... put it in the demo
+						// LEFT KERN
+						if (isLetterHitLeft && !wasLeft) {
+							wasLeft = true;
+							sglGetKern(font, letterX, letterY, sglLeftKern) = subXLeft;
+
+							// sglDrawPixel(font->fontSheet,
+							// 		0xff, 0, 0, 0xff,
+							// 		letterX * fontWidth + subXLeft,
+							// 		letterY * fontHeight + subY);
+
+						}
+
+						// RIGHT KERN
+						if (isLetterHitRight && !wasRight) {
+							wasRight = true;
+							sglGetKern(font, letterX, letterY, sglRightKern) = subXRight + 1;
+
+							// sglDrawPixel(font->fontSheet,
+							// 		0, 0xff, 0, 0xff,
+							// 		letterX * fontWidth + subXRight + 1,
+							// 		letterY * fontHeight + subY);
+
+						}
+
+						if (wasLeft && wasRight) continue;
+					}
+				}
+
+				if (!(wasLeft && wasRight)) {
+                    sglGetKern(font, letterX, letterY, sglLeftKern) = 0;
+                    sglGetKern(font, letterX, letterY, sglRightKern) = fontWidth;
+				}
+			}
+		}
+	} else {
+		// initialize to not use kerning
+		for (int i = 0; i < 256; i++) {
+			font->kern[i * 2    ] = 0;
+			font->kern[i * 2 + 1] = font->fontWidth;
+		}
 	}
-	return 0;
+
+	// for (int letterY = 0; letterY < font->rows; letterY++) {
+	// 	for (int letterX = 0; letterX < font->cols; letterX++) {
+	// 		SGL_DEBUG_PRINT("[%c | %d | %d] ", letterX + letterY * 16,
+	// 			sglGetKern(font, letterX, letterY, sglLeftKern),
+	// 			sglGetKern(font, letterX, letterY, sglRightKern));
+	// 	}
+	// 	SGL_DEBUG_PRINT("\n");
+	// }
+
+	return font;
 }
 
+void sglFreeFont(sglFont* font)
+{
+	if(!font) return;
+
+	sglFreeBuffer((sglBuffer*)font->fontSheet);
+	free(font);
+}
 
 /*****************************************************************************
  * GRAPHICS FUNCTIONS                                                        *
@@ -362,6 +446,9 @@ uint32_t sglGetPixelBitmapRaw(const sglBitmap* bmp, int x, int y)
  */
 static void setPixel(sglBuffer* buffer, uint32_t color, int x, int y)
 {
+	if (buffer->alphaBlendingEnabled) {
+		color = sglAlphaBlendColor(color, sglGetPixelRaw(buffer, x, y), buffer->pf);
+	}
 	switch (buffer->pf->bytesPerPixel) {
 	case 1:
 		*((uint8_t*)buffer->pixels + (y * buffer->width + x)) = color;
@@ -372,8 +459,7 @@ static void setPixel(sglBuffer* buffer, uint32_t color, int x, int y)
 		break;
 
 	case 3:
-		sglError(
-			"Unsupported pixel format (3 bytes per pixel are not supported)");
+		sglError("Unsupported pixel format (3 bytes per pixel are not supported)");
 		break;
 
 	case 4:
@@ -425,7 +511,7 @@ void sglDrawPixel(
 	sglDrawPixelRaw(buffer, sglMapRGBA(r, g, b, a, buffer->pf), x, y);
 }
 
-uint32_t sglGetPixelRaw(sglBuffer* buffer, int x, int y)
+uint32_t sglGetPixelRaw(const sglBuffer* buffer, int x, int y)
 {
 #ifdef SGL_CHECK_BUFFER_BOUNDS
 	if (x < 0 || y < 0 || x >= buffer->width || y >= buffer->height)
@@ -454,7 +540,7 @@ uint32_t sglGetPixelRaw(sglBuffer* buffer, int x, int y)
 	return 0;
 }
 
-void sglGetPixel(sglBuffer* buffer, uint8_t* r, uint8_t* g, uint8_t* b,
+void sglGetPixel(const sglBuffer* buffer, uint8_t* r, uint8_t* g, uint8_t* b,
 	uint8_t* a, int x, int y)
 {
 
@@ -495,9 +581,12 @@ void sglDrawLine(sglBuffer* buffer, uint32_t color, int startX, int startY,
 	float stepX = dx / (float)largest;
 	float stepY = dy / (float)largest;
 
+	// NOTE: same as rounding
 	float x = startX + 0.5f;
 	float y = startY + 0.5f;
 	for (int i = 0; i <= largest; i++) {
+		// uint32_t blendedColor = sglAlphaBlendColor(color, sglGetPixelRaw(buffer, x, y), buffer->pf);
+		// setPixel(buffer, blendedColor, x, y);
 		setPixel(buffer, color, x, y);
 		x += stepX;
 		y += stepY;
@@ -920,8 +1009,8 @@ void sglDrawColorInterpolatedTriangle(sglBuffer* buffer, int x1, int y1, int x2,
 	}
 }
 
-void sglDrawBitmap(sglBuffer* buffer, const sglBitmap* bmp,
-		const sglRect* srcRect, const sglRect* dstRect)
+void sglDrawBuffer(sglBuffer* buffer, const sglBuffer* bmp,
+		const sglRect* dstRect, const sglRect* srcRect)
 {
 	sglRect bmpClipRect = { 0, 0, buffer->width, buffer->height };
 	sglRect clippedSrcRect;
@@ -962,21 +1051,71 @@ void sglDrawBitmap(sglBuffer* buffer, const sglBitmap* bmp,
 
 	for (int bufX = clippedDstRect.x; bufX < clippedDstRect.x + clippedDstRect.w; bufX++) {
 		for (int bufY = clippedDstRect.y; bufY < clippedDstRect.y + clippedDstRect.h; bufY++) {
-			int bmpX = (bufX - clippedDstRect.x) / (float)clippedDstRect.w * clippedSrcRect.w + clippedSrcRect.x;
-			int bmpY = (bufY - clippedDstRect.y) / (float)clippedDstRect.h * clippedSrcRect.h + clippedSrcRect.y;
+			// NOTE: it was like this before, it was changed in order to make
+			// the renderer more accurate and faster
+			// int bmpX = (bufX - clippedDstRect.x) / (float)clippedDstRect.w * clippedSrcRect.w  + clippedSrcRect.x;
+			int bmpX = (bufX - clippedDstRect.x) * clippedSrcRect.w / clippedDstRect.w + clippedSrcRect.x;
+			int bmpY = (bufY - clippedDstRect.y) * clippedSrcRect.h / clippedDstRect.h + clippedSrcRect.y;
 
 			if (!sglIsPointInRect(&bmpRect, bmpX, bmpY)) continue;
 
 			uint8_t r, g, b, a;
-			sglGetRGBA(sglGetPixelBitmapRaw(bmp, bmpX, bmpY), bmp->pf, &r, &g, &b, &a);
-
-			// SGL_DEBUG_PRINT("r: %d\n", r);
-			// SGL_DEBUG_PRINT("g: %d\n", g);
-			// SGL_DEBUG_PRINT("b: %d\n", b);
-			// SGL_DEBUG_PRINT("a: %d\n", a);
+			sglGetRGBA(sglGetPixelRaw(bmp, bmpX, bmpY), bmp->pf, &r, &g, &b, &a);
 
 			sglDrawPixel(buffer, r, g, b, a, bufX, bufY);
 		}
+	}
+}
+
+void sglDrawText(sglBuffer* buffer, const char* text, int x, int y,
+		const sglFont* font)
+{
+	if (!font) return;
+
+	int charRows = font->fontSheet->width / font->fontWidth;
+	int charCols = font->fontSheet->height / font->fontHeight;
+
+	int cursorRow = 0;
+	int cursorCol = 0;
+
+	for (int charIdx = 0; text[charIdx] != '\0'; charIdx++) {
+		unsigned char currentChar = (unsigned char)text[charIdx];
+		int letterBmpX = currentChar % charCols;
+		int letterBmpY = currentChar / charRows;
+
+		// SGL_DEBUG_PRINT(".. %c %d\n", currentChar, currentChar);
+
+		if (currentChar == '\n') {
+			cursorCol = 0;
+			cursorRow++;
+			continue;
+		}
+
+		if (currentChar == '\t') {
+			// NOTE: the 4 is the tab size
+			cursorCol += (4 - (cursorCol) % 4) * font->fontWidth;
+			continue;
+		}
+
+		int leftKern = sglGetKern(font, letterBmpX, letterBmpY, sglLeftKern);
+		int rightKern = sglGetKern(font, letterBmpX, letterBmpY, sglRightKern);
+
+		for (int fontPixelX = leftKern; fontPixelX < rightKern; fontPixelX++) {
+			for (int fontPixelY = 0; fontPixelY < font->fontHeight; fontPixelY++) {
+				uint8_t r, g, b, a;
+				sglGetPixel(font->fontSheet, &r, &g, &b, &a,
+					letterBmpX * font->fontWidth + fontPixelX,
+					letterBmpY * font->fontHeight + fontPixelY);
+
+					if (r != 0 || g != 0) {
+					sglDrawPixel(buffer, r, g, b, a,
+						x + fontPixelX - leftKern + cursorCol,
+						y + fontPixelY + cursorRow * font->fontHeight);
+				}
+			}
+		}
+
+		cursorCol += rightKern - leftKern + sglTextSpacing;
 	}
 }
 
@@ -1091,6 +1230,79 @@ bool sglClipLine(const sglRect* clipRect, int startX, int startY, int endX,
 	}
 }
 
+sglRect sglCalculateTextBoundingBox(const char* text, const sglFont* font) {
+	int cursorRow = 0;
+	int cursorCol = 0;
+	int maxCursorCol = 0;
+
+	for (int charIdx = 0; text[charIdx] != '\0'; charIdx++) {
+		char currentChar = text[charIdx];
+
+		if (currentChar == '\n') {
+			cursorCol = 0;
+			cursorRow++;
+		} else if (currentChar == '\t') {
+			// NOTE: the 4 is the tab size
+			cursorCol += 4 * font->fontWidth - (cursorCol) % (4 * font->fontWidth);
+		} else {
+			int letterBmpX = currentChar % font->cols;
+			int letterBmpY = currentChar / font->cols;
+			int leftKern = sglGetKern(font, letterBmpX, letterBmpY, sglLeftKern);
+			int rightKern = sglGetKern(font, letterBmpX, letterBmpY, sglRightKern);
+			cursorCol += rightKern - leftKern + sglTextSpacing;
+		}
+
+		if (maxCursorCol < cursorCol) {
+			maxCursorCol = cursorCol;
+		}
+	}
+
+	return (sglRect){
+		.x = 0,
+		.y = 0,
+		.w = maxCursorCol,
+		.h = (cursorRow+1) * font->fontHeight
+	};
+}
+
+int sglOffsetTextH(const char* text, sglTextAlignment alignment, const sglFont* font)
+{
+	if (!text) return 0;
+
+	switch (alignment) {
+		case SGL_TEXT_ALIGNMENT_LEFT:
+			return 0;
+			break;
+		case SGL_TEXT_ALIGNMENT_CENTER:
+			return -sglCalculateTextBoundingBox(text, font).w/2;
+			break;
+		case SGL_TEXT_ALIGNMENT_RIGHT:
+			return -sglCalculateTextBoundingBox(text, font).w;
+			break;
+		default:
+			return 0;
+	}
+}
+
+int sglOffsetTextV(const char* text, sglTextAlignment alignment, const sglFont* font)
+{
+	if (!text || !font) return 0;
+
+	switch (alignment) {
+		case SGL_TEXT_ALIGNMENT_TOP:
+			return 0;
+			break;
+		case SGL_TEXT_ALIGNMENT_CENTER:
+			return -sglCalculateTextBoundingBox(text, font).h/2;
+			break;
+		case SGL_TEXT_ALIGNMENT_BOTTOM:
+			return -sglCalculateTextBoundingBox(text, font).h;
+			break;
+		default:
+			return 0;
+	}
+}
+
 uint32_t sglMapRGBA(
 	uint8_t r, uint8_t g, uint8_t b, uint8_t a, const sglPixelFormat* pf)
 {
@@ -1134,5 +1346,55 @@ uint32_t sglHasAlphaChannel(sglPixelFormatEnum format)
 {
 	return sglGetChannelLayout(format) < 3;
 }
+
+void sglAlphaBlendRGBAlpha(float alpha,
+		uint8_t r_a, uint8_t g_a, uint8_t b_a,
+		uint8_t r_b, uint8_t g_b, uint8_t b_b,
+		uint8_t* r, uint8_t* g, uint8_t* b) {
+	*r = r_a * (alpha / 255.f) + r_b * (1 - alpha / 255.f);
+	*g = g_a * (alpha / 255.f) + g_b * (1 - alpha / 255.f);
+	*b = b_a * (alpha / 255.f) + b_b * (1 - alpha / 255.f);
+}
+
+// assuming that a is over b
+uint32_t sglAlphaBlendColor(uint32_t a, uint32_t b,
+		const sglPixelFormat* pf) {
+
+	uint8_t r_a, g_a, b_a, a_a;
+	sglGetRGBA(a, pf, &r_a, &g_a, &b_a, &a_a);
+	uint8_t r_b, g_b, b_b, a_b;
+	sglGetRGBA(b, pf, &r_b, &g_b, &b_b, &a_b);
+
+	uint8_t result_r, result_g, result_b;
+
+	sglAlphaBlendRGBAlpha(a_a, 
+		r_a, g_a, b_a,
+		r_b, g_b, b_b,
+		&result_r, &result_g, &result_b);
+
+	return sglMapRGBA(result_r, result_g, result_b, 255, pf);
+}
+
+// uint32_t sglAlphaBlendColor(const sglPixelFormat* pf,
+// 		uint32_t a, uint32_t b) {
+// 
+// 	uint8_t r_a, g_a, b_a, a_a;
+// 	sglGetRGBA(a, pf, &r_a, &g_a, &b_a, &a_a);
+// 	uint8_t r_b, g_b, b_b, a_b;
+// 	sglGetRGBA(b, pf, &r_b, &g_b, &b_b, &a_b);
+// 
+// 	float alpha_a = a_a / 255.f;
+// 	float alpha_b = a_b / 255.f;
+// 
+// 	// float newAlpha = a1 + a2 - a1 * a2 / 256;
+// 	float newAlpha = alpha_a + alpha_b * (1 - alpha_a);
+// 
+// 	uint8_t result_r = (r_a * alpha_a + r_b * alpha_b * (1 - a_a)) / newAlpha;
+// 	uint8_t result_g = (g_a * alpha_a + g_b * alpha_b * (1 - a_a)) / newAlpha;
+// 	uint8_t result_b = (b_a * alpha_a + b_b * alpha_b * (1 - a_a)) / newAlpha;
+// 
+// 	// NOTE: maybe instead of 255, newAlpha should be passed?
+// 	return sglMapRGBA(result_r, result_g, result_b, 255, pf);
+// }
 
 const char* sglGetError(void) { return _sglError; }

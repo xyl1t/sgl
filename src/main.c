@@ -107,14 +107,17 @@ int main(int argc, char* argv[])
 
 	sglBuffer* buffer = sglCreateBuffer(
 		pixels, CANVAS_WIDTH, CANVAS_HEIGHT, SGL_PIXELFORMAT_ABGR32);
+	sglEnableAlphaBlending(buffer);
 
 
 	// NOTE: 0xF(=16) demos and every demo has 0xF(=16) control points
-	sglPoint controlPoints[0xFF] = {0};
+	const int NUM_CONTROL_POINTS = 0x10;
+	sglPoint controlPoints[NUM_CONTROL_POINTS * DEMOS_COUNT];
 	int currentControlPoint = -1;
+	int currDemo = 0;
 
 	demos_f* dyDemos = reloadDemos(NULL);
-	dyDemos(buffer, &m, keyboard, controlPoints, currentControlPoint, 0, true);
+	dyDemos(0, buffer, &m, keyboard, controlPoints, currentControlPoint, 0, true);
 	time_t demoLibCreationTime = getFileTimestamp(demoLibPath);
 	time_t now = demoLibCreationTime;
 
@@ -133,7 +136,13 @@ int main(int argc, char* argv[])
 				if (event.key.keysym.sym == SDLK_r) {
 					SGL_DEBUG_PRINT("Reloading %s...\n", demoLibPath);
 					dyDemos = reloadDemos(NULL);
-					dyDemos(buffer, &m, keyboard, controlPoints, currentControlPoint, 0, true);
+					dyDemos(0, buffer, &m, keyboard, controlPoints, currentControlPoint, 0, true);
+				}
+				if (event.key.keysym.sym >= SDLK_1 && event.key.keysym.sym <= SDLK_9) {
+					int proposed = event.key.keysym.sym - SDLK_1;
+					if (proposed >= 0 && proposed < DEMOS_COUNT) {
+						currDemo = proposed;
+					}
 				}
 				break;
 			case SDL_KEYUP:
@@ -148,9 +157,12 @@ int main(int argc, char* argv[])
 			keyboard = SDL_GetKeyboardState(NULL);
 		}
 
-		// TODO: only check points of active demo
+		// TODO: only check points of active demo, otherwise you can pick (invisible)
+		// points of another demo from the top left corner
 		if (m.left) {
-			for (size_t i = 0; i < sizeof(controlPoints) / sizeof(controlPoints[0]) && currentControlPoint == -1; i++) {
+			// for (size_t i = 0; i < sizeof(controlPoints) / sizeof(controlPoints[0]) && currentControlPoint == -1; i++) {
+			int start = currDemo * NUM_CONTROL_POINTS;
+			for (int i = start + NUM_CONTROL_POINTS ; i >= start && currentControlPoint == -1; i--) {
 				if (sglGetDistance(controlPoints[i].x, controlPoints[i].y, m.x, m.y) < 6) {
 					currentControlPoint = i;
 				}
@@ -175,6 +187,8 @@ int main(int argc, char* argv[])
 			if (!loaded && attempts++ <= 10) {
 				demoLibCreationTime = now;
 				attempts = 0;
+			} else if (loaded) {
+				dyDemos(0, buffer, &m, keyboard, controlPoints, currentControlPoint, 0, true);
 			}
 		}
 
@@ -184,7 +198,7 @@ int main(int argc, char* argv[])
 		sglClear(buffer);
 		sglResetClipRect(buffer);
 
-		dyDemos(buffer, &m, keyboard, controlPoints, currentControlPoint, tic, false);
+		dyDemos(currDemo, buffer, &m, keyboard, controlPoints, currentControlPoint, tic, false);
 
 		//////////////////////////////////////////////////////////////////////
 

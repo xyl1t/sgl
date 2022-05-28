@@ -37,35 +37,42 @@ Implement basic drawing functions
 * [x] Line
 * [x] Circles
 * [x] Arcs
-* [ ] Triangles
+* [x] Triangles
 	* [x] Stroke
 	* [x] Fill
 	* [x] Color interpolation
 	* [ ] Textured triangles
-* [ ] Images (using stb_image.h)
+* [x] Images (using stb_image.h)
 	* [x] Nearest neighbor sampling
 	* [x] Saving
 	* [ ] Linear sampling
 	* [ ] Wrapping options
-* [ ] Text ⌨️
+* [x] Text ⌨️
+	* [x] Simple text rendering
+	* [x] Kerning
+	* [x] Alignment
+	* [ ] Size
+	* [ ] Shadow
 * [ ] Shaders
 
 ### Utility
 
+* [x] Alpha blending
+* [ ] Gamma correction
 * [ ] HSV
 * [ ] HSL
-* [ ] Alpha blending
-* [ ] Gamma correction
-* [ ] (ordered) Dithering
+* [ ] (ordered) Dithering (as a shader? depends on pixel format?)
 
 ### Other
 
 * [x] implement `sglGetError()` <https://wiki.libsdl.org/SDL\_GetError>
 * [x] live demo code update
+* [x] generalize `sglBuffer`'s and `sglBitmap`'s `getPixel()` function to one
 * [ ] add more pixel formats
+* [ ] allow drawing extended characters
+* [ ] text shadows
 * [ ] make the library header only
 * [ ] *optimize*
 	* [ ] circle drawing
 	* [ ] arc drawing
 	* [ ] triangles
-

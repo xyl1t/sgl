@@ -1,40 +1,111 @@
 #include "demo.h"
 #include "sgl.h"
 
+static sglFont* font;
+
+DEMOS(demo0);
+DEMOS(demo1);
+DEMOS(demo2);
+DEMOS(demo3);
+DEMOS(demo4);
+DEMOS(demo5);
+DEMOS(demo6);
+
 DEMOS(demos) {
-	// TODO: make adding demos more easy,
-	// maybe make an array of funciton pointers to the demos?
+	// TODO: make adding demos more easy, maybe make an array of
+	// funciton pointers to the demos? - partially done
+	// TODO: switching between demos (using numbers?) - already done
 	
-	// demo1(buffer, m, k, cp + 0x00, ccp - 0x00, time, init);
-	// demo2(buffer, m, k, cp + 0x20, ccp - 0x20, time, init);
-	// demo3(buffer, m, k, cp + 0x30, ccp - 0x30, time, init);
-	// demo4(buffer, m, k, cp + 0x40, ccp - 0x40, time, init);
-	// demo5(buffer, m, k, cp + 0x50, ccp - 0x50, time, init);
-	demo6(buffer, m, k, cp + 0x60, ccp - 0x60, time, init);
-	// printf("hallo\n");
+	if (init) {
+		SGL_DEBUG_PRINT("Initializing demos\n");
+		sglFreeFont(font);
+		font = sglCreateFont("../res/xterm7x14.png", 7, 14, true);
+
+#define initDemoArr(demoNum) \
+	demoArr[demoNum] = demo##demoNum; \
+	demoArr[demoNum](0, buffer, m, k, cp + 0x10 * demoNum, ccp - 0x10 * demoNum, time, init);
+
+		initDemoArr(0);
+		initDemoArr(1);
+		initDemoArr(2);
+		initDemoArr(3);
+		initDemoArr(4);
+		initDemoArr(5);
+		initDemoArr(6);
+
+#undef initDemoArr
+		return;
+	}
+
+	demoArr[currDemo](currDemo, buffer, m, k, cp + 0x10 * currDemo, ccp - 0x10 * currDemo, time, init);
 }
 
 
 #define drawControlPoint(cp, color) \
 	sglDrawCircle(buffer, color, cp.x, cp.y, 3);
 
-DEMOS(demo1)
-{
-	if (init) { return; }
+// normlized versions
+#define sin_n(_angle) ((1+sin(_angle))/2.f)
+#define cos_n(_angle) ((1+cos(_angle))/2.f)
 
-	for (int x = 0; x < buffer->width; x++) {
-		for (int y = 0; y < buffer->height; y++) {
+DEMOS(demo0)
+{
+
+	// static sglFont* font = NULL;
+	static float text_x = 0;
+	static float text_y = 0;
+
+	if (init) {
+		// sglFreeFont(font);
+		// font = sglCreateFont("../res/xterm7x14.png", 7, 14, true);
+		return;
+	}
+	
+	const char* text = "sgl alpha demo";
+	sglDrawText(buffer, text, text_x, text_y, font);
+	
+	float offset = sglOffsetTextH(text, SGL_TEXT_ALIGNMENT_CENTER, font);
+	
+	float radius = 150;
+
+	text_x = sin_n(time/829.f+18.29)*radius + offset + (256-radius)/2.f;
+	text_y = cos_n(time/989.f)*radius + (256-radius)/2.f;
+
+
+	for (int i = 0; i < buffer->width; i++) {
+		for (int j = 0; j < buffer->height; j++) {
 			// if ((x + y) % 2) continue;
 
-			int i = x << (y % 256 / 32) % 256;
-			int j = y << (x % 256 / 32) % 256;
+			uint8_t x = i % 256;
+			uint8_t y = j % 256;
 
-			sglDrawPixel(buffer, j, i, 255 - (i/2 + j/2), 255, x, y);
+			// int r = x << (y % 256 / 32) % 256;
+			// int g = y << (x % 256 / 32) % 256;
+			// int b = 255 - (r/2 + g/2);
+
+			// // int r = (y & (x^~y)) >> (~x&~y) | ((y & (x^~y)));
+			// // int g = (x & (x^y) ) >> (~x& y) | ((x & (x^y) ));
+			// // int b = (y & (x^y) ) >> ( x&~y) | ((y & (x^y) ));
+
+			uint8_t baseR = y & (x^y);
+			uint8_t baseG = x & (x^y);
+			uint8_t baseB = y & (~x^y);
+
+			uint8_t r = (baseR >> (~x& y)) | baseR;//(256) >> (~x&y) & (x&y);
+			uint8_t g = (baseG >> ( x&~y)) | baseG;//(256) >> (x&~y) & (x&y);
+			uint8_t b = (baseB >> ( x& y)) | baseB;//(256) >> (x&y ) & (x&y);
+			uint8_t a = x|y;//(256) >> (x&y ) & (x&y);
+
+			// uint8_t b = y & (x^~y);
+			// uint8_t g = ~x & (x^y) ;
+			// uint8_t r = ~y & (x^y) ;
+
+			sglDrawPixel(buffer, r, g, b, a, i, j);
 		}
 	}
 }
 
-DEMOS(demo2)
+DEMOS(demo1)
 {
 	if (init) {
 		cp[1].x = 10;
@@ -67,7 +138,7 @@ DEMOS(demo2)
 
 }
 
-DEMOS(demo3)
+DEMOS(demo2)
 {
 	if (init) { return; }
 
@@ -89,7 +160,7 @@ DEMOS(demo3)
 	}
 }
 
-DEMOS(demo4)
+DEMOS(demo3)
 {
 	if (init) {
 		cp[0].x = 128;
@@ -142,47 +213,74 @@ DEMOS(demo4)
 
 }
 
-DEMOS(demo5)
+DEMOS(demo4)
 {
 	if (init) {
 		cp[0] = (sglPoint){ .x = 128, .y = 32 };
 		cp[1] = (sglPoint){ .x = 200, .y = 64 };
 		cp[2] = (sglPoint){ .x = 100, .y = 96 };
-		cp[3] = (sglPoint){ .x =  64, .y = 32 };
-		cp[4] = (sglPoint){ .x = 100, .y = 64 };
-		cp[5] = (sglPoint){ .x =  16, .y = 98 };
+
+		for(int i = 1; i < 5; i++) {
+			cp[0 + i*3] = (sglPoint){ .x =  64 + rand()%3-1, .y = 32 + rand()%3-1};
+			cp[1 + i*3] = (sglPoint){ .x = 100 + rand()%3-1, .y = 64 + rand()%3-1};
+			cp[2 + i*3] = (sglPoint){ .x =  16 + rand()%3-1, .y = 98 + rand()%3-1};
+		}
+
 		return;
 	}
+
+	sglDrawColorInterpolatedTriangle(buffer,
+			cp[0].x, cp[0].y, cp[1].x, cp[1].y, cp[2].x, cp[2].y,
+			0xff0000ff, 0x00ff00ff, 0x0000ffff);
+
 
 	sglFillTriangle(buffer, 0xffffffff,
 			cp[3].x, cp[3].y, cp[4].x, cp[4].y, cp[5].x, cp[5].y);
 	sglDrawTriangle(buffer, 0x3366EEff,
 			cp[3].x, cp[3].y, cp[4].x, cp[4].y, cp[5].x, cp[5].y);
+
+	// TODO: maybe add another set of triangles that have other colors but without alpha
 	sglDrawColorInterpolatedTriangle(buffer,
-			cp[0].x, cp[0].y, cp[1].x, cp[1].y, cp[2].x, cp[2].y,
-			0xff0000ff, 0x00ff00ff, 0x0000ffff);
-	sglDrawTriangle(buffer, 0x3366EEff,
-			cp[0].x, cp[0].y, cp[1].x, cp[1].y, cp[2].x, cp[2].y);
+			cp[6].x, cp[6].y, cp[7].x, cp[7].y, cp[8].x, cp[8].y,
+			0, 0, 0x0000ffff);
+	sglDrawColorInterpolatedTriangle(buffer,
+			cp[9].x, cp[9].y, cp[10].x, cp[10].y, cp[11].x, cp[11].y,
+			0xff0000ff, 0, 0);
+	sglDrawColorInterpolatedTriangle(buffer,
+			cp[12].x, cp[12].y, cp[13].x, cp[13].y, cp[14].x, cp[14].y,
+			0, 0x00ff00ff, 0);
 
-	drawControlPoint(cp[0], 0xff0000ff);
-	drawControlPoint(cp[1], 0x00ff00ff);
-	drawControlPoint(cp[2], 0x0000ffff);
+	for (int i = 0; i < 5; i++) {
+		sglDrawTriangle(buffer, 0x3366EEff,
+			cp[0 + i*3].x, cp[0 + i*3].y, cp[1 + i*3].x, cp[1 + i*3].y, cp[2 + i*3].x, cp[2 + i*3].y);
+	}
 
-	drawControlPoint(cp[3], 0xffffffff);
-	drawControlPoint(cp[4], 0xffffffff);
-	drawControlPoint(cp[5], 0xffffffff);
+	for(int i = 0; i < 5; i++) {
+		if (i != 1) {
+			drawControlPoint(cp[0 + i * 3], 0xff0000ff);
+			drawControlPoint(cp[1 + i * 3], 0x00ff00ff);
+			drawControlPoint(cp[2 + i * 3], 0x0000ffff);
+		} else {
+			drawControlPoint(cp[3], 0xffffffff);
+			drawControlPoint(cp[4], 0xffffffff);
+			drawControlPoint(cp[5], 0xffffffff);
+		}
+	}
+
 }
 
-DEMOS(demo6)
+DEMOS(demo5)
 {
-	static sglBitmap* bmp = NULL;
+	static sglBuffer* bmp = NULL;
 	static sglRect previewRect;
+	// static sglFont* font;
 
 	if (init || !bmp) {
-		sglFreeBitmap(bmp);
-		// bmp = sglLoadBitmap("../res/cidr.png", SGL_PIXELFORMAT_ABGR32);
+		sglFreeBuffer(bmp);
 		bmp = sglLoadBitmap("../res/cidr.png", SGL_PIXELFORMAT_ABGR32);
-		SGL_DEBUG_PRINT("init bmp: %p\n", bmp);
+
+		// sglFreeFont(font);
+		// font = sglCreateFont("../res/xterm7x14.png", 7, 14, true);
 
 		previewRect.w = 48;
 		previewRect.h = bmp->height / (float)bmp->width * previewRect.w;
@@ -190,7 +288,7 @@ DEMOS(demo6)
 		previewRect.y = 8;
 
 		// result
-		cp[0] = (sglPoint){ .x = 16, .y = 16 };
+		cp[0] = (sglPoint){ .x = 8, .y = 8 };
 		cp[1] = (sglPoint){ .x = bmp->width-16, .y = bmp->height-16 };
 
 		// preview
@@ -213,10 +311,16 @@ DEMOS(demo6)
 		.h = cp[1].y - cp[0].y,
 	};
 
-	sglDrawBitmap(buffer, bmp, &src, &dst);
+	sglDrawBuffer(buffer, bmp, &dst, &src);
 
 	// draw little preview
-	sglDrawBitmap(buffer, bmp, NULL, &previewRect);
+	sglDrawBuffer(buffer, bmp, &previewRect, NULL);
+
+	const char* text = "Preview";
+	sglDrawText(buffer, text,
+		previewRect.x + previewRect.w / 2 + sglOffsetTextH(text, SGL_TEXT_ALIGNMENT_CENTER, font),
+		previewRect.y + previewRect.h + 2,
+		font);
 
 	drawControlPoint(cp[0], 0xaf7fefff);
 	drawControlPoint(cp[1], 0xaf7fefff);
@@ -229,8 +333,98 @@ DEMOS(demo6)
 
 	if (k[SDL_SCANCODE_S]) {
 		printf("saving bitmap...\n");
-		sglSaveBitmap(bmp, "bitmap.png", SGL_BITMAPFORMAT_PNG);
+		sglSaveBufferToFile(bmp, "bitmap.png", SGL_BITMAPFORMAT_PNG);
 	}
 
 }
 
+DEMOS(demo6)
+{
+	// static sglFont* font = NULL;
+	static sglBuffer* bmp = NULL;
+	static sglPoint prev[4];
+	static sglFont* fontWithoutKern;
+
+	if (init) {
+		// sglFreeFont(font);
+		// font = sglCreateFont("../res/xterm7x14.png", 7, 14, true);
+		sglFreeBuffer(bmp);
+		bmp = sglLoadBitmap("../res/gradient.png", SGL_PIXELFORMAT_ABGR32);
+		sglFreeFont(fontWithoutKern);
+		fontWithoutKern = sglCreateFont("../res/xterm7x14.png", 7, 14, false);
+
+		prev[0].x = cp[0].x = 0;
+		prev[0].y = cp[0].y = 0;
+		prev[1].x = cp[1].x = bmp->width;
+		prev[1].y = cp[1].y = 0;
+		prev[2].x = cp[2].x = bmp->width;
+		prev[2].y = cp[2].y = bmp->height;
+		prev[3].x = cp[3].x = 0;
+		prev[3].y = cp[3].y = bmp->height;
+
+		return;
+	}
+	
+	if (ccp >= 0)
+	for (int i = 0; i < 4; i++) {
+		
+		if (i == ccp) continue;
+
+		prev[i].x = cp[i].x;
+		prev[i].y = cp[i].y;
+
+		cp[i].x += cp[ccp].x - prev[ccp].x;
+		cp[i].y += cp[ccp].y - prev[ccp].y;
+	}
+
+	prev[ccp].x = cp[ccp].x;
+	prev[ccp].y = cp[ccp].y;
+
+	sglRect r = {
+		8, 8,
+		font->fontSheet->width,
+		font->fontSheet->height,
+	};
+
+	sglDrawBuffer(buffer, font->fontSheet, &r, NULL);
+
+	for (int x = 0; x < font->cols; x++) {
+		for (int y = 0; y < font->rows; y++) {
+			int leftKern = sglGetKern(font, x, y, sglLeftKern);
+			int rightKern = sglGetKern(font, x, y, sglRightKern);
+			// SGL_DEBUG_PRINT("rightKern: %d %d - %d\n", x, y, rightKern);
+
+			// TODO: use blending to draw just a line overlay
+			sglDrawLine(buffer,
+					0xff000032,
+					x * font->fontWidth + r.x + leftKern, y * font->fontHeight + r.y,
+					x * font->fontWidth + r.x + leftKern, y * font->fontHeight + r.y + font->fontHeight - 1);
+			sglDrawLine(buffer,
+					0x00ff0032,
+					x * font->fontWidth + r.x + rightKern, y * font->fontHeight + r.y,
+					x * font->fontWidth + r.x + rightKern, y * font->fontHeight + r.y + font->fontHeight - 1);
+		}
+	}
+
+	sglDrawText(buffer,
+			"!@#$%^&*()_-=<>}|}]*,.\n"
+			"Hello, this is a demo\n"
+			"of sgl. Sgl stands\n"
+			"for Simple Graphics\n"
+			"Library\n", 128, 8, font);
+
+	sglDrawText(buffer, "kerning enabled", 128, 120, font);
+	sglDrawText(buffer, "kerning disabled", 128, 140, fontWithoutKern);
+			
+	r = (sglRect){
+		cp[0].x, cp[0].y,
+		bmp->width,
+		bmp->height,
+	};
+
+	sglDrawBuffer(buffer, bmp, &r, NULL);
+	
+	for (int i = 0; i < 4; i++)  {
+		drawControlPoint(cp[i], 0x00ff00ff);
+	}
+}

@@ -35,6 +35,15 @@
 
 #define sgl_member_size(type, member) sizeof(((type*)0)->member)
 
+#define sglGetKern(font, _char_x, _char_y, side) \
+	font->kern[_char_x * 2 + _char_y * font->cols*2 + side]
+#define sglLeftKern 0
+#define sglRightKern 1
+// TODO: extract this to font level
+#define sglTextSpacing 1
+
+// #define _sglAlphaBlendColor(a, b, pf) buffer->alphaBlendingEnabled ? 
+
 /*****************************************************************************
  * STATE VARIABLES                                                           *
  *****************************************************************************/
@@ -189,6 +198,7 @@ typedef struct sglBuffer {
 	int height;
 	int pitch;
 	sglRect clipRect;
+	bool alphaBlendingEnabled;
 } sglBuffer;
 
 /**
@@ -198,13 +208,16 @@ typedef struct sglBuffer {
  * @param height Height of the buffer
  * @param format Pixel format of the pixel buffer
  */
-sglBuffer* sglCreateBuffer(
-	void* pixels, uint32_t width, uint32_t height, sglPixelFormatEnum format);
+sglBuffer* sglCreateBuffer(void* pixels, uint32_t width, uint32_t height,
+	sglPixelFormatEnum format);
 /**
  * @brief Frees an sgl buffer
  * @param buffer The buffer to free
  */
 void sglFreeBuffer(sglBuffer* buffer);
+
+void sglEnableAlphaBlending(sglBuffer* buffer);
+void sglDisableAlphaBlending(sglBuffer* buffer);
 
 /**
  * @brief Sets the clipping rectangle of the buffer, meaning that you won't
@@ -234,65 +247,39 @@ typedef enum {
 } sglBitmapFormatEnum;
 
 /**
- * @brief Struct that holds bitmap data
- */
-typedef struct sglBitmap{
-	void* data;
-	sglPixelFormat* pf;
-	int width;
-	int height;
-	int pitch;
-} sglBitmap;
-
-/**
  * @brief Load a bitmap from an image file
  * @param path Path to the image file
  * @param format The pixel format of the bitmap
- * @return Bitmap struct in the pixel format that was given
+ * @return Bitmap struct in the pixel format that was given or NULL if the
+ * file is not found
  */
-sglBitmap* sglLoadBitmap(const char* path, sglPixelFormatEnum format);
-/**
- * @brief Frees a bitmap
- * @param bmp The bitmap to free
- */
-void sglFreeBitmap(sglBitmap* bmp);
+sglBuffer* sglLoadBitmap(const char* path, sglPixelFormatEnum format);
 /**
  * @brief Save a bitmap as an image file
- * @param bmp The bitmap to save
+ * @param buffer The buffer to save
  * @param filename The name and path to the image file
  * @param bitmapFormat The image format to save the file in (png, bmp, jpg, tga)
  * @return True if successful
  */
-bool sglSaveBitmap(const sglBitmap* bmp, const char* filename,
+bool sglSaveBufferToFile(const sglBuffer* buffer, const char* filename,
 	sglBitmapFormatEnum bitmapFormat);
-/**
- * @brief Get pixel from bitmap
- * @param bmp The bitmap to get the pixel from
- * @param x The x coordinate of the pixel
- * @param y The y coordinate of the pixel
- * @return The color of the pixel
- */
-uint32_t sglGetPixelBitmapRaw(const sglBitmap* bmp, int x, int y);
-/**
- * @brief Get pixel from bitmap
- * @param bmp The bitmap to get the pixel from
- * @param[out] r The red channel of the pixel color
- * @param[out] g The green channel of the pixel color
- * @param[out] b The blue channel of the pixel color
- * @param[out] a The alpha channel of the pixel color
- * @param x The x coordinate of the pixel
- * @param y The y coordinate of the pixel
- */
-void sglGetPixelBitmap(const sglBitmap* bmp,
-	uint8_t* r, uint8_t* g, uint8_t* b, uint8_t* a,
-	int x, int y);
-/**
- * @brief Copy the content of one bitmap to another
- * @param dstBmp The bitmap to copy to
- * @param srcBmp The bitmap to copy from
- */
-void sglCopyBitmapData(sglBitmap* dstBmp, const sglBitmap* srcBmp);
 extern int sgl_jpg_quality;
+
+typedef struct sglFont {
+	/* const */ sglBuffer* fontSheet;
+	int kern[512]; // TODO: you don't need this many, maybe only 16*2*16
+	int fontWidth;
+	int fontHeight;
+	int8_t cols;
+	int8_t rows;
+} sglFont;
+
+sglFont* sglCreateFont(const char* pathToFontBitmap, int fontWidth, int fontHeight,
+	bool useKerning);
+void sglFreeFont(sglFont* font);
+// TODO:
+// sglDrawText(string, font, size)
+// getLetter()?
 
 /*****************************************************************************
  * GRAPHICS FUNCTIONS                                                        *
@@ -345,7 +332,7 @@ void sglDrawPixel(sglBuffer* buffer, uint8_t r, uint8_t g, uint8_t b, uint8_t a,
  * @param x x coordinate of pixel
  * @param y y coordinate of pixel
  */
-uint32_t sglGetPixelRaw(sglBuffer* buffer, int x, int y);
+uint32_t sglGetPixelRaw(const sglBuffer* buffer, int x, int y);
 
 /**
  * @brief get pixel in buffer
@@ -357,7 +344,7 @@ uint32_t sglGetPixelRaw(sglBuffer* buffer, int x, int y);
  * @param[out] b Pointer to blue component
  * @param[out] a Pointer to alpha component
  */
-void sglGetPixel(sglBuffer* buffer, uint8_t* r, uint8_t* g, uint8_t* b,
+void sglGetPixel(const sglBuffer* buffer, uint8_t* r, uint8_t* g, uint8_t* b,
 	uint8_t* a, int x, int y);
 
 /**
@@ -484,9 +471,26 @@ void sglFillTriangle(sglBuffer* buffer, uint32_t color, int x1, int y1, int x2,
 void sglDrawColorInterpolatedTriangle(sglBuffer* buffer, int x1, int y1, int x2,
 	int y2, int x3, int y3, uint32_t c1, uint32_t c2, uint32_t c3);
 
-void sglDrawBitmap(sglBuffer* buffer, const sglBitmap* bitmap,
-		const sglRect* srcRect, const sglRect* dstRect);
+/**
+ * @brief Draw one buffer on another buffer
+ * @param buffer destination buffer - the buffer that will be drawn on
+ * @param src source buffer - the buffer that will be used to draw on the other
+ * @param srcRect source rectangle
+ * @param dstRect destination rectangle
+ */
+void sglDrawBuffer(sglBuffer* buffer, const sglBuffer* src,
+	const sglRect* dstRect, const sglRect* srcRect);
 
+/**
+ * @brief Draw text on a buffer using a font
+ * @param buffer the buffer to draw on
+ * @param text text to draw
+ * @param x x location of text
+ * @param y y location of text
+ * @param font the font to use
+ */
+void sglDrawText(sglBuffer* buffer, const char* text, int x, int y,
+	const sglFont* font);
 
 
 /*****************************************************************************
@@ -566,6 +570,27 @@ float sglGetDistance(float a_x, float a_y, float b_x, float b_y);
 bool sglClipLine(const sglRect* clipRect, int startX, int startY, int endX,
 	int endY, int* cstartX, int* cstartY, int* cendX, int* cendY);
 
+typedef enum {
+	SGL_TEXT_ALIGNMENT_LEFT   = 0,
+	SGL_TEXT_ALIGNMENT_TOP    = 0,
+	SGL_TEXT_ALIGNMENT_CENTER = 1,
+	SGL_TEXT_ALIGNMENT_RIGHT  = 2,
+	SGL_TEXT_ALIGNMENT_BOTTOM = 2,
+} sglTextAlignment;
+
+/**
+ * @brief Calculates horizontal offset for given text
+ * @return offset value for alignment
+ */
+int sglOffsetTextH(const char* text, sglTextAlignment alignment, const sglFont* font);
+
+/**
+ * @brief Calculates vertical offset for given text
+ * @return offset value for alignment
+ */
+int sglOffsetTextV(const char* text, sglTextAlignment alignment, const sglFont* font);
+
+
 /**
  * @brief Map single rgba values to a 32 bit uint32_t using a pixel format
  * @param r red channel
@@ -609,6 +634,19 @@ uint32_t sglGetChannelLayout(sglPixelFormatEnum format);
  * @return True if alpha channel is present
  */
 uint32_t sglHasAlphaChannel(sglPixelFormatEnum format);
+
+void sglAlphaBlendRGBAlpha(float alpha,
+		uint8_t r_a, uint8_t g_a, uint8_t b_a,
+		uint8_t r_b, uint8_t g_b, uint8_t b_b,
+		uint8_t* r, uint8_t* g, uint8_t* b);
+
+void sglAlphaBlendRGBA(
+		uint8_t r_a, uint8_t g_a, uint8_t b_a, uint8_t a_a,
+		uint8_t r_b, uint8_t g_b, uint8_t b_b, uint8_t a_b,
+		uint8_t* r, uint8_t* g, uint8_t* b, uint8_t* a);
+
+uint32_t sglAlphaBlendColor(uint32_t a, uint32_t b,
+		const sglPixelFormat* pf);
 
 /**
  * @brief Get last error that occurred when calling an sgl function
