@@ -410,7 +410,7 @@ DEMOS(demo6)
 			"!@#$%^&*()_-=<>}|}]*,.\n"
 			"Hello, this is a demo\n"
 			"of sgl. Sgl stands\n"
-			"for Simple Graphcs\n"
+			"for Simple Graphics\n"
 			"Library\n", 128, 8, font);
 
 	sglDrawText(buffer, "kerning enabled", 128, 120, font);
