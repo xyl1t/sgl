@@ -49,19 +49,19 @@ Implement basic drawing functions
 	* [ ] Wrapping options
 * [x] Text ⌨️
 	* [x] Simple text rendering
-	* [ ] Kerning
-	* [ ] Alignment
+	* [x] Kerning
+	* [x] Alignment
 	* [ ] Size
 	* [ ] Shadow
 * [ ] Shaders
 
 ### Utility
 
+* [x] Gamma correction
 * [ ] HSV
 * [ ] HSL
 * [ ] Alpha blending
-* [ ] Gamma correction
-* [ ] (ordered) Dithering
+* [ ] (ordered) Dithering (as a shader? depends on pixel format?)
 
 ### Other
 
@@ -76,4 +76,3 @@ Implement basic drawing functions
 	* [ ] circle drawing
 	* [ ] arc drawing
 	* [ ] triangles
-
