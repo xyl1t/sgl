@@ -139,7 +139,10 @@ int main(int argc, char* argv[])
 					dyDemos(0, buffer, &m, keyboard, controlPoints, currentControlPoint, 0, true);
 				}
 				if (event.key.keysym.sym >= SDLK_1 && event.key.keysym.sym <= SDLK_9) {
-					currDemo = event.key.keysym.sym - SDLK_1;
+					int proposed = event.key.keysym.sym - SDLK_1;
+					if (proposed >= 0 && proposed < DEMOS_COUNT) {
+						currDemo = proposed;
+					}
 				}
 				break;
 			case SDL_KEYUP:
