@@ -57,10 +57,10 @@ Implement basic drawing functions
 
 ### Utility
 
-* [x] Gamma correction
+* [x] Alpha blending
+* [ ] Gamma correction
 * [ ] HSV
 * [ ] HSL
-* [ ] Alpha blending
 * [ ] (ordered) Dithering (as a shader? depends on pixel format?)
 
 ### Other
