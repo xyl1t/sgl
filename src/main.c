@@ -158,8 +158,8 @@ int main(int argc, char* argv[])
 		// points of another demo from the top left corner
 		if (m.left) {
 			// for (size_t i = 0; i < sizeof(controlPoints) / sizeof(controlPoints[0]) && currentControlPoint == -1; i++) {
-			size_t start = currDemo * NUM_CONTROL_POINTS;
-			for (size_t i = start + NUM_CONTROL_POINTS ; i >= start && currentControlPoint == -1; i--) {
+			int start = currDemo * NUM_CONTROL_POINTS;
+			for (int i = start + NUM_CONTROL_POINTS ; i >= start && currentControlPoint == -1; i--) {
 				if (sglGetDistance(controlPoints[i].x, controlPoints[i].y, m.x, m.y) < 6) {
 					currentControlPoint = i;
 				}
