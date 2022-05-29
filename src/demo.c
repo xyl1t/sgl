@@ -424,20 +424,21 @@ DEMOS(demo7)
 		return;
 	}
 	
-	if (ccp >= 0)
-	for (int i = 0; i < 4; i++) {
-		
-		if (i == ccp) continue;
+	if (ccp >= 0) {
+		for (int i = 0; i < 4; i++) {
+			
+			if (i == ccp) continue;
 
-		prev[i].x = cp[i].x;
-		prev[i].y = cp[i].y;
+			prev[i].x = cp[i].x;
+			prev[i].y = cp[i].y;
 
-		cp[i].x += cp[ccp].x - prev[ccp].x;
-		cp[i].y += cp[ccp].y - prev[ccp].y;
+			cp[i].x += cp[ccp].x - prev[ccp].x;
+			cp[i].y += cp[ccp].y - prev[ccp].y;
+		}
+
+		prev[ccp].x = cp[ccp].x;
+		prev[ccp].y = cp[ccp].y;
 	}
-
-	prev[ccp].x = cp[ccp].x;
-	prev[ccp].y = cp[ccp].y;
 
 	sglRect r = {
 		8, 8,
