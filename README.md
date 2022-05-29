@@ -41,13 +41,13 @@ Implement basic drawing functions
 	* [x] Stroke
 	* [x] Fill
 	* [x] Color interpolation
-	* [ ] Textured triangles
+	* [ ] Textured triangles ⌨️
 * [x] Images (using stb_image.h)
 	* [x] Nearest neighbor sampling
-	* [x] Saving
+	* [x] Save to disk
 	* [ ] Linear sampling
 	* [ ] Wrapping options
-* [x] Text ⌨️
+* [x] Text
 	* [x] Simple text rendering
 	* [x] Kerning
 	* [x] Alignment
