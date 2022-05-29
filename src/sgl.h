@@ -212,7 +212,7 @@ typedef struct sglBuffer {
 } sglBuffer;
 
 /**
- * @brief Creates an sgl buffer based on a pixel buffer
+ * @brief Creates an sgl buffer based on a pixel buffer, call sglFreeBuffer() to free!
  * @param pixels The pixel buffer that will be used to draw on
  * @param width Width of the buffer
  * @param height Height of the buffer
@@ -221,8 +221,9 @@ typedef struct sglBuffer {
 sglBuffer* sglCreateBuffer(void* pixels, uint32_t width, uint32_t height,
 	sglPixelFormatEnum format);
 /**
- * @brief Frees an sgl buffer
+ * @brief Frees an sgl buffer, call this only with sglCreateBuffer()!
  * @param buffer The buffer to free
+ * This freeing does NOT free the pixels of the buffer
  */
 void sglFreeBuffer(sglBuffer* buffer);
 
@@ -257,13 +258,21 @@ typedef enum {
 } sglBitmapFormatEnum;
 
 /**
- * @brief Load a bitmap from an image file
+ * @brief Load a bitmap from an image file, call sglFreeBitmap() to free!
  * @param path Path to the image file
  * @param format The pixel format of the bitmap
  * @return Bitmap struct in the pixel format that was given or NULL if the
  * file is not found
  */
 sglBuffer* sglLoadBitmap(const char* path, sglPixelFormatEnum format);
+
+/**
+ * @brief Frees an sgl bitmap buffer, call this only with sglLoadBuffer()!
+ * @param buffer The buffer to free
+ * This freeing also frees the pixels of the buffer
+ */
+void sglFreeBitmap(sglBuffer* buffer);
+
 /**
  * @brief Save a bitmap as an image file
  * @param buffer The buffer to save

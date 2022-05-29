@@ -237,7 +237,6 @@ void sglResetClipRect(sglBuffer* buffer)
 }
 
 
-// NOTE: maybe the clip rect should be set to the size of the buffer
 sglBuffer* sglLoadBitmap(const char* path, sglPixelFormatEnum format)
 {
 	sglBuffer* bmp = malloc(sizeof(sglBuffer));
@@ -274,6 +273,17 @@ sglBuffer* sglLoadBitmap(const char* path, sglPixelFormatEnum format)
 
 	return bmp;
 }
+
+void sglFreeBitmap(sglBuffer* buffer)
+{
+	if (!buffer) return;
+	// don't free the pixels for the caller!
+	free(buffer->pixels);
+	free(buffer->pf);
+	free(buffer);
+	SGL_DEBUG_PRINT("sgl bitmap destroyed\n");
+}
+
 
 bool sglSaveBufferToFile(const sglBuffer* bmp, const char* filename, sglBitmapFormatEnum bitmapFormat)
 {
@@ -418,7 +428,7 @@ void sglFreeFont(sglFont* font)
 {
 	if(!font) return;
 
-	sglFreeBuffer((sglBuffer*)font->fontSheet);
+	sglFreeBitmap((sglBuffer*)font->fontSheet);
 	free(font);
 }
 

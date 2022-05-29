@@ -60,6 +60,8 @@ DEMOS(demo0)
 	if (init) {
 		// sglFreeFont(font);
 		// font = sglCreateFont("../res/xterm7x14.png", 7, 14, true);
+		cp[0].x = 50;
+		cp[0].y = 50;
 		return;
 	}
 	
@@ -68,11 +70,11 @@ DEMOS(demo0)
 	
 	float offset = sglOffsetTextH(text, SGL_TEXT_ALIGNMENT_CENTER, font);
 	
-	float radius = 150;
+	float radiusX = 150;
+	float radiusY = 242;
 
-	text_x = sin_n(time/829.f+18.29)*radius + offset + (256-radius)/2.f;
-	text_y = cos_n(time/989.f)*radius + (256-radius)/2.f;
-
+	text_x = sin_n(time/829.f+18.29)*radiusX + offset + (256-radiusX)/2.f;
+	text_y = cos_n(time/989.f)*radiusY + (256-radiusY)/2.f - 8;
 
 	for (int i = 0; i < buffer->width; i++) {
 		for (int j = 0; j < buffer->height; j++) {
@@ -89,14 +91,15 @@ DEMOS(demo0)
 			// // int g = (x & (x^y) ) >> (~x& y) | ((x & (x^y) ));
 			// // int b = (y & (x^y) ) >> ( x&~y) | ((y & (x^y) ));
 
-			uint8_t baseR = y & (x^y);
-			uint8_t baseG = x & (x^y);
-			uint8_t baseB = y & (~x^y);
+			uint8_t baseR = x & (~x^y);
+			uint8_t baseB = x & (x^y);
+			uint8_t baseG = y & (x^y);
 
-			uint8_t r = (baseR >> (~x& y)) | baseR;//(256) >> (~x&y) & (x&y);
-			uint8_t g = (baseG >> ( x&~y)) | baseG;//(256) >> (x&~y) & (x&y);
-			uint8_t b = (baseB >> ( x& y)) | baseB;//(256) >> (x&y ) & (x&y);
-			uint8_t a = x|y;//(256) >> (x&y ) & (x&y);
+			uint8_t r = (baseR >> ( x&y)) | baseR;//(256) >> (~x&y) & (x&y);
+			uint8_t g = (baseG >> (~x&y)) | baseG;//(256) >> (x&~y) & (x&y);
+			uint8_t b = (baseB >> (x&~y)) | baseB;//(256) >> (x&y ) & (x&y);
+			uint8_t a = x|y;//(x|y) % (1 + (x > y ? x : y));//(256) >> (x&y ) & (x&y);
+			
 
 			// uint8_t b = y & (x^~y);
 			// uint8_t g = ~x & (x^y) ;
@@ -105,6 +108,8 @@ DEMOS(demo0)
 			sglDrawPixel(buffer, r, g, b, a, i, j);
 		}
 	}
+	
+	// drawControlPoint(cp[0], 0xffffffff);
 	
 	// sglSaveBufferToFile(buffer, "sgl.png", SGL_BITMAPFORMAT_PNG);
 }
@@ -280,7 +285,7 @@ DEMOS(demo5)
 	// static sglFont* font;
 
 	if (init || !bmp) {
-		sglFreeBuffer(bmp);
+		sglFreeBitmap(bmp);
 		bmp = sglLoadBitmap("../res/cidr.png", SGL_PIXELFORMAT_ABGR32);
 
 		// sglFreeFont(font);
@@ -348,7 +353,7 @@ DEMOS(demo6) {
 
 	if (init) {
 		
-		sglFreeBuffer(texture);
+		sglFreeBitmap(texture);
 		texture = sglLoadBitmap("../res/boxTexture.jpg", SGL_PIXELFORMAT_ABGR32);
 
 		// textured triangle
@@ -407,7 +412,7 @@ DEMOS(demo7)
 	if (init) {
 		// sglFreeFont(font);
 		// font = sglCreateFont("../res/xterm7x14.png", 7, 14, true);
-		sglFreeBuffer(bmp);
+		sglFreeBitmap(bmp);
 		bmp = sglLoadBitmap("../res/gradient.png", SGL_PIXELFORMAT_ABGR32);
 		sglFreeFont(fontWithoutKern);
 		fontWithoutKern = sglCreateFont("../res/xterm7x14.png", 7, 14, false);
