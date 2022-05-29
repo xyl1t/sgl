@@ -484,7 +484,7 @@ void sglDrawColorInterpolatedTriangle(sglBuffer* buffer, int x1, int y1, int x2,
 /**
  * @brief Draw a filled triangle (the texture coordinates should be in range of 0-1)
  * @param buffer the buffer to draw on
- * @param texture the texture to draw
+ * @param texture the texture to draw (the pixel format as to be same as of the buffers)
  * @param x1 x coordinate of first point
  * @param y1 y coordinate of first point
  * @param x2 x coordinate of second point

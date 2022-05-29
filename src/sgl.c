@@ -1069,9 +1069,9 @@ void sglTextureTriangle(sglBuffer* buffer, sglBuffer* texture,
 		}
 
 		double xLerp = s_tx;
-		xLerp -= (startX - ceilf(startX)) * xStep;
+		xLerp -= (startX - ceilf(startX)) * xStep; // account for initial offset
 		double yLerp = s_ty;
-		yLerp -= (startX - ceilf(startX)) * yStep;
+		yLerp -= (startX - ceilf(startX)) * yStep; // account for initial offset
 
 		for (int x = ceilf(startX); x < ceilf(endX); x++) {
 			// NOTE: the pixel format of the texture has to be same as buffer
