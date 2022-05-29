@@ -1014,6 +1014,7 @@ void sglTextureTriangle(sglBuffer* buffer, sglBuffer* texture,
 	float tx1, float ty1, float tx2, float ty2, float tx3, float ty3)
 {
 	if (!buffer) return;
+	if (!texture) return;
 
 	int temp;
 	float ftemp;
@@ -1044,8 +1045,8 @@ void sglTextureTriangle(sglBuffer* buffer, sglBuffer* texture,
 	// top part
 	for (int y = y1; y < y2; y++) {
 		t = (y - y1) / (float)(y2 - y1);
-		int startX = sglLerpf(x1, x2, t) + 0.5f;
-		int endX = sglLerpf(x1, betwix, t) + 0.5f;
+		float startX = sglLerpf(x1, x2, t);
+		float endX = sglLerpf(x1, betwix, t);
 
 		float s_tx = sglLerpf(tx1, tx2, t);
 		float s_ty = sglLerpf(ty1, ty2, t);
@@ -1059,21 +1060,33 @@ void sglTextureTriangle(sglBuffer* buffer, sglBuffer* texture,
 			ftemp = s_ty; s_ty = e_ty; e_ty = ftemp;
 		}
 
-		for (int x = startX; x < endX; x++) {
-			t = (x - startX) / (float)(endX - startX);
-			int texX = sglLerpf(s_tx, e_tx, t) * texture->width;
-			int texY = sglLerpf(s_ty, e_ty, t) * texture->height;
-			
+		float xStep = 0;
+		float yStep = 0;
+	
+		if (endX - startX != 0) {
+			xStep = (e_tx - s_tx) / (endX - startX);
+			yStep = (e_ty - s_ty) / (endX - startX);
+		}
+
+		double xLerp = s_tx;
+		xLerp -= (startX - ceilf(startX)) * xStep;
+		double yLerp = s_ty;
+		yLerp -= (startX - ceilf(startX)) * yStep;
+
+		for (int x = ceilf(startX); x < ceilf(endX); x++) {
 			// NOTE: the pixel format of the texture has to be same as buffer
-			uint32_t color = sglGetPixelRaw(texture, texX, texY);
+			uint32_t color = sglGetPixelRaw(texture, xLerp * texture->width, yLerp * texture->height);
 			sglDrawPixelRaw(buffer, color, x, y);
+			xLerp += xStep;
+			yLerp += yStep;
 		}
 	}
 	
+	// bottom part
 	for (int y = y2; y < y3; y++) {
 		t = (y - y2) / (float)(y3 - y2);
-		int startX = sglLerpf(x2, x3, t) + 0.5f;
-		int endX = sglLerpf(betwix, x3, t) + 0.5f;
+		float startX = sglLerpf(x2, x3, t);
+		float endX = sglLerpf(betwix, x3, t);
 
 		float s_tx = sglLerpf(tx2, tx3, t);
 		float s_ty = sglLerpf(ty2, ty3, t);
@@ -1087,14 +1100,25 @@ void sglTextureTriangle(sglBuffer* buffer, sglBuffer* texture,
 			ftemp = s_ty; s_ty = e_ty; e_ty = ftemp;
 		}
 
-		for (int x = startX; x < endX; x++) {
-			t = (x - startX) / (float)(endX - startX);
-			int texX = sglLerpf(s_tx, e_tx, t) * texture->width;
-			int texY = sglLerpf(s_ty, e_ty, t) * texture->height;
-			
+		float xStep = 0;
+		float yStep = 0;
+	
+		if (endX - startX != 0) {
+			xStep = (e_tx - s_tx) / (endX - startX);
+			yStep = (e_ty - s_ty) / (endX - startX);
+		}
+
+		float xLerp = s_tx;
+		xLerp -= (startX - ceilf(startX)) * xStep;
+		float yLerp = s_ty;
+		yLerp -= (startX - ceilf(startX)) * yStep;
+
+		for (int x = ceilf(startX); x < ceilf(endX); x++) {
 			// NOTE: the pixel format of the texture has to be same as buffer
-			uint32_t color = sglGetPixelRaw(texture, texX, texY);
+			uint32_t color = sglGetPixelRaw(texture, xLerp * texture->width, yLerp * texture->height);
 			sglDrawPixelRaw(buffer, color, x, y);
+			xLerp += xStep;
+			yLerp += yStep;
 		}
 	}
 }
