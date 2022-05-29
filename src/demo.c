@@ -10,6 +10,7 @@ DEMOS(demo3);
 DEMOS(demo4);
 DEMOS(demo5);
 DEMOS(demo6);
+DEMOS(demo7);
 
 DEMOS(demos) {
 	// TODO: make adding demos more easy, maybe make an array of
@@ -23,7 +24,7 @@ DEMOS(demos) {
 
 #define initDemoArr(demoNum) \
 	demoArr[demoNum] = demo##demoNum; \
-	demoArr[demoNum](0, buffer, m, k, cp + 0x10 * demoNum, ccp - 0x10 * demoNum, time, init);
+	demoArr[demoNum](0, buffer, m, k, cp + CONTROL_POINTS_PER_DEMO_COUNT * demoNum, ccp - CONTROL_POINTS_PER_DEMO_COUNT * demoNum, time, init);
 
 		initDemoArr(0);
 		initDemoArr(1);
@@ -32,12 +33,13 @@ DEMOS(demos) {
 		initDemoArr(4);
 		initDemoArr(5);
 		initDemoArr(6);
+		initDemoArr(7);
 
 #undef initDemoArr
 		return;
 	}
 
-	demoArr[currDemo](currDemo, buffer, m, k, cp + 0x10 * currDemo, ccp - 0x10 * currDemo, time, init);
+	demoArr[currDemo](currDemo, buffer, m, k, cp + CONTROL_POINTS_PER_DEMO_COUNT * currDemo, ccp - CONTROL_POINTS_PER_DEMO_COUNT * currDemo, time, init);
 }
 
 
@@ -103,6 +105,8 @@ DEMOS(demo0)
 			sglDrawPixel(buffer, r, g, b, a, i, j);
 		}
 	}
+	
+	// sglSaveBufferToFile(buffer, "sgl.png", SGL_BITMAPFORMAT_PNG);
 }
 
 DEMOS(demo1)
@@ -323,13 +327,12 @@ DEMOS(demo5)
 		font);
 
 	drawControlPoint(cp[0], 0xaf7fefff);
-	drawControlPoint(cp[1], 0xaf7fefff);
-	drawControlPoint(cp[2], 0xafff7fff);
+	drawControlPoint(cp[1], 0xafff7fff);
+	drawControlPoint(cp[2], 0xaf7fefff);
 	drawControlPoint(cp[3], 0xafff7fff);
 
-	// TOOD: make rectangle translucent when alpha compositing is added
-	sglDrawRectangle(buffer, 0xafff7fff, cp[2].x, cp[2].y, cp[3].x - cp[2].x, cp[3].y - cp[2].y);
-	sglDrawRectangle(buffer, 0xaf7fefff, cp[0].x, cp[0].y, cp[1].x - cp[0].x, cp[1].y - cp[0].y);
+	sglDrawRectangle(buffer, 0xffffff70, cp[2].x, cp[2].y, cp[3].x - cp[2].x, cp[3].y - cp[2].y);
+	sglDrawRectangle(buffer, 0xffffff70, cp[0].x, cp[0].y, cp[1].x - cp[0].x, cp[1].y - cp[0].y);
 
 	if (k[SDL_SCANCODE_S]) {
 		printf("saving bitmap...\n");
@@ -338,7 +341,63 @@ DEMOS(demo5)
 
 }
 
-DEMOS(demo6)
+DEMOS(demo6) {
+
+	static sglBuffer* texture = NULL;
+	static sglRect previewRect;
+
+	if (init) {
+		
+		sglFreeBuffer(texture);
+		texture = sglLoadBitmap("../res/boxTexture.jpg", SGL_PIXELFORMAT_ABGR32);
+
+		// textured triangle
+		cp[0] = (sglPoint){ 142, 23 };
+		cp[1] = (sglPoint){ 180, 125 };
+		cp[2] = (sglPoint){  44, 68 };
+
+		previewRect.w = 48;
+		previewRect.h = texture->height / (float)texture->width * previewRect.w;
+		previewRect.x = buffer->width - previewRect.w - 8;
+		previewRect.y = 8;
+
+		// preview
+		cp[3] = (sglPoint){ .x = previewRect.x, .y = previewRect.y };
+		cp[4] = (sglPoint){ .x = previewRect.x + previewRect.w, .y = previewRect.y + previewRect.h };
+		cp[5] = (sglPoint){ .x = previewRect.x, .y = previewRect.y + previewRect.h };
+
+		return;
+	}
+
+	sglFPoint src[3];
+	src[0].x = (cp[3].x - previewRect.x) / (float)previewRect.w;
+	src[0].y = (cp[3].y - previewRect.y) / (float)previewRect.h;
+	src[1].x = (cp[4].x - previewRect.x) / (float)previewRect.w;
+	src[1].y = (cp[4].y - previewRect.y) / (float)previewRect.h;
+	src[2].x = (cp[5].x - previewRect.x) / (float)previewRect.w;
+	src[2].y = (cp[5].y - previewRect.y) / (float)previewRect.h;
+
+	// draw little preview
+	sglDrawBuffer(buffer, texture, &previewRect, NULL);
+	
+	sglDrawTriangle(buffer, 0xffffff60, cp[3].x, cp[3].y, cp[4].x, cp[4].y, cp[5].x, cp[5].y);
+
+	sglTextureTriangle(buffer, texture,
+		cp[0].x, cp[0].y, cp[1].x, cp[1].y, cp[2].x, cp[2].y,
+		src[0].x, src[0].y, src[1].x, src[1].y, src[2].x, src[2].y);
+
+
+	drawControlPoint(cp[0], 0xff0000ff);
+	drawControlPoint(cp[1], 0x00ff00ff);
+	drawControlPoint(cp[2], 0x0000ffff);
+
+	drawControlPoint(cp[3], 0xff0000ff);
+	drawControlPoint(cp[4], 0x00ff00ff);
+	drawControlPoint(cp[5], 0x0000ffff);
+
+}
+
+DEMOS(demo7)
 {
 	// static sglFont* font = NULL;
 	static sglBuffer* bmp = NULL;

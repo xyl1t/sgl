@@ -187,6 +187,16 @@ typedef struct sglPoint {
 	int y;
 } sglPoint;
 
+/**
+ * @brief A simple rectangle struct
+ */
+typedef struct sglFPoint {
+	float x;
+	float y;
+} sglFPoint;
+
+
+
 
 /**
  * @brief A buffer is a thing that sgl uses to draw things on
@@ -431,12 +441,12 @@ void sglFillArc(sglBuffer* buffer, uint32_t color, int cntrX, int cntrY,
  * @brief Draw a triangle
  * @param buffer the buffer to draw on
  * @param color stroke color of triangle
- * @param x x coordinate of first point
- * @param y y coordinate of first point
- * @param x x coordinate of second point
- * @param y y coordinate of second point
- * @param x x coordinate of thrid point
- * @param y y coordinate of thrid point
+ * @param x1 x coordinate of first point
+ * @param y1 y coordinate of first point
+ * @param x2 x coordinate of second point
+ * @param y2 y coordinate of second point
+ * @param x3 x coordinate of thrid point
+ * @param y3 y coordinate of thrid point
  */
 void sglDrawTriangle(sglBuffer* buffer, uint32_t color, int x1, int y1, int x2,
 	int y2, int x3, int y3);
@@ -445,12 +455,12 @@ void sglDrawTriangle(sglBuffer* buffer, uint32_t color, int x1, int y1, int x2,
  * @brief Draw a filled triangle
  * @param buffer the buffer to draw on
  * @param color fill color of the triangle
- * @param x x coordinate of first point
- * @param y y coordinate of first point
- * @param x x coordinate of second point
- * @param y y coordinate of second point
- * @param x x coordinate of thrid point
- * @param y y coordinate of thrid point
+ * @param x1 x coordinate of first point
+ * @param y1 y coordinate of first point
+ * @param x2 x coordinate of second point
+ * @param y2 y coordinate of second point
+ * @param x3 x coordinate of thrid point
+ * @param y3 y coordinate of thrid point
  */
 void sglFillTriangle(sglBuffer* buffer, uint32_t color, int x1, int y1, int x2,
 	int y2, int x3, int y3);
@@ -458,18 +468,39 @@ void sglFillTriangle(sglBuffer* buffer, uint32_t color, int x1, int y1, int x2,
 /**
  * @brief Draw a filled triangle
  * @param buffer the buffer to draw on
- * @param x x coordinate of first point
- * @param y y coordinate of first point
- * @param x x coordinate of second point
- * @param y y coordinate of second point
- * @param x x coordinate of thrid point
- * @param y y coordinate of thrid point
+ * @param x1 x coordinate of first point
+ * @param y1 y coordinate of first point
+ * @param x2 x coordinate of second point
+ * @param y2 y coordinate of second point
+ * @param x3 x coordinate of thrid point
+ * @param y3 y coordinate of thrid point
  * @param c1 color of the first point
  * @param c2 color of the first point
  * @param c3 color of the first point
  */
 void sglDrawColorInterpolatedTriangle(sglBuffer* buffer, int x1, int y1, int x2,
 	int y2, int x3, int y3, uint32_t c1, uint32_t c2, uint32_t c3);
+
+/**
+ * @brief Draw a filled triangle (the texture coordinates should be in range of 0-1)
+ * @param buffer the buffer to draw on
+ * @param texture the texture to draw
+ * @param x1 x coordinate of first point
+ * @param y1 y coordinate of first point
+ * @param x2 x coordinate of second point
+ * @param y2 y coordinate of second point
+ * @param x3 x coordinate of thrid point
+ * @param y3 y coordinate of thrid point
+ * @param tx1 x coordinate of first point in the texture
+ * @param ty1 y coordinate of first point in the texture
+ * @param tx2 x coordinate of second point in the texture
+ * @param ty2 y coordinate of second point in the texture
+ * @param tx3 x coordinate of thrid point in the texture
+ * @param ty3 y coordinate of thrid point in the texture
+ */
+void sglTextureTriangle(sglBuffer* buffer, sglBuffer* texture,
+	int x1, int y1, int x2, int y2, int x3, int y3,
+	float tx1, float ty1, float tx2, float ty2, float tx3, float ty3);
 
 /**
  * @brief Draw one buffer on another buffer

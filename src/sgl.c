@@ -1009,6 +1009,96 @@ void sglDrawColorInterpolatedTriangle(sglBuffer* buffer, int x1, int y1, int x2,
 	}
 }
 
+void sglTextureTriangle(sglBuffer* buffer, sglBuffer* texture,
+	int x1, int y1, int x2, int y2, int x3, int y3,
+	float tx1, float ty1, float tx2, float ty2, float tx3, float ty3)
+{
+	if (!buffer) return;
+
+	int temp;
+	float ftemp;
+	if (y1 > y3) {
+		temp = y3; y3 = y1; y1 = temp;
+		temp = x3; x3 = x1; x1 = temp;
+		ftemp = ty3; ty3 = ty1; ty1 = ftemp;
+		ftemp = tx3; tx3 = tx1; tx1 = ftemp;
+	}
+	if (y2 > y3) {
+		temp = y3; y3 = y2; y2 = temp;
+		temp = x3; x3 = x2; x2 = temp;
+		ftemp = ty3; ty3 = ty2; ty2 = ftemp;
+		ftemp = tx3; tx3 = tx2; tx2 = ftemp;
+	}
+	if (y2 < y1) {
+		temp = y1; y1 = y2; y2 = temp;
+		temp = x1; x1 = x2; x2 = temp;
+		ftemp = ty1; ty1 = ty2; ty2 = ftemp;
+		ftemp = tx1; tx1 = tx2; tx2 = ftemp;
+	}
+
+	float t = (y2 - y1) / (float)(y3 - y1);
+	float betwix = sglLerpf(x1, x3, t);
+	float betwitx = sglLerpf(tx1, tx3, t);
+	float betwity = sglLerpf(ty1, ty3, t);
+
+	// top part
+	for (int y = y1; y < y2; y++) {
+		t = (y - y1) / (float)(y2 - y1);
+		int startX = sglLerpf(x1, x2, t) + 0.5f;
+		int endX = sglLerpf(x1, betwix, t) + 0.5f;
+
+		float s_tx = sglLerpf(tx1, tx2, t);
+		float s_ty = sglLerpf(ty1, ty2, t);
+
+		float e_tx = sglLerpf(tx1, betwitx, t);
+		float e_ty = sglLerpf(ty1, betwity, t);
+
+		if (endX < startX) {
+			temp = startX; startX = endX; endX = temp;
+			ftemp = s_tx; s_tx = e_tx; e_tx = ftemp;
+			ftemp = s_ty; s_ty = e_ty; e_ty = ftemp;
+		}
+
+		for (int x = startX; x < endX; x++) {
+			t = (x - startX) / (float)(endX - startX);
+			int texX = sglLerpf(s_tx, e_tx, t) * texture->width;
+			int texY = sglLerpf(s_ty, e_ty, t) * texture->height;
+			
+			// NOTE: the pixel format of the texture has to be same as buffer
+			uint32_t color = sglGetPixelRaw(texture, texX, texY);
+			sglDrawPixelRaw(buffer, color, x, y);
+		}
+	}
+	
+	for (int y = y2; y < y3; y++) {
+		t = (y - y2) / (float)(y3 - y2);
+		int startX = sglLerpf(x2, x3, t) + 0.5f;
+		int endX = sglLerpf(betwix, x3, t) + 0.5f;
+
+		float s_tx = sglLerpf(tx2, tx3, t);
+		float s_ty = sglLerpf(ty2, ty3, t);
+
+		float e_tx = sglLerpf(betwitx, tx3, t);
+		float e_ty = sglLerpf(betwity, ty3, t);
+
+		if (endX < startX) {
+			temp = startX; startX = endX; endX = temp;
+			ftemp = s_tx; s_tx = e_tx; e_tx = ftemp;
+			ftemp = s_ty; s_ty = e_ty; e_ty = ftemp;
+		}
+
+		for (int x = startX; x < endX; x++) {
+			t = (x - startX) / (float)(endX - startX);
+			int texX = sglLerpf(s_tx, e_tx, t) * texture->width;
+			int texY = sglLerpf(s_ty, e_ty, t) * texture->height;
+			
+			// NOTE: the pixel format of the texture has to be same as buffer
+			uint32_t color = sglGetPixelRaw(texture, texX, texY);
+			sglDrawPixelRaw(buffer, color, x, y);
+		}
+	}
+}
+
 void sglDrawBuffer(sglBuffer* buffer, const sglBuffer* bmp,
 		const sglRect* dstRect, const sglRect* srcRect)
 {

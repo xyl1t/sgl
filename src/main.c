@@ -111,8 +111,7 @@ int main(int argc, char* argv[])
 
 
 	// NOTE: 0xF(=16) demos and every demo has 0xF(=16) control points
-	const int NUM_CONTROL_POINTS = 0x10;
-	sglPoint controlPoints[NUM_CONTROL_POINTS * DEMOS_COUNT];
+	sglPoint controlPoints[CONTROL_POINTS_PER_DEMO_COUNT * DEMOS_COUNT];
 	int currentControlPoint = -1;
 	int currDemo = 0;
 
@@ -161,14 +160,16 @@ int main(int argc, char* argv[])
 		// points of another demo from the top left corner
 		if (m.left) {
 			// for (size_t i = 0; i < sizeof(controlPoints) / sizeof(controlPoints[0]) && currentControlPoint == -1; i++) {
-			int start = currDemo * NUM_CONTROL_POINTS;
-			for (int i = start + NUM_CONTROL_POINTS ; i >= start && currentControlPoint == -1; i--) {
+			int start = currDemo * CONTROL_POINTS_PER_DEMO_COUNT;
+			for (int i = start + CONTROL_POINTS_PER_DEMO_COUNT ; i >= start && currentControlPoint == -1; i--) {
 				if (sglGetDistance(controlPoints[i].x, controlPoints[i].y, m.x, m.y) < 6) {
 					currentControlPoint = i;
 				}
 			}
 			controlPoints[currentControlPoint].x = m.x;
 			controlPoints[currentControlPoint].y = m.y;
+
+			// SGL_DEBUG_PRINT("mouse x: %d, y: %d\n", m.x, m.y);
 		} else {
 			currentControlPoint = -1;
 		}

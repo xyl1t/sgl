@@ -43,7 +43,8 @@ typedef struct mouse {
 typedef DEMOS(demos_f);
 DEMOS(demos);
 
-#define DEMOS_COUNT 7
+#define DEMOS_COUNT 8
+#define CONTROL_POINTS_PER_DEMO_COUNT 0x20
 demos_f* demoArr[DEMOS_COUNT];
 
 #endif
