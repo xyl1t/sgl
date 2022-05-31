@@ -6,6 +6,14 @@ Created with 🤕 in C!
 
 Lots of things inspired from SDL :D
 
+## Usage
+
+Copy and paste `sgl.h` into your project and do this:
+
+    #define SGL_IMPLEMENTATION
+
+in *one* C/C++ file before you include the `cidr.hpp` file.
+
 ## Build the demo (Linux / Mac)
 
 #### Dependencies
@@ -17,7 +25,6 @@ Lots of things inspired from SDL :D
 #### Building
 
 Clone the repo and execute these commands from the `sgl/` directory
-
 ```bash
 mkdir build
 cd build
@@ -25,7 +32,6 @@ cmake ..
 make
 ./sgl
 ```
-
 ## TODO
 
 ### Core
@@ -68,10 +74,10 @@ Implement basic drawing functions
 * [x] implement `sglGetError()` <https://wiki.libsdl.org/SDL\_GetError>
 * [x] live demo code update
 * [x] generalize `sglBuffer`'s and `sglBitmap`'s `getPixel()` function to one
+* [x] make the library header only
 * [ ] add more pixel formats
 * [ ] allow drawing extended characters
 * [ ] text shadows
-* [ ] make the library header only
 * [ ] *optimize*
 	* [ ] circle drawing
 	* [ ] arc drawing
