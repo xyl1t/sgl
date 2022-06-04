@@ -66,7 +66,7 @@ DEMOS(demo0)
 	}
 	
 	const char* text = "sgl alpha demo";
-	sglDrawText(buffer, text, text_x, text_y, font);
+	sglDrawText(buffer, text, 0xffffffff, text_x, text_y, font);
 	
 	float offset = sglOffsetTextH(text, SGL_TEXT_ALIGNMENT_CENTER, font);
 	
@@ -326,7 +326,7 @@ DEMOS(demo5)
 	sglDrawBuffer(buffer, bmp, &previewRect, NULL);
 
 	const char* text = "Preview";
-	sglDrawText(buffer, text,
+	sglDrawText(buffer, text, 0xffffffff,
 		previewRect.x + previewRect.w / 2 + sglOffsetTextH(text, SGL_TEXT_ALIGNMENT_CENTER, font),
 		previewRect.y + previewRect.h + 2,
 		font);
@@ -476,10 +476,10 @@ DEMOS(demo7)
 			"Hello, this is a demo\n"
 			"of sgl. Sgl stands\n"
 			"for Simple Graphics\n"
-			"Library\n", 128, 8, font);
+			"Library\n", 0xffffffff, 128, 8, font);
 
-	sglDrawText(buffer, "kerning enabled", 128, 120, font);
-	sglDrawText(buffer, "kerning disabled", 128, 140, fontWithoutKern);
+	sglDrawText(buffer, "kerning enabled", 0xffffffff, 128, 120, font);
+	sglDrawText(buffer, "kerning disabled", 0xffffffff, 128, 140, fontWithoutKern);
 			
 	r = (sglRect){
 		cp[0].x, cp[0].y,

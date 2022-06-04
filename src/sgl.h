@@ -39,6 +39,9 @@
 // TODO: extract this to font level
 #define sglTextSpacing 1
 
+#define sglExpandColor32(color, pf) \
+	(color & pf->rmask) >> pf->rshift, (color & pf->gmask) >> pf->gshift, (color & pf->bmask) >> pf->bshift, (color & pf->amask) >> pf->ashift
+
 // #define _sglAlphaBlendColor(a, b, pf) buffer->alphaBlendingEnabled ? 
 
 /*****************************************************************************
@@ -294,12 +297,14 @@ sglFont* sglCreateFont(const char* pathToFontBitmap, int fontWidth, int fontHeig
 	bool useKerning);
 void sglFreeFont(sglFont* font);
 // TODO:
-// sglDrawText(string, font, size)
 // getLetter()?
 
 /*****************************************************************************
- * GRAPHICS FUNCTIONS                                                        *
+ * DRAWING FUNCTIONS                                                         *
  *****************************************************************************/
+
+// General structure of drawing functions:
+// drawSomething(bufferToDrawOn, contentToDraw, whereOrHowToDraw)
 
 // TODO: rename sgl***Pixel() to sgl***RGB() and sgl***RGBA()
 
@@ -526,8 +531,10 @@ void sglDrawBuffer(sglBuffer* buffer, const sglBuffer* src,
  * @param y y location of text
  * @param font the font to use
  */
-void sglDrawText(sglBuffer* buffer, const char* text, int x, int y,
-	const sglFont* font);
+void sglDrawText(sglBuffer* buffer, const char* text, uint32_t color,
+	 int x, int y, const sglFont* font);
+
+
 
 
 /*****************************************************************************
@@ -690,4 +697,4 @@ uint32_t sglAlphaBlendColor(uint32_t a, uint32_t b,
  */
 const char* sglGetError(void);
 
-#endif // !SGL_H
+#endif // SGL_H

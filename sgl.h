@@ -34,6 +34,9 @@
 // TODO: extract this to font level
 #define sglTextSpacing 1
 
+#define sglExpandColor32(color, pf) \
+	(color & pf->rmask) >> pf->rshift, (color & pf->gmask) >> pf->gshift, (color & pf->bmask) >> pf->bshift, (color & pf->amask) >> pf->ashift
+
 // #define _sglAlphaBlendColor(a, b, pf) buffer->alphaBlendingEnabled ? 
 
 /*****************************************************************************
@@ -289,12 +292,14 @@ sglFont* sglCreateFont(const char* pathToFontBitmap, int fontWidth, int fontHeig
 	bool useKerning);
 void sglFreeFont(sglFont* font);
 // TODO:
-// sglDrawText(string, font, size)
 // getLetter()?
 
 /*****************************************************************************
- * GRAPHICS FUNCTIONS                                                        *
+ * DRAWING FUNCTIONS                                                         *
  *****************************************************************************/
+
+// General structure of drawing functions:
+// drawSomething(bufferToDrawOn, contentToDraw, whereOrHowToDraw)
 
 // TODO: rename sgl***Pixel() to sgl***RGB() and sgl***RGBA()
 
@@ -521,8 +526,10 @@ void sglDrawBuffer(sglBuffer* buffer, const sglBuffer* src,
  * @param y y location of text
  * @param font the font to use
  */
-void sglDrawText(sglBuffer* buffer, const char* text, int x, int y,
-	const sglFont* font);
+void sglDrawText(sglBuffer* buffer, const char* text, uint32_t color,
+	 int x, int y, const sglFont* font);
+
+
 
 
 /*****************************************************************************
@@ -685,15 +692,11 @@ uint32_t sglAlphaBlendColor(uint32_t a, uint32_t b,
  */
 const char* sglGetError(void);
 
-#endif // !SGL_H
+#endif // SGL_H
 
 
 #ifdef SGL_IMPLEMENTATION
 #undef SGL_IMPLEMENTATION
-
-#include <stdint.h>
-#include <stdlib.h>
-#include <string.h>
 
 //////// STB_IMAGE /////////////////////////////////////////////
 
@@ -9493,6 +9496,12 @@ STBIWDEF int stbi_write_jpg(char const *filename, int x, int y, int comp, const 
 
 //////// STB_IMAGE_WRITE_IMPLEMENTATION /////////////////////////////////////////////
 
+// sglimpl
+
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+
 static int sgl_max(int a, int b) { return a > b ? a : b; }
 static int sgl_min(int a, int b) { return a < b ? a : b; }
 
@@ -10676,8 +10685,8 @@ void sglDrawBuffer(sglBuffer* buffer, const sglBuffer* bmp,
 	}
 }
 
-void sglDrawText(sglBuffer* buffer, const char* text, int x, int y,
-		const sglFont* font)
+void sglDrawText(sglBuffer* buffer, const char* text, uint32_t color,
+	 int x, int y, const sglFont* font)
 {
 	if (!font) return;
 
@@ -10716,8 +10725,8 @@ void sglDrawText(sglBuffer* buffer, const char* text, int x, int y,
 					letterBmpX * font->fontWidth + fontPixelX,
 					letterBmpY * font->fontHeight + fontPixelY);
 
-					if (r != 0 || g != 0) {
-					sglDrawPixel(buffer, r, g, b, a,
+				if (r != 0) {
+					sglDrawPixelRaw(buffer, color,
 						x + fontPixelX - leftKern + cursorCol,
 						y + fontPixelY + cursorRow * font->fontHeight);
 				}
@@ -10984,7 +10993,33 @@ uint32_t sglAlphaBlendColor(uint32_t a, uint32_t b,
 	return sglMapRGBA(result_r, result_g, result_b, 255, pf);
 }
 
+// uint32_t sglAlphaBlendColor(const sglPixelFormat* pf,
+// 		uint32_t a, uint32_t b) {
+// 
+// 	uint8_t r_a, g_a, b_a, a_a;
+// 	sglGetRGBA(a, pf, &r_a, &g_a, &b_a, &a_a);
+// 	uint8_t r_b, g_b, b_b, a_b;
+// 	sglGetRGBA(b, pf, &r_b, &g_b, &b_b, &a_b);
+// 
+// 	float alpha_a = a_a / 255.f;
+// 	float alpha_b = a_b / 255.f;
+// 
+// 	// float newAlpha = a1 + a2 - a1 * a2 / 256;
+// 	float newAlpha = alpha_a + alpha_b * (1 - alpha_a);
+// 
+// 	uint8_t result_r = (r_a * alpha_a + r_b * alpha_b * (1 - a_a)) / newAlpha;
+// 	uint8_t result_g = (g_a * alpha_a + g_b * alpha_b * (1 - a_a)) / newAlpha;
+// 	uint8_t result_b = (b_a * alpha_a + b_b * alpha_b * (1 - a_a)) / newAlpha;
+// 
+// 	// NOTE: maybe instead of 255, newAlpha should be passed?
+// 	return sglMapRGBA(result_r, result_g, result_b, 255, pf);
+// }
+
 const char* sglGetError(void) { return _sglError; }
+
+// sglimpl
+
+
 
 #endif // SGL_IMPLEMENTATION
 

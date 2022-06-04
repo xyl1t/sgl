@@ -1191,8 +1191,8 @@ void sglDrawBuffer(sglBuffer* buffer, const sglBuffer* bmp,
 	}
 }
 
-void sglDrawText(sglBuffer* buffer, const char* text, int x, int y,
-		const sglFont* font)
+void sglDrawText(sglBuffer* buffer, const char* text, uint32_t color,
+	 int x, int y, const sglFont* font)
 {
 	if (!font) return;
 
@@ -1231,8 +1231,8 @@ void sglDrawText(sglBuffer* buffer, const char* text, int x, int y,
 					letterBmpX * font->fontWidth + fontPixelX,
 					letterBmpY * font->fontHeight + fontPixelY);
 
-					if (r != 0 || g != 0) {
-					sglDrawPixel(buffer, r, g, b, a,
+				if (r != 0) {
+					sglDrawPixelRaw(buffer, color,
 						x + fontPixelX - leftKern + cursorCol,
 						y + fontPixelY + cursorRow * font->fontHeight);
 				}
