@@ -11,9 +11,6 @@
 #include <stdint.h>
 #include <math.h>
 
-#include "stb/stb_image.h"
-#include "stb/stb_image_write.h"
-
 #ifdef SGL_FAST_MATH
 #define SGL_FAST_MATH
 #endif
